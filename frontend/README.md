@@ -1,8 +1,9 @@
-# Docker を立ち上げたら
+# 使い方
 
-1. `Docker Desktop`の`LOGS`を確認してinstallが終わるのを待つ
-2. `yarn start --tunnel`で実行
-3. 初回`The package @expo/ngrok@^4.1.0 is required to use tunnels, would you like to install it globally?`って聞かれると思うので`Y`でいいかもしれない．（`n`で動かす方法がない?）
-3. chromeとかで`0.0.0.0:19002`にアクセス
-4. スマホでQRを読み取る
-5. `Javascript`のコンパイルが終わるまで待機
+1. `cd /path/to/frontend`
+2. Docker Desktop 起動
+3. 初回のみ`echo "EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0" > .env`（.envファイルに環境変数を書き込む）
+3. `docker-compose up`
+4. 0.0.0.0:19002 にアクセスして`Tunnel`にする．
+5. QRを読み取る
+6. `control + C`とかで終了
