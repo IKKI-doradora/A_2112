@@ -1,10 +1,10 @@
 version: '3'
 services:
   jphacks2021:
-    image: node:16-slim
+    build: .
     volumes:
       - ".:/workspace:cached"
-    command: /bin/bash -c "cd /workspace/doradora && yarn && yarn start"
+    command: yarn start
     env_file:
       - .env
     ports:
