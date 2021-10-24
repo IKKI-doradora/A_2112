@@ -1,29 +1,32 @@
-import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, StyleSheet, TouchableOpacity} from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 
-// import EditScreenInfo from '../components/EditScreenInfo';
+import { useState } from 'react';
 import { Text, View } from '../components/Themed';
 
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types'
 import { useNavigation } from '@react-navigation/core';
 
-type ModalScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Modal'>
+type MoveOneNavigationProp = NativeStackNavigationProp<RootStackParamList, 'MoveOne'>
 
-export default function ModalScreen() {
-  const navigation = useNavigation<ModalScreenNavigationProp>()
+export default function MoveOneScreen() {
+  const navigation = useNavigation<MoveOneNavigationProp>()
+  const [counter, setCounter] = useState<number>(0)
+
+  const onPress = () => {
+    setCounter(counter + 1);
+    navigation.navigate("MoveTwo", {cnt: counter})
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Modal</Text>
+      <Text style={styles.title}>見本 A</Text>
+      <Text style={styles.title}>count: {counter}</Text>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("MoveOne")}>
-        <Text>Move One!!</Text>
+      <TouchableOpacity style={styles.button} onPress={() => onPress()}>
+        <Text>Move Two!!</Text>
       </TouchableOpacity>
-
-      {/* Use a light status bar on iOS to account for the black space above the modal */}
-      <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
     </View>
   );
 }
