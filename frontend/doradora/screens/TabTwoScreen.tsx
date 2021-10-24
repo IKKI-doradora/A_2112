@@ -5,7 +5,7 @@ import { Camera } from 'expo-camera'
 import * as ImageManipulator from 'expo-image-manipulator'
 let camera: Camera
 
-export default function App() {
+export default function CameraTest() {
   const [startCamera, setStartCamera] = useState(false)
   const [previewVisible, setPreviewVisible] = useState(false)
   const [capturedImage, setCapturedImage] = useState<any>(null)
