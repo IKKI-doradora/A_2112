@@ -27,9 +27,11 @@ export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
       {/* SelectGameButton でゲーム選択*/}
       {/* path指定で画面遷移できる？ */}
-      <SelectGamesButton path="count" title="Count-up GAMES" />
-      <SelectGamesButton path="x01" title="X01 GAMES" />
-      <SelectGamesButton path="cricket" title="Cricket GAMES" />
+      <View style={styles.buttoncontainer}>
+        <SelectGamesButton path="count" title="Count-up GAMES" />
+        <SelectGamesButton path="x01" title="X01 GAMES" />
+        <SelectGamesButton path="cricket" title="Cricket GAMES" />
+      </View>
     </View>
   );
 }
@@ -49,12 +51,17 @@ const styles = StyleSheet.create({
     height: 1,
     width: '80%',
   },
+  buttoncontainer: {
+    flexDirection: 'row',
+    // alignItems: 'center',
+    // justifyContent: 'center',
+  },
   buttontitle: {
     fontSize: 20,
     fontWeight: 'bold',
   },
   button: {
-    width: 250,
+    width: 200,
     height: 100,
     padding: 10,
     borderRadius: 10,
