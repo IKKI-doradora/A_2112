@@ -2,20 +2,22 @@
 import { StatusBar } from 'expo-status-bar'
 import React, { useState } from 'react'
 import { StyleSheet, Text, View, TouchableOpacity, Alert, ImageBackground } from 'react-native'
-import { Camera } from 'expo-camera'
+import { Camera, CameraCapturedPicture } from 'expo-camera'
 import * as ImageManipulator from 'expo-image-manipulator'
+import { CapturedPicture } from 'expo-camera/build/Camera.types'
 let camera: Camera | null
 
-export default function App() {
-  const [startCamera, setStartCamera] = useState(false)
-  const [previewVisible, setPreviewVisible] = useState(false)
-  const [capturedImage, setCapturedImage] = useState<any>(null)
+
+export default function TakingPicture() {
+  const [isCameraActivated, setCameraActivated] = useState<Boolean>(false)
+  const [isPreviewVisible, setPreviewVisible] = useState<Boolean>(false)
+  const [capturedImage, setCapturedImage] = useState<CameraCapturedPicture | null>(null)
 
   const __startCamera = async () => {
     const { status } = await Camera.requestCameraPermissionsAsync()
     // console.log(status)
     if (status === 'granted') {
-      setStartCamera(true)
+      setCameraActivated(true)
     } else {
       Alert.alert('Access denied')
     }
@@ -36,46 +38,49 @@ export default function App() {
     __startCamera()
   }
 
-  const __processImage = async () => {
+  const __processImage = async (width=209, height=408) => {
     console.log("-----------------")
-    const resizedImage = await ImageManipulator.manipulateAsync(
-      capturedImage.uri,
-      // [{ resize: { width: capturedImage.width / 8, height: capturedImage.height / 8 } },],
-      [{ resize: { width: 209, height: 408 } },],
-      { base64: true, compress: 1 }
-    )
-    // console.log(resizedImage.width)
-    // console.log(resizedImage.height)
-    // console.log(capturedImage.width)
-    // console.log(capturedImage.height)
-    fetch(`https://proc.memotube.xyz/`, {
-      method: 'POST',
-      body: JSON.stringify({base64Image: resizedImage.base64}),
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    })
-      .then(res => res.json())
-      .then(
-        data => {
-          // console.log(data.base64Image)
-          const newImage = {uri: "data:image/jpg;base64,"+data.base64Image, base64: data.base64Image}
-          setCapturedImage(newImage)
-        }
+    console.log(width)
+    if(capturedImage){
+      const resizedImage = await ImageManipulator.manipulateAsync(
+        capturedImage.uri,
+        // [{ resize: { width: capturedImage.width / 8, height: capturedImage.height / 8 } },],
+        [{ resize: { width:width,height:height } },],
+        { base64: true, compress: 1 }
       )
+      // console.log(resizedImage.width)
+      // console.log(resizedImage.height)
+      // console.log(capturedImage.width)
+      // console.log(capturedImage.height)
+      fetch(`https://proc.memotube.xyz/`, {
+        method: 'POST',
+        body: JSON.stringify({base64Image: resizedImage.base64}),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      })
+        .then(res => res.json())
+        .then(
+          data => {
+            // console.log(data.base64Image)
+            const newImage : CameraCapturedPicture = {uri: "data:image/jpg;base64,"+data.base64Image, base64: data.base64Image, width, height}
+            setCapturedImage(newImage)
+          }
+        )
+    }
     return true;
   }
 
   return (
     <View style={styles.container}>
-      {startCamera ? (
+      {isCameraActivated ? (
         <View
           style={{
             flex: 1,
             width: '100%'
           }}
         >
-          {previewVisible && capturedImage ? (
+          {isPreviewVisible && capturedImage ? (
             <CameraPreview photo={capturedImage} processImage={__processImage} retakePicture={__retakePicture} />
           ) : (
             <Camera
@@ -174,7 +179,9 @@ const styles = StyleSheet.create({
   }
 })
 
-const CameraPreview = ({ photo, retakePicture, processImage }: any) => {
+
+const CameraPreview = (props: {photo: CapturedPicture, retakePicture: VoidFunction, processImage: (arg1?: number, arg2?: number) => Promise<Boolean>}
+  ) => {
   // console.log('sdsfds', photo)
   return (
     <View
@@ -186,7 +193,7 @@ const CameraPreview = ({ photo, retakePicture, processImage }: any) => {
       }}
     >
       <ImageBackground
-        source={{ uri: photo && photo.uri }}
+        source={{ uri: props.photo && props.photo.uri }}
         style={{
           flex: 1
         }}
@@ -206,7 +213,7 @@ const CameraPreview = ({ photo, retakePicture, processImage }: any) => {
             }}
           >
             <TouchableOpacity
-              onPress={retakePicture}
+              onPress={props.retakePicture}
               style={{
                 width: 130,
                 height: 40,
@@ -225,7 +232,7 @@ const CameraPreview = ({ photo, retakePicture, processImage }: any) => {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={processImage}
+              onPress={()=>props.processImage()}
               style={{
                 width: 130,
                 height: 40,
