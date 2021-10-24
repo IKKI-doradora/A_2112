@@ -8,7 +8,7 @@ import { CapturedPicture } from 'expo-camera/build/Camera.types'
 let camera: Camera | null
 
 
-export default function TakingPicture() {
+export default function TakePictureScreen() {
   const [isCameraActivated, setCameraActivated] = useState<Boolean>(false)
   const [isPreviewVisible, setPreviewVisible] = useState<Boolean>(false)
   const [capturedImage, setCapturedImage] = useState<CameraCapturedPicture | null>(null)
