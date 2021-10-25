@@ -18,7 +18,7 @@ export default function MoveTwoScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>見本 B</Text>
-      <Text style={styles.title}>get props cnt: {route.params.cnt}</Text>
+      <Text style={styles.title}>get props cnt: {route.params.count}</Text>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("MoveOne")}>
         <Text>Move one!!</Text>

@@ -16,7 +16,7 @@ export default function MoveOneScreen() {
 
   const onPress = () => {
     setCounter(counter + 1);
-    navigation.navigate("MoveTwo", {cnt: counter})
+    navigation.navigate("MoveTwo", {count: counter})
   }
 
   return (
