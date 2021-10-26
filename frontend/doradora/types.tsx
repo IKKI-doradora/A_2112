@@ -19,6 +19,8 @@ export type RootStackParamList = {
   Calibration: undefined;
   Game: undefined;
   Result: undefined;
+  MoveOne: undefined;
+  MoveTwo: {count: number};
   Modal: undefined;
   NotFound: undefined;
 };

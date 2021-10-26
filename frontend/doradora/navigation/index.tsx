@@ -23,6 +23,8 @@ import CalibrationScreen from '../screens/CalibrationScreen';
 import GameScreen from '../screens/GameScreen';
 import GameResultScreen from '../screens/GameResultScreen';
 import { RootStackParamList, HomeTabParamList } from '../types';
+import MoveOneScreen from '../screens/MoveOneScreen';
+import MoveTwoScreen from '../screens/MoveTwoScreen';
 import LinkingConfiguration from './LinkingConfiguration';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
@@ -49,6 +51,8 @@ function RootNavigator() {
       <Stack.Screen name="Calibration" component={CalibrationScreen} options={{ title: '較正' }} />
       <Stack.Screen name="Game" component={GameScreen} options={{ title: 'ゲーム' }} />
       <Stack.Screen name="Result" component={GameResultScreen} options={{ title: '結果' }} />
+      <Stack.Screen name="MoveOne" component={MoveOneScreen} />
+      <Stack.Screen name="MoveTwo" component={MoveTwoScreen} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
         <Stack.Screen name="Modal" component={ModalScreen} />
