@@ -11,5 +11,6 @@ RUN pip install opencv-contrib-python
 
 RUN pip install flask numpy matplotlib
 RUN pip install pybase64
+RUN pip install natsort
 
 RUN mkdir /app
