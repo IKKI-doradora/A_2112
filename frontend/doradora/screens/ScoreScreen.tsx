@@ -1,21 +1,36 @@
 import * as React from 'react';
-import { StyleSheet, Image } from 'react-native';
+import { Dimensions, StyleSheet, Image, Platform } from 'react-native';
 
 import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
+import ScoreTable from '../components/ScoreTable';
 
 
-function ScoreTable({ score }: { score: string }) {
+function RenderDarts() {
+  const windowWidth = Dimensions.get('window').width / 2;
+  const windowHeight = Dimensions.get('window').height;
+  // const radius = (windowWidth < windowHeight ? windowWidth : windowHeight) / 2;
+  const radius = 142;
+
   return (
-    <View style={styles.table}>
-      <Text style={styles.title} >{score}</Text>
-      <Text style={styles.title} >{score}</Text>
-
+    <View>
+      <Image
+        style={styles.board}
+        source={require('../assets/images/board_c2.png')}
+      />
+      <View style={styles.dartsLayer} >
+        <View style={[styles.darts, {top: radius, left: 0}]} />
+        <View style={[styles.darts, {top: 0, left: radius}]} />
+        <View style={[styles.darts, {top: radius, left: radius*2}]} />
+        <View style={[styles.darts, {top: radius / 2, left: radius / 2}]} />
+        <View style={[styles.darts, {top: radius * 1.5, left: radius * 1.2}]} />
+      </View>
     </View>
-  );
+);
 }
 
 export default function ScoreScreen() {
+
   return (
     <View style={styles.container}>
 			<View style={styles.titleContainer}>
@@ -24,15 +39,10 @@ export default function ScoreScreen() {
 			<View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
 			<View style={styles.scoreContainer}>
 				<View style={styles.leftContainer}>
-					<Image
-						style={styles.board}
-						// resizeMode={'contain'}
-						source={require('../assets/images/board_c2.png')}
-					/>
+          <RenderDarts/>
 				</View>
 				<View style={styles.rightContainer}>
-					<Text>Score Sheet</Text>
-					<ScoreTable score="12" />
+					<ScoreTable/>
 				</View>
 			</View>
     </View>
@@ -55,11 +65,11 @@ const styles = StyleSheet.create({
     width: '80%',
   },
 	board: {
-		// padding: 20,
     width:  'auto',
 		height: '100%',
 		aspectRatio: 1,
     justifyContent: 'center',
+    backgroundColor: 'black',
   },
 	titleContainer: {
 		flex: 1,
@@ -69,7 +79,6 @@ const styles = StyleSheet.create({
 	scoreContainer: {
 		flex: 8,
     flexDirection: 'row',
-    // justifyContent: 'space-between',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -82,12 +91,20 @@ const styles = StyleSheet.create({
   },
   rightContainer: {
     flex: 2,
-    alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'red',
   },
-	table: {
-		flex: 1,
-    alignItems: 'center'
-	},
+  dartsLayer: {
+    position: 'absolute',
+    zIndex: 10,
+    elevation: Platform.OS === 'android' ? 10 : 0,
+    backgroundColor: 'green',
+  },
+  darts: {
+    position: 'absolute',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    backgroundColor: 'cyan',
+  }
 });
