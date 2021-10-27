@@ -1,0 +1,9 @@
+version: '3'
+services: 
+    web:
+        build: .
+        command: python3 app/app.py
+        volumes:
+            - ./app:/app
+        ports:
+            - 172.31.128.1:5000:5000
