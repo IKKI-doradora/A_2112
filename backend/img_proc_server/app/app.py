@@ -67,7 +67,7 @@ def arrow(count):
 
     # img = reference_board()
 
-    img, r, theta = detect_arrow(img, count)
+    img, r, theta, score = detect_arrow(img, count)
 
     if img is None:
         return make_response(jsonify({'base64Image':base64Image }),200)

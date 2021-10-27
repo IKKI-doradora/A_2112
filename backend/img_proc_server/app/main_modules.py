@@ -114,7 +114,7 @@ def detect_arrow(img, arrow_count):
     # 補正付き投擲位置推定
     status, img, est_tipx, est_tipy = extract_est_tip(img, ignore_kernel_size=3, calib=False)
     if status == MISS:
-        return None, None, None
+        return None, None, None, 0
 
     cv2.imwrite(IMAGE_DIR + f'arrow{arrow_count}.jpg', img)
 
@@ -145,6 +145,9 @@ def detect_arrow(img, arrow_count):
     theta = atan2(y, x) 
     r = np.linalg.norm(np.array([x,y]), ord=2) / board_radius #正規化
 
+    # スコア計算
+    score = calc_score(r, theta)
+
     # 視覚的に確認
     ref_image, ref_r, ref_center = reference_board()
     vis_x = ref_r * r * np.cos(theta) + ref_center[0]
@@ -152,4 +155,4 @@ def detect_arrow(img, arrow_count):
     print(int(vis_x), int(vis_y))
     cv2.circle(ref_image, (int(vis_x), int(vis_y)), 4, (0, 0, 255), -1)
 
-    return ref_image, theta, r
+    return ref_image, theta, r, score
