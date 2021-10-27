@@ -12,7 +12,7 @@ function RenderDarts() {
   const windowWidth = Dimensions.get('window').width / 2;
   const windowHeight = Dimensions.get('window').height;
   // const radius = (windowWidth < windowHeight ? windowWidth : windowHeight) / 2;
-  const radius = 142;
+  const radius = 143;
 
   return (
     <View>
