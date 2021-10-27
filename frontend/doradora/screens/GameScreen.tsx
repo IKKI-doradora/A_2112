@@ -3,29 +3,50 @@ import * as React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
-import { Dimensions, Image, Platform } from 'react-native';
+import { Dimensions, Image, Platform, ImageBackground } from 'react-native';
 import ScoreTable from '../components/ScoreTable';
+import { useState} from 'react';
+
 
 type GameScreenProps = RootStackScreenProps<'Game'>;
 
-function RenderDarts() {
-  const windowWidth = Dimensions.get('window').width / 2;
-  const windowHeight = Dimensions.get('window').height;
-  // const radius = (windowWidth < windowHeight ? windowWidth : windowHeight) / 2;
-  const radius = 143;
+const DartsData = {
+  name: 'YJ',
+  times: [1, 2, 3, 4],
+  position: [[-0.2, 0.1],[0.4, 0.8],[0.0, 0.0],[-0.7, -0.4]],
+  score: [12,20,34,21]
+};
 
-  return (
-    <View>
+function RenderDarts() {
+  const [dimensions, setDimensions] = useState({x:0, y:0, width:0, height:0})
+  var boardRadius = (dimensions.width < dimensions.height ? dimensions.width : dimensions.height) / 2;
+  const dartsRadius = 6;
+  var r0 = boardRadius -dartsRadius; //dartsRadiusによる補正
+
+  return ( 
+    <View style={{backgroundColor: 'rgba(0,0,0,0)'}}>
       <Image
+        onLayout={(event) => {
+          const {x, y, width, height} = event.nativeEvent.layout;
+          setDimensions({x:x, y:y, width:width, height:height});
+        }}
         style={styles.board}
         source={require('../assets/images/board_c2.png')}
       />
       <View style={styles.dartsLayer} >
-        <View style={[styles.darts, {top: radius, left: 0}]} />
-        <View style={[styles.darts, {top: 0, left: radius}]} />
-        <View style={[styles.darts, {top: radius, left: radius*2}]} />
-        <View style={[styles.darts, {top: radius / 2, left: radius / 2}]} />
-        <View style={[styles.darts, {top: radius * 1.5, left: radius * 1.2}]} />
+        {
+          DartsData.position.map((position,index) => (
+            <View 
+              style={[styles.darts, 
+              { width: dartsRadius*2,
+                height: dartsRadius*2,
+                borderRadius: dartsRadius,
+                top: (position[0]*boardRadius +r0), 
+                left:(position[1]*boardRadius +r0)
+              }
+            ]}/>
+          ))
+        }
       </View>
     </View>
 );
@@ -36,10 +57,7 @@ export default function GameScreen() {
 
 return (
   <View style={styles.container}>
-    {/* <View style={styles.titleContainer}>
-      <Text style={styles.title}>Score Board</Text>
-    </View> */}
-    <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+    <ImageBackground source={require('../assets/images/backboard.jpg')} resizeMode='cover' style={{width:'100%', height:'100%'}}>
     <View style={styles.scoreContainer}>
       <View style={styles.leftContainer}>
         <RenderDarts/>
@@ -51,6 +69,7 @@ return (
         </TouchableOpacity>
       </View>
     </View>
+    </ImageBackground>
   </View>
 );
 }
@@ -84,55 +103,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 5,
-    height: 1,
-    width: '80%',
-  },
 	board: {
     width:  'auto',
 		height: '100%',
 		aspectRatio: 1,
     justifyContent: 'center',
-    backgroundColor: 'black',
-  },
-	titleContainer: {
-		flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 	scoreContainer: {
 		flex: 8,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)' 
   },
 	leftContainer: {
     flex: 3,
 		padding: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'black',
+    backgroundColor: 'rgba(0,0,0,0)' 
   },
   rightContainer: {
     flex: 2,
     justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0)' 
   },
   dartsLayer: {
     position: 'absolute',
     zIndex: 10,
     elevation: Platform.OS === 'android' ? 10 : 0,
-    backgroundColor: 'green',
   },
   darts: {
     position: 'absolute',
-    borderRadius: 10,
-    width: 20,
-    height: 20,
-    backgroundColor: 'cyan',
+    borderStyle: 'solid',
+    borderColor: 'black',
+    borderWidth: 2,
+    backgroundColor: 'yellow',
   }
 });

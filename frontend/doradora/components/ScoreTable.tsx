@@ -1,55 +1,56 @@
 import * as React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet,ScrollView } from 'react-native';
 import { Table, TableWrapper, Row, Rows, Col } from 'react-native-table-component';
+import { useState } from 'react';
 
 const CONTENT = {
   tableHead: ['', 'PL1', 'PL2'],
-  tableTitle: ['Total Score','R1', 'R2', 'R3', 'R4', 'R5', 'R6'],
-  tableData: [
-    ['104', '69'],
-    ['12', '20'],
-    ['8', '4'],
-    ['12', '13'],
-    ['2', '1'],
-    ['22', '18'],
-    ['50', '3'],
-  ],
+  // tableTitle: ['Total Score','R1', 'R2', 'R3', 'R4', 'R5', 'R6'],
+  widthArr: [60, 100, 100],
 };
 
 export default function ScoreTable() {
+  const [state, setstate] = useState({tableHead:CONTENT.tableHead, widthArr:CONTENT.widthArr})
+  const tableData = [];
+  for (let i = 0; i < 10; i += 1) {
+    const rowData = [];
+    for (let j = 0; j < 3; j += 1) {
+      rowData.push(`${i}${j}`);
+    }
+    tableData.push(rowData);
+  }
   return (
     <View style={styles.container}>
-      <Table borderStyle={{ borderWidth: 1 }}>
-        <Row
-          data={CONTENT.tableHead}
-          flexArr={[1, 1, 1, 1]}
-          style={styles.head}
-          textStyle={styles.text}
-        />
-        <TableWrapper style={styles.wrapper}>
-          <Col
-            data={CONTENT.tableTitle}
-            style={styles.title}
-            heightArr={[28, 28]}
-            textStyle={styles.text}
-          />
-          <Rows
-            data={CONTENT.tableData}
-            flexArr={[1, 1]}
-            style={styles.row}
-            textStyle={styles.text}
-          />
-        </TableWrapper>
-      </Table>
+      <ScrollView horizontal={true}>
+        <View>
+          <Table borderStyle={{borderWidth: 1, borderColor: '#C1C0B9'}}>
+            <Row data={state.tableHead} widthArr={state.widthArr} style={styles.header} textStyle={styles.text}/>
+          </Table>
+          <ScrollView style={styles.dataWrapper}>
+            <Table borderStyle={{borderWidth: 1, borderColor: '#C1C0B9'}}>
+              {
+                tableData.map((rowData, index) => (
+                  <Row
+                    key={index}
+                    data={rowData}
+                    widthArr={state.widthArr}
+                    style={[styles.row, index%2 && {backgroundColor: '#F7F6E7'}]}
+                    textStyle={styles.text}
+                  />
+                ))
+              }
+            </Table>
+          </ScrollView>
+        </View>
+      </ScrollView>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, paddingTop: 10, backgroundColor: '#fff' },
-  head: { height: 40, backgroundColor: 'orange' },
-  wrapper: { flexDirection: 'row' },
-  title: { flex: 1, backgroundColor: '#2ecc71' },
-  row: { height: 28 },
-  text: { textAlign: 'center' },
+  container: { flex: 1, padding: 1, paddingTop: 1},
+  header: { height: 50, backgroundColor: '#537791' },
+  text: { textAlign: 'center', fontWeight: '300' },
+  dataWrapper: { marginTop: -1 },
+  row: { height: 40, backgroundColor: '#E7E6E1' }
 });
