@@ -10,12 +10,10 @@ import * as ImageManipulator from 'expo-image-manipulator'
 import CapturePreview from '../components/CapturePreview'
 let camera: Camera
 
-const url = 'http://10.240.10.207:5000'
+const url = 'http://192.168.1.4:5000'
 // const url = 'http://proc.memotube.xyz';
 const windowWidth = Dimensions.get('window').width
 const windowHeight = Dimensions.get('window').height
-
-type CalibrationScreenProps = RootStackScreenProps<'Calibration'>;
 
 export default function CameraTest() {
   const [startCamera, setStartCamera] = useState(false)
@@ -49,7 +47,7 @@ export default function CameraTest() {
     setDoneImgProcess(false)
   }
 
-  const __calibrateCV = async (evt: any, arrowPoint: Array<number>, markerPoints: Array<number>, cropPoints: Array<number>, setDoneImgProcess: any) => {
+  const __calibrateCV = async (evt: any, arrowPoint: Array<number>, markerPoints: Array<number>, cropPoints: Array<number>, setDoneImgProcess: any, isManualMarker: boolean) => {
     console.log("-----------------")
     console.log(windowHeight, windowWidth)
     console.log(capturedImage.height, capturedImage.width)
@@ -79,6 +77,7 @@ export default function CameraTest() {
         arrowPoint: arrowPoint,
         markerPoints: markerPoints,
         cropPoints: cropPoints,
+        manualMarker: isManualMarker,
       }),
       headers: {
         'Content-Type': 'application/json'

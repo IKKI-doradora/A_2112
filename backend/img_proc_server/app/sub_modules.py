@@ -83,6 +83,10 @@ def calc_score(r, theta):
     double_range = (178/198, 1)
 
     for i, score in enumerate(score_list):
+        if r <= 8:
+            score = 50
+        elif r <= 22:
+            score = 25
         if tmp_theta < theta <= tmp_theta+dtheta:
             if triple_range[0] < r <= triple_range[1]:
                 score *= 3
