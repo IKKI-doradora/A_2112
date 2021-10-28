@@ -5,24 +5,24 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
-import Auth from './components/Auth';
+// import Auth from './components/Auth';
 
-import { useStore } from './hooks/useStore';
+// import { useStore } from './hooks/useStore';
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
 
-  const store = useStore();
+  // const store = useStore();
 
   if (!isLoadingComplete) {
     return null;
   } else {
     return (
       <SafeAreaProvider>
-        <Auth>
+        {/* <Auth> */}
           <Navigation colorScheme={colorScheme} />
-        </Auth>
+        {/* </Auth> */}
         <StatusBar />
       </SafeAreaProvider>
     );

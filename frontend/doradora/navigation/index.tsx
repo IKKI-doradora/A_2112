@@ -28,6 +28,7 @@ import MoveTwoScreen from '../screens/MoveTwoScreen';
 import LinkingConfiguration from './LinkingConfiguration';
 
 import GameTest from '../screens/GameTest'
+import { TimeCaribrationScreen } from '../screens/TimeCalibrationScreen';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
@@ -89,7 +90,8 @@ function BottomTabNavigator() {
       <BottomTab.Screen
         name="ScoreTab"
         // component={HomeScoreTabScreen}
-        component={GameTest}
+        // component={GameTest}
+        component={TimeCaribrationScreen}
         options={{
           title: 'Score',
           tabBarIcon: (props) => <Ionicons style={styles.tabBarIcon} name="analytics" size={props.size} color={props.color} />,
