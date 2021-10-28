@@ -15,6 +15,9 @@ export default function RenderDarts(props){
   // var r0 = boardRadius -dartsRadius; //dartsRadiusによる補正
   var r0 = -dartsRadius; //dartsRadiusによる補正 
 
+  const positions = props.data.uids[320].positions;
+
+
   return (   
     <View>
       <Image
@@ -27,7 +30,7 @@ export default function RenderDarts(props){
       />
       <View style={styles.dartsLayer} >
         {
-          props.data.position.map( (rounds) => (
+          positions.map( (rounds) => (
             rounds.map( round =>(
               <View 
                 style={[styles.darts, 

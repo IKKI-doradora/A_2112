@@ -3,10 +3,10 @@ import * as React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
-import { DartsParamList } from '../types';
 import { Dimensions, Image, Platform, ImageBackground } from 'react-native';
 import ScoreTable from '../components/ScoreTable';
 import RenderDarts from '../components/RenderDarts';
+import GameComponent from '../components/GameComponent';
 import { useState} from 'react';
 
 
@@ -25,57 +25,14 @@ export default function GameScreen() {
 return (
   <View style={styles.container}>
     <ImageBackground source={require('../assets/images/backboard.jpg')} resizeMode='cover' style={{width:'100%', height:'100%'}}>
-    <View style={styles.scoreContainer}>
-      <View style={styles.leftContainer}>
-        <RenderDarts data = {DartsData}/>
-      </View>
-      <View style={styles.rightContainer}>
-        <ScoreTable/>
-        <TouchableOpacity style={styles.button} >
-          <Text style={styles.buttonTitle} onPress={() => navigation.navigate("Result")} >To Result Screen</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      <GameComponent/> 
     </ImageBackground>
   </View>
 );
 }
 
 const styles = StyleSheet.create({
-  buttonContainer: {
-    height: '100%',
-    width: '100%',
-  },
-
-  button: {
-    width: 250,
-    height: 50,
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: 'orange',
-    margin: 3
-  },
-
-  buttonTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-
   container: {
     flex: 1,
-  },
-
-	scoreContainer: {
-		flex: 8,
-    flexDirection: 'row',
-    backgroundColor: 'rgba(0,0,0,0.6)' 
-  },
-	leftContainer: {
-    flex: 3,
-		padding: 10,
-  },
-  rightContainer: {
-    flex: 2,
-    alignItems: 'stretch',    
   },
 });
