@@ -19,6 +19,7 @@ export type RootStackParamList = {
   Calibration: undefined;
   Game: undefined;
   Result: undefined;
+  Analytics: undefined;
   MoveOne: undefined;
   MoveTwo: {count: number};
   Modal: undefined;
@@ -39,3 +40,21 @@ export type HomeTabScreenProps<Screen extends keyof HomeTabParamList> = Composit
   BottomTabScreenProps<HomeTabParamList, Screen>,
   NativeStackScreenProps<RootStackParamList>
 >;
+
+export type Position = {
+  x: number;
+  y: number;
+}
+
+export type DartsProps = {
+  positions: Array<Array<Position>>;
+  scores: Array<Array<number>>;
+  totalScore: number;
+};
+
+export type GameProps = {
+  game_id: string;
+  type: 0 | 1 | 2;
+  n_rounds: number;
+  uids: Map<string, DartsProps>;
+};
