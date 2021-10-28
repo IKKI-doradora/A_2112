@@ -50,7 +50,7 @@ function RootNavigator() {
     <Stack.Navigator>
       <Stack.Screen name="Top" component={TopScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Home" component={BottomTabNavigator} options={{ headerShown: false }} />
-      <Stack.Screen name="Calibration" component={CalibrationScreen} options={{ title: '較正' }} />
+      <Stack.Screen name="Calibration" component={CalibrationScreen} options={{ title: '較正', headerShown: false }} />
       <Stack.Screen name="Game" component={GameScreen} options={{ title: 'ゲーム' }} />
       <Stack.Screen name="Result" component={GameResultScreen} options={{ title: '結果' }} />
       <Stack.Screen name="MoveOne" component={MoveOneScreen} />
