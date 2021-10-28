@@ -144,6 +144,7 @@ export default function CaputuprePreview({ photo, retakePicture, calibrateCV, se
                             <Pressable
                                 style={anchorStyle(anchorActivations[i], anchorPositions[i], rAnchor)} //position: 'absolute' によるワーニング. 期待通りに動く. むしろこれを外すとマーカー位置がおかしくなる.
                                 onPress={(evt) => activateRectangleAnchor(evt, i)}
+                                key={i}
                             ></Pressable >
                         )
                     }
@@ -158,6 +159,7 @@ export default function CaputuprePreview({ photo, retakePicture, calibrateCV, se
                                 <Pressable
                                     style={markerStyle(markerActivation[i], markerPositions[i], rMarker)} //position: 'absolute' によるワーニング. 期待通りに動く. むしろこれを外すとマーカー位置がおかしくなる.
                                     onPress={(evt) => activateMarker(evt, i)}
+                                    key={i}
                                 ></Pressable >
                             )
                         }
