@@ -74,7 +74,6 @@ def arrow(count):
     #     # img = cv2.resize(img, img_org.shape[:2])
     #     retval, buffer = cv2.imencode('.jpg', img)
     #     base64Image2 = base64.b64encode(buffer).decode('UTF-8')
-    
     #     return make_response(jsonify({'base64Image':base64Image2 }),200)
 
     return make_response(jsonify({'x': x, 'y': y, 'score': score}),200)

@@ -198,3 +198,4 @@ def detect_arrow(img_prev, img, arrow_count):
 
     # return ref_image, theta, r, score
     return ref_image, r*np.cos(theta), np.sin(theta), score
+
