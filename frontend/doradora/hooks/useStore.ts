@@ -31,23 +31,26 @@ const createAuthSlice: StateSlice<IAuthSlice> = (
 	signIn: async () => {
 		// const { access_token, user } = await _signIn();
 		const auth = getAuth(app);
-		set(produce(state => { state.isLoading = true }));
-		signInAnonymously(auth)
-			.then((res) => {
-				// Signed in..
-				console.log('signup anonymously', res.user.uid);
-			})
-			.catch((error) => {
-				const errorCode = error.code;
-				const errorMessage = error.message;
-				console.log('wrr')
-			});
-
+		if (auth.currentUser) {
+			console.log('signed user', auth.currentUser.uid)
+		} else {
+			set(produce(state => { state.isLoading = true }));
+			signInAnonymously(auth)
+				.then((res) => {
+					// Signed in..
+					writeUserInfo(res.user.uid, { username: 'Anonymous' });
+					console.log('signup anonymously', res.user.uid);
+				})
+				.catch((error) => {
+					const errorCode = error.code;
+					const errorMessage = error.message;
+					console.log('wrr')
+				});
+		}
 		onAuthStateChanged(auth, (auth_user) => {
 			if (auth_user) {
-				writeUserInfo(auth_user.uid);
 				set(produce(state => {
-					state.user = { uid: auth_user.uid };
+					state.user = ({ uid: auth_user.uid});
 					state.isLoading = false;
 					// state.userToken = access_token;
 					console.log('signIn', auth_user.uid);

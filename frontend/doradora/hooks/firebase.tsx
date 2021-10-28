@@ -1,7 +1,7 @@
 import Constants from "expo-constants";
 // import 'firebase/firestore';
 import firebase, { initializeApp } from 'firebase/app';
-import { getDatabase, set, ref } from 'firebase/database';
+import { getDatabase, set, ref, push, update } from 'firebase/database';
 
 // import { getAuth, onAuthStateChanged, FacebookAuthProvider, signInWithCredential, signInAnonymously, signInWithEmailAndPassword } from 'firebase/auth';
 
@@ -10,14 +10,23 @@ const app = initializeApp(Constants.manifest?.extra?.firebaseConfig);
 
 export const database = getDatabase(app);
 
-export const writeUserInfo = (userId: string, name = '', email = '', imageUrl = '') => {
-	set(ref(database, 'users/' + userId), {
-		username: name,
-		email: email,
-		profile_picture: imageUrl
+export function writeUserInfo(userId: string, { username = '', email = '', imageUrl = '' }) {
+	update(ref(database, 'users/' + userId), {
+		username: username,
+		// email: email,
+		// profile_picture: imageUrl
 	});
 	return true
 }
+
+
+
+
+export default app;
+
+
+
+
 // auth()
 // 	.createUserWithEmailAndPassword('jane.doe@example.com', 'SuperSecretPassword!')
 // 	.then(() => {
@@ -49,8 +58,4 @@ export const writeUserInfo = (userId: string, name = '', email = '', imageUrl = 
 // 		const errorMessage = error.message;
 // 		console.log(errorMessage);
 // 	});
-
-
-
-export default app;
 
