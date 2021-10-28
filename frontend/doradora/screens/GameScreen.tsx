@@ -21,38 +21,38 @@ function RenderDarts() {
         source={require('../assets/images/board_c2.png')}
       />
       <View style={styles.dartsLayer} >
-        <View style={[styles.darts, {top: radius, left: 0}]} />
-        <View style={[styles.darts, {top: 0, left: radius}]} />
-        <View style={[styles.darts, {top: radius, left: radius*2}]} />
-        <View style={[styles.darts, {top: radius / 2, left: radius / 2}]} />
-        <View style={[styles.darts, {top: radius * 1.5, left: radius * 1.2}]} />
+        <View style={[styles.darts, { top: radius, left: 0 }]} />
+        <View style={[styles.darts, { top: 0, left: radius }]} />
+        <View style={[styles.darts, { top: radius, left: radius * 2 }]} />
+        <View style={[styles.darts, { top: radius / 2, left: radius / 2 }]} />
+        <View style={[styles.darts, { top: radius * 1.5, left: radius * 1.2 }]} />
       </View>
     </View>
-);
+  );
 }
 
 export default function GameScreen() {
   const navigation = useNavigation<GameScreenProps['navigation']>()
 
-return (
-  <View style={styles.container}>
-    {/* <View style={styles.titleContainer}>
+  return (
+    <View style={styles.container}>
+      {/* <View style={styles.titleContainer}>
       <Text style={styles.title}>Score Board</Text>
     </View> */}
-    <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-    <View style={styles.scoreContainer}>
-      <View style={styles.leftContainer}>
-        <RenderDarts/>
-      </View>
-      <View style={styles.rightContainer}>
-        <ScoreTable/>
-        <TouchableOpacity style={styles.button} >
-          <Text style={styles.buttonTitle} onPress={() => navigation.navigate("Result")} >To Result Screen</Text>
-        </TouchableOpacity>
+      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+      <View style={styles.scoreContainer}>
+        <View style={styles.leftContainer}>
+          <RenderDarts />
+        </View>
+        <View style={styles.rightContainer}>
+          <ScoreTable />
+          <TouchableOpacity style={styles.button} >
+            <Text style={styles.buttonTitle} onPress={() => navigation.navigate("Result")} >To Result Screen</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
-  </View>
-);
+  );
 }
 
 const styles = StyleSheet.create({
@@ -93,27 +93,27 @@ const styles = StyleSheet.create({
     height: 1,
     width: '80%',
   },
-	board: {
-    width:  'auto',
-		height: '100%',
-		aspectRatio: 1,
+  board: {
+    width: 'auto',
+    height: '100%',
+    aspectRatio: 1,
     justifyContent: 'center',
     backgroundColor: 'black',
   },
-	titleContainer: {
-		flex: 1,
+  titleContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-	scoreContainer: {
-		flex: 8,
+  scoreContainer: {
+    flex: 8,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
-	leftContainer: {
+  leftContainer: {
     flex: 3,
-		padding: 10,
+    padding: 10,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'black',

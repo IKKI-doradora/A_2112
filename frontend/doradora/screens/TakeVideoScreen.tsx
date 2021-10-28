@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Camera } from 'expo-camera';
 import { Audio, Video } from "expo-av";
 
-export const TakeVideoScreen: React.FC<{}> = ({}) => {
+export const TakeVideoScreen: React.FC<{}> = ({ }) => {
     const [cam, setCam] = useState<Camera | null>(null);
     const [vid, setVid] = useState<string | null>(null);
     const [hasCameraPermission, setCameraPermission] = useState<Boolean>(false);
@@ -13,17 +13,17 @@ export const TakeVideoScreen: React.FC<{}> = ({}) => {
     const [intervalID, setIntervalID] = useState<NodeJS.Timer | null>(null);
 
     const startRecord = async () => {
-        if(cam){
+        if (cam) {
             console.log('take video')
             setRecordActivated(true);
-            let video = await cam.recordAsync({mute:true, maxDuration:10});
+            let video = await cam.recordAsync({ mute: true, maxDuration: 10 });
             console.log('video', video);
             setVid(video.uri);
         }
     }
 
     const stopRecord = async () => {
-        if(cam){
+        if (cam) {
             console.log("stop video");
             setRecordActivated(false);
             const end = await cam.stopRecording();
@@ -32,10 +32,10 @@ export const TakeVideoScreen: React.FC<{}> = ({}) => {
     }
 
     const toggleSerialRecord: VoidFunction = async () => {
-        if(isSerialRecordActivated){
+        if (isSerialRecordActivated) {
             console.log("video stopped");
             setSerialRecordActivated(false);
-            if(intervalID) clearInterval(intervalID);
+            if (intervalID) clearInterval(intervalID);
             stopRecord();
         } else {
             setSerialRecordActivated(true);
@@ -50,12 +50,12 @@ export const TakeVideoScreen: React.FC<{}> = ({}) => {
 
     useEffect(() => {
         (async () => {
-          const cameraPermission = await Camera.requestCameraPermissionsAsync();
-          setCameraPermission(cameraPermission.status === 'granted');
-          const audioPermission = await Audio.requestPermissionsAsync();
-          setAudioPermission(audioPermission.status === "granted")
+            const cameraPermission = await Camera.requestCameraPermissionsAsync();
+            setCameraPermission(cameraPermission.status === 'granted');
+            const audioPermission = await Audio.requestPermissionsAsync();
+            setAudioPermission(audioPermission.status === "granted")
         })();
-      }, []);
+    }, []);
 
     return (
         <View style={styles.container}>
@@ -63,14 +63,14 @@ export const TakeVideoScreen: React.FC<{}> = ({}) => {
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity
                         style={styles.button}
-                        onPress={() => {toggleSerialRecord()}}>
+                        onPress={() => { toggleSerialRecord() }}>
                         <Text style={styles.text}> {isSerialRecordActivated ? "Stop" : "Start"} </Text>
                     </TouchableOpacity>
                 </View>
             </Camera>
 
-            {vid ? (<Video 
-                source={{uri: vid}} 
+            {vid ? (<Video
+                source={{ uri: vid }}
                 style={styles.previewScreen}
                 useNativeControls
                 resizeMode="contain"
