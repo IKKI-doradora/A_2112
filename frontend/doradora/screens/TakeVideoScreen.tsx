@@ -1,31 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Camera } from 'expo-camera';
-import { Audio, Video } from "expo-av";
+import { Video } from "expo-av";
 
 export const TakeVideoScreen: React.FC<{}> = ({}) => {
     const [cam, setCam] = useState<Camera | null>(null);
-    const [vid, setVid] = useState<string | null>(null);
+    // const [vid, setVid] = useState<string | null>(null);
     const [hasCameraPermission, setCameraPermission] = useState<Boolean>(false);
     const [hasAudioPermission, setAudioPermission] = useState<Boolean>(false);
     const [isSerialRecordActivated, setSerialRecordActivated] = useState<Boolean>(false);
-    const [isRecordActivated, setRecordActivated] = useState<Boolean>(false);
     const [intervalID, setIntervalID] = useState<NodeJS.Timer | null>(null);
-
     const startRecord = async () => {
         if(cam){
             console.log('take video')
-            setRecordActivated(true);
             let video = await cam.recordAsync({mute:true, maxDuration:10});
             console.log('video', video);
-            setVid(video.uri);
+            // setVid(video.uri);
         }
     }
 
     const stopRecord = async () => {
         if(cam){
             console.log("stop video");
-            setRecordActivated(false);
             const end = await cam.stopRecording();
             return end;
         }
@@ -52,31 +48,36 @@ export const TakeVideoScreen: React.FC<{}> = ({}) => {
         (async () => {
           const cameraPermission = await Camera.requestCameraPermissionsAsync();
           setCameraPermission(cameraPermission.status === 'granted');
-          const audioPermission = await Audio.requestPermissionsAsync();
-          setAudioPermission(audioPermission.status === "granted")
+          const audioPermission = await Camera.requestMicrophonePermissionsAsync();
+          setAudioPermission(audioPermission.status === "granted");
         })();
       }, []);
 
     return (
         <View style={styles.container}>
-            <Camera style={styles.camera} ref={(ref) => setCam(ref)}>
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => {toggleSerialRecord()}}>
-                        <Text style={styles.text}> {isSerialRecordActivated ? "Stop" : "Start"} </Text>
-                    </TouchableOpacity>
-                </View>
-            </Camera>
+            {hasAudioPermission && hasCameraPermission ? (
+                <View>
+                    <Camera ref={(ref) => setCam(ref)} style={styles.camera} />
 
-            {vid ? (<Video 
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity
+                            style={styles.button}
+                            onPress={() => {toggleSerialRecord()}}>
+                            <Text style={styles.text}> {isSerialRecordActivated ? "Stop" : "Start"} </Text>
+                        </TouchableOpacity>
+                        
+                    </View>
+                </View>
+            ) : (<Text style={styles.text}>Video is not allowed</Text>)}
+
+            {/* {vid ? (<Video 
                 source={{uri: vid}} 
                 style={styles.previewScreen}
                 useNativeControls
                 resizeMode="contain"
                 isLooping
             />
-            ) : (<Text>no image</Text>)}
+            ) : (<Text style={styles.text}></Text>)} */}
         </View>
     )
 }
@@ -102,14 +103,14 @@ const styles = StyleSheet.create({
         color: "#44CC44",
     },
     buttonContainer: {
-        width: 300,
-        height: 300,
+        width: 100,
+        height: 100,
         alignItems: "center",
         justifyContent: "flex-end",
         padding: 20,
     },
-    previewScreen: {
-        width: 300,
-        height: 300,
-    }
+    // previewScreen: {
+    //     width: 300,
+    //     height: 300,
+    // }
 })

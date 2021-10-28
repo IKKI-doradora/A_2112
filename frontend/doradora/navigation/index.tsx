@@ -16,6 +16,11 @@ import ModalScreen from '../screens/ModalScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
 import TabOneScreen from '../screens/TabOneScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
+// import TakeSerialPictureScreen from '../screens/TakeSerialPictureScreen';
+// import { ViewShotScreen } from "../screens/ViewShotScreen"
+import { TakeVideoScreen } from '../screens/TakeVideoScreen';
+import { TakeSerialPictureButton } from '../components/TakeSerialPictureButton';
+
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
 
@@ -64,7 +69,10 @@ function BottomTabNavigator() {
       }}>
       <BottomTab.Screen
         name="TabOne"
-        component={TabOneScreen}
+        // component={TabOneScreen}
+        // component={TakeSerialPictureScreen}
+        component={TakeSerialPictureButton}
+        // component={TakeVideoScreen}
         options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
           title: 'Tab One',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
