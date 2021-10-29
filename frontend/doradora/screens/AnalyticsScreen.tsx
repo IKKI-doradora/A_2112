@@ -1,10 +1,13 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { StyleSheet, Image, Platform, LayoutChangeEvent, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, LayoutChangeEvent } from 'react-native';
 import { View } from '../components/Themed';
 import AnalyticsChart from '../components/AnalyticsChart';
-import { GameDetail, Game } from '../types'
+import { GameDetail, Game, RootStackScreenProps } from '../types'
 import RenderDarts from '../components/RenderDarts';
+import { useNavigation, useRoute } from '@react-navigation/core';
+
+type AnalyticsScreenProps = RootStackScreenProps<'Analytics'>;
 
 function makeDemoData(): Game {
   let uids = new Map<string, GameDetail>();
@@ -25,9 +28,13 @@ function makeDemoData(): Game {
 }
 
 export default function AnalyticsScreen() {
+  const navigation = useNavigation<AnalyticsScreenProps['navigation']>();
+  const route = useRoute<AnalyticsScreenProps['route']>();
+  const type = route.params.type;
+
   const [chartWidth, setChartWidth] = useState<number>(0);
   const [chartHeight, setChartHeight] = useState<number>(0);
-  const [isCountUp, setIsCountUp] = useState<boolean>(false)
+  // const [isCountUp, setIsCountUp] = useState<boolean>(type == 0)
 
   const onLayout = (e: LayoutChangeEvent) => {
     setChartWidth(e.nativeEvent.layout.width);
@@ -48,37 +55,21 @@ export default function AnalyticsScreen() {
   const details = demoData.map(v => v.uids.get(uid) ?? InvalidDetail).filter(v => v.totalScore > 0)  // ダーツの情報を抜き取る
 
   return (
-    isCountUp ? (
-      <View style={styles.container}>
-        <View style={styles.boardContainer}>
-          <RenderDarts darts={demoData[0].uids.get("0")?.rounds[0]?.darts ?? [{x: 0, y: 0, score: 0}]} />
-        </View>
-        <View style={styles.chartContainer} onLayout={onLayout}>
-          <AnalyticsChart
-            width={chartWidth}
-            height={chartHeight}
-            details={details}
-            uid={uid}
-            isRound={false}
-            backHomeButtonFn={() => setIsCountUp(false)}
-          />
-        </View>
+    <View style={styles.container}>
+      <View style={styles.boardContainer}>
+        <RenderDarts darts={demoData[0].uids.get("0")?.rounds[0]?.darts ?? [{x: 0, y: 0, score: 0}]} />
       </View>
-    ) : (
-      <View style={styles.container}>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={[styles.button, {backgroundColor: 'orange'}]} onPress={() => setIsCountUp(true)} >
-            <Text style={styles.buttonTitle} >Count up</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => {}} >
-            <Text style={styles.buttonTitle} >X01</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => {}} >
-            <Text style={styles.buttonTitle} >Cricket</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.chartContainer} onLayout={onLayout}>
+        <AnalyticsChart
+          width={chartWidth}
+          height={chartHeight}
+          details={details}
+          uid={uid}
+          isRound={false}
+          backHomeButtonFn={() => navigation.navigate("Home", {screen: "ScoreTab"})}
+        />
       </View>
-    )
+    </View>
   );
 }
 
@@ -102,27 +93,5 @@ const styles = StyleSheet.create({
     flex: 3,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-
-  buttonContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  buttonTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-
-  button: {
-    width: 200,
-    height: 100,
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: 'lightgray',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: 3
   },
 });
