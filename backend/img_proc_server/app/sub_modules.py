@@ -73,3 +73,23 @@ def reference_board():
         cv2.line(img,(int(coordinate_center[0]+22*np.cos(2*np.pi/20*i+2*np.pi/40)),int(coordinate_center[1]+22*np.sin(2*np.pi/20*i+2*np.pi/40))),(int(coordinate_center[0]+coordinate_r*np.cos(2*np.pi/20*i+2*np.pi/40)),int(coordinate_center[1]+coordinate_r*np.sin(2*np.pi/20*i+2*np.pi/40))),(0,0,0),1)
 
     return img, coordinate_r, coordinate_center
+
+
+def calc_score(r, theta):
+    dtheta = 2*np.pi/20
+    tmp_theta = - 0.5*dtheta
+    score_list = [6,13,4,18,1,20,5,12,9,14,11,8,16,7,19,3,17,2,15,10]
+    triple_range = (106/198, 126/198)
+    double_range = (178/198, 1)
+
+    for i, score in enumerate(score_list):
+        if tmp_theta < theta <= tmp_theta+dtheta:
+            if triple_range[0] < r <= triple_range[1]:
+                score *= 3
+            elif double_range[0] < r <= double_range[1]:
+                score *= 2
+            break
+        else:
+            tmp_theta += dtheta
+
+    return score

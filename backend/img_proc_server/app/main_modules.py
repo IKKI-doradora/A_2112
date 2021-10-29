@@ -5,6 +5,7 @@ from math import atan2
 import pickle
 import glob
 from natsort import natsorted
+import matplotlib.pyplot as plt
 from sub_modules import *
 
 
@@ -29,8 +30,7 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True):
 
     # 画像処理に使う部分をクロップ
     h, w = img.shape[:2]
-    crop_points = np.array(
-        [[int(crop_point[0]*h), int(crop_point[1]*w)] for crop_point in crop_points])
+    crop_points = np.array([[int(crop_point[0]*h), int(crop_point[1]*w)] for crop_point in crop_points])
     h_crop = np.sort(list(set(crop_points[:, 0])))
     w_crop = np.sort(list(set(crop_points[:, 1])))
     img = img[h_crop[0]:h_crop[1], w_crop[0]:w_crop[1], :]
@@ -40,7 +40,7 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True):
     marker_points = np.array([[int(marker_point[1]*w - w_crop[0]), int(marker_point[0]*h - h_crop[0])] for marker_point in marker_points])
 
     # 変換後にボードを囲う矩形サイズ
-    react_size = min(img.shape[:2])
+    rect_size = min(img.shape[:2])
 
     # 予測補正量計算
     status, _, est_xtip, est_ytip = extract_est_tip(img, diff_image=False, ignore_kernel_size=3, p=50, calib=True)
@@ -68,7 +68,7 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True):
     p_trans = p_trans[idx]
 
     p_original = np.float32(marked_points)
-    p_trans = p_trans.astype(np.float32)*react_size
+    p_trans = p_trans.astype(np.float32)*rect_size
 
     # 射影変換行列
     M1 = cv2.getPerspectiveTransform(p_original, p_trans)
@@ -78,10 +78,11 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True):
     img = cv2.circle(img, (est_xtip, est_ytip), 3, (0, 0, 255), -1) 
     for marker_point in marker_points:
         cv2.circle(img, marker_point, 6, (0, 0, 255), 1)
+    img_disp = cv2.warpPerspective(img, M1, (rect_size, rect_size))
     img = cv2.warpPerspective(img, M1, (img.shape[1], img.shape[0]))
 
     # ボード中心, 半径計算
-    board_center = [react_size*0.5, react_size*0.5]
+    board_center = [rect_size*0.5, rect_size*0.5]
     # デバッグ用として video のマーカー・半径比を使用, 後で修正
     vec = np.array(marker_points[0]) - np.array(board_center)
     board_radius = np.linalg.norm(vec, ord=2) * 19.5 / 24
@@ -100,14 +101,20 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True):
     if debug:
         print(proc_params)
 
-    return img
+    print(img_disp.shape)
+    h_padding = int((img_org.shape[0]-rect_size)/2)
+    w_padding = int((img_org.shape[1]-rect_size)/2)
+    img_disp = cv2.copyMakeBorder(img_disp, h_padding, h_padding, w_padding, w_padding, cv2.BORDER_CONSTANT, (0,0,0))
+    print(img_disp.shape)
+
+    return img_disp
 
 
 def detect_arrow(img, arrow_count):
     # 補正付き投擲位置推定
     status, img, est_tipx, est_tipy = extract_est_tip(img, ignore_kernel_size=3, calib=False)
     if status == MISS:
-        return None, None, None
+        return None, None, None, 0
 
     cv2.imwrite(IMAGE_DIR + f'arrow{arrow_count}.jpg', img)
 
@@ -138,6 +145,9 @@ def detect_arrow(img, arrow_count):
     theta = atan2(y, x) 
     r = np.linalg.norm(np.array([x,y]), ord=2) / board_radius #正規化
 
+    # スコア計算
+    score = calc_score(r, theta)
+
     # 視覚的に確認
     ref_image, ref_r, ref_center = reference_board()
     vis_x = ref_r * r * np.cos(theta) + ref_center[0]
@@ -145,4 +155,4 @@ def detect_arrow(img, arrow_count):
     print(int(vis_x), int(vis_y))
     cv2.circle(ref_image, (int(vis_x), int(vis_y)), 4, (0, 0, 255), -1)
 
-    return ref_image, theta, r
+    return ref_image, theta, r, score

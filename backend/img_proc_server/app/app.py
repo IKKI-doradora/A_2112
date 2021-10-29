@@ -49,7 +49,7 @@ def calib():
     if img is None:
         return make_response(jsonify({'base64Image':base64Image }),200)
     else:
-        img = cv2.resize(img, img_org.shape[:2])
+        # img = cv2.resize(img, img_org.shape[:2])
         retval, buffer = cv2.imencode('.jpg', img)
         base64Image2 = base64.b64encode(buffer).decode('UTF-8')
         
@@ -67,12 +67,12 @@ def arrow(count):
 
     # img = reference_board()
 
-    img, r, theta = detect_arrow(img, count)
+    img, r, theta, score = detect_arrow(img, count)
 
     if img is None:
         return make_response(jsonify({'base64Image':base64Image }),200)
     else:
-        img = cv2.resize(img, img_org.shape[:2])
+        # img = cv2.resize(img, img_org.shape[:2])
         retval, buffer = cv2.imencode('.jpg', img)
         base64Image2 = base64.b64encode(buffer).decode('UTF-8')
     
