@@ -25,7 +25,7 @@ def image_preprocess(base64Image, calib=False):
     return img_org
 
 
-def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True):
+def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True, manual_marker = True):
     img = img_org.copy()
 
     # 画像処理に使う部分をクロップ
@@ -36,14 +36,11 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True):
     w_crop = np.sort(list(set(crop_points[:, 1])))
     img = img[h_crop[0]:h_crop[1], w_crop[0]:w_crop[1], :]
 
-    arrow_point = [int(arrow_point[0]*h - h_crop[0]),
-                   int(arrow_point[1]*w - w_crop[0])]
-    marker_points = np.array([[int(marker_point[1]*w - w_crop[0]), int(marker_point[0]*h - h_crop[0])] for marker_point in marker_points])
-
     # 変換後にボードを囲う矩形サイズ
     react_size = min(img.shape[:2])
 
     # 予測補正量計算
+    arrow_point = [int(arrow_point[0]*h - h_crop[0]),int(arrow_point[1]*w - w_crop[0])]
     status, _, est_xtip, est_ytip = extract_est_tip(img, diff_image=False, ignore_kernel_size=3, p=50, calib=True)
     if status == MISS:
         return None
@@ -57,6 +54,45 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True):
     # return _
 
     # 変換前後の対応点を設定
+    if manual_marker:
+        marker_points = np.array([[int(marker_point[1]*w - w_crop[0]), int(marker_point[0]*h - h_crop[0])] for marker_point in marker_points])
+    else:
+        img_filtered = img.copy()
+        cond_green = (img_filtered[:,:,0]>30)&(img_filtered[:,:,1]>70)&(img_filtered[:,:,2]<60)
+
+        img_filtered[:,:,0] = np.where(cond_green, 255, 0)
+        img_filtered[:,:,1] = np.where(cond_green, 255, 0)
+        img_filtered[:,:,2] = np.where(cond_green, 255, 0)
+
+        img_filtered = cv2.blur(img_filtered, (8,8))
+
+        img_filtered[:,:,0] = np.where(img_filtered[:,:,0]>0, 255, 0)
+        img_filtered[:,:,1] = np.where(img_filtered[:,:,1]>0, 255, 0)
+        img_filtered[:,:,2] = np.where(img_filtered[:,:,2]>0, 255, 0)
+
+        img_filtered_gray = cv2.cvtColor(img_filtered, cv2.COLOR_BGR2GRAY)
+        circles = cv2.HoughCircles(img_filtered_gray , cv2.HOUGH_GRADIENT, dp=0.3, minDist=50, param1=100, param2=2, minRadius=0, maxRadius=0)[0]
+        circles = [circle for circle in circles if circle[2] < 10] # 画角に合わせて要調整
+        if debug:
+            print(circles)
+
+        if len(circles) != 4:
+            img_filtered_circle = img_filtered.copy()
+            for circle in circles:
+                cv2.circle(img_filtered_circle, (int(circle[0]), int(circle[1])), int(circle[2]), (0, 255, 0), 1)
+                cv2.circle(img_filtered_circle, (int(circle[0]), int(circle[1])), 2, (0, 255, 0), 2)
+            print(circles)
+            return img_filtered_circle
+
+        # # 視覚デバッグ用
+        # img_filtered_circle = img_filtered.copy()
+        # for circle in circles:
+        #     cv2.circle(img_filtered_circle, (circle[0], circle[1]), circle[2], (0, 255, 0), 1)
+        #     cv2.circle(img_filtered_circle, (circle[0], circle[1]), 2, (0, 255, 0), 2)
+        # return img_filtered_circle
+
+        marker_points = [circle[:2].astype(int) for circle in circles]
+
     idx_mp = np.argsort([mp[0] for mp in marker_points], axis=0)
     marked_points = np.array(marker_points)[idx_mp]
 
@@ -101,26 +137,37 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True):
     if debug:
         print(proc_params)
 
-    return img
+    h_padding = int((img_org.shape[0]-rect_size)/2)
+    w_padding = int((img_org.shape[1]-rect_size)/2)
+    img_disp = cv2.copyMakeBorder(img_disp, h_padding, h_padding, w_padding, w_padding, cv2.BORDER_CONSTANT, (0,0,0))
 
+    return img_disp
+  
 
-def detect_arrow(img, arrow_count):
+def detect_arrow(img_prev, img, arrow_count):
     # 補正付き投擲位置推定
+    # status, img, est_tipx, est_tipy = extract_est_tip(img, ignore_kernel_size=3, calib=False)
+    # if status == MISS:
+    #     return None, None, None, 0
+
+    # cv2.imwrite(IMAGE_DIR + f'arrow{arrow_count}.jpg', img)
+
+    # if arrow_count >= 2:
+    #     files = natsorted(glob.glob(IMAGE_DIR + "*.jpg"))
+    #     if len(files) == 1:
+    #         pass
+    #     else:
+    #         file = files[-2]
+    #         img_prev = cv2.imread(file)
+    #         img = cv2.absdiff(img, img_prev)
+    #         img, est_tipx, est_tipy = extract_est_tip(img, ignore_kernel_size=3, diff_image=True, calib=False)
+
+    _, img_prev, _, _ = extract_est_tip(img_prev, ignore_kernel_size=3, calib=False)
+    _, img, _, _ = extract_est_tip(img, ignore_kernel_size=3, calib=False)
+    img = cv2.absdiff(img, img_prev)
     status, img, est_tipx, est_tipy = extract_est_tip(img, ignore_kernel_size=3, calib=False)
     if status == MISS:
         return None, None, None
-
-    cv2.imwrite(IMAGE_DIR + f'arrow{arrow_count}.jpg', img)
-
-    if arrow_count >= 2:
-        files = natsorted(glob.glob(IMAGE_DIR + "*.jpg"))
-        if len(files) == 1:
-            pass
-        else:
-            file = files[-2]
-            img_prev = cv2.imread(file)
-            img = cv2.absdiff(img, img_prev)
-            img, est_tipx, est_tipy = extract_est_tip(img, ignore_kernel_size=3, diff_image=True, calib=False)
 
     # 正面化, ボード座標系 (曲座標) に変換
     with open(PARAM_PATH, 'rb') as f:
