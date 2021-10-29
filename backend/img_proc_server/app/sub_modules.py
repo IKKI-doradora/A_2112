@@ -220,6 +220,7 @@ def annotate_pose(image):
     mp_drawing = mp.solutions.drawing_utils 
     drawing_spec = mp_drawing.DrawingSpec(thickness=6, circle_radius=1, color=(0,0,0))
     drawing_spec2 = mp_drawing.DrawingSpec(thickness=6, circle_radius=1, color=(255,0,255))
+    mp_pose = mp.solutions.pose
     with mp_pose.Pose(
         static_image_mode=True, min_detection_confidence=0.5) as pose:
         # Convert the BGR image to RGB and process it with MediaPipe Pose.

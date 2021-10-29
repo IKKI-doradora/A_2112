@@ -1,4 +1,5 @@
 from flask import *
+from sklearn import base
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -82,15 +83,16 @@ def arrow(count):
 @app.route('/trajectory', methods = ['POST'])
 def proc_movie():
     base64Movie = json.loads(request.data.decode('UTF-8'))["base64"]
-    dec_base64 = base64.b64decode(base64Movie)
-    dec_arrays = np.frombuffer(dec_base64, dtype=np.uint8)
-    images = []
-    #ToDo 動作確認
-    for dec_array in len(dec_arrays):
-        image = cv2.imdecode(dec_array, cv2.IMREAD_COLOR)
-        images.append(image)
-
-    base64mp4 = detc_traj(images)
+    dec_movie = base64.b64decode(base64Movie)
+    movie_path = './work/dec_movie.dat'
+    # f = open(movie_path, 'wb')
+    # f.write(dec_movie)
+    # f.close()
+    print(cv2.VideoCapture(movie_path).set(cv2.CAP_PROP_POS_FRAMES, 0))
+    with open(movie_path, 'wb') as f:
+      f.write(dec_movie)
+    cap = cv2.VideoCapture(movie_path)
+    base64mp4 = detc_traj(cap)
     
     return make_response(jsonify({'base64mp4':base64mp4 }),200)
 
