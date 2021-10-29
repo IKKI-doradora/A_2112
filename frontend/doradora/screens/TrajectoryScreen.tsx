@@ -8,13 +8,13 @@ import { Video } from "expo-av"
 export default function TrajectoryScreen() {
     const [trajectoryUri, setTrajectoryUri] = useState<string | null>(null);
     const [sourceUri, setSourceUri] = useState<string | null>(null);
-     
+
     const pickVideo = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 1,
+        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
         });
     
         if (!result.cancelled) {
@@ -32,7 +32,7 @@ export default function TrajectoryScreen() {
         // const newUri = FileSystem.cacheDirectory + "trajectory.mov";
         // await FileSystem.writeAsStringAsync(newUri, video, { encoding: 'base64' });
         // setTrajectoryUri(newUri);
-       
+
         fetch("http://192.168.43.129:5000/trajectory", {
             method: "POST",
             headers: {'Content-Type': 'application/json'},
