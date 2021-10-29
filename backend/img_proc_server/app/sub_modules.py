@@ -1,8 +1,13 @@
 import cv2
 import numpy as np
+import base64
+from math import atan2
 import pickle
+from sklearn.decomposition import PCA
+from sklearn import preprocessing
+import mediapipe as mp
 
-PARAM_PATH = './proc_params.pickle'
+PARAM_PATH = './proc_params'
 IMAGE_DIR = './images/'
 SUCCESS = 'success'
 MISS = 'miss'
@@ -75,25 +80,159 @@ def reference_board():
     return img, coordinate_r, coordinate_center
 
 
-def calc_score(r, theta):
-    dtheta = 2*np.pi/20
-    tmp_theta = - 0.5*dtheta
-    score_list = [6,13,4,18,1,20,5,12,9,14,11,8,16,7,19,3,17,2,15,10]
-    triple_range = (106/198, 126/198)
-    double_range = (178/198, 1)
+def is_ignore_pixel(img, idx, column, kernel_size, p):
+    img_crop = img[max(0,idx-int(kernel_size/2)):idx+int(kernel_size/2), max(0,column-int(kernel_size/2)):column+int(kernel_size/2), 1]
+    # print(img_crop.shape)
+    if np.percentile(img_crop, p) == 255:
+        # print(idx,column)
+        # print(img_crop)
+        return False, img_crop
+    else:
+        return True, img_crop
 
-    for i, score in enumerate(score_list):
-        if r <= 8:
-            score = 50
-        elif r <= 22:
-            score = 25
-        if tmp_theta < theta <= tmp_theta+dtheta:
-            if triple_range[0] < r <= triple_range[1]:
-                score *= 3
-            elif double_range[0] < r <= double_range[1]:
-                score *= 2
-            break
+
+def extract_arrow(img, condition, diff_image = False, ignore_kernel_size = 3, p = 50):
+    img_arrow = img.copy()
+
+
+    if not diff_image:    
+        img_arrow[:,:,0] = np.where(condition, 255, 0)
+        img_arrow[:,:,1] = np.where(condition, 255, 0)
+        img_arrow[:,:,2] = np.where(condition, 255, 0)
+        
+
+    est_xtip, est_ytip = np.nan, np.nan
+    for c in range(0,img.shape[1]):
+        i = np.argmax(img_arrow[:,c,1])
+        state, img_crop = is_ignore_pixel(img_arrow,i,c,ignore_kernel_size,p)
+        if state:
+            continue
+        est_xtip = c
+        est_ytip = i
+        # print(img_crop)
+        break
+
+    return img_arrow, est_xtip, est_ytip
+
+
+def estimate_axis(img, est_xtip, est_ytip, kernel, rate=20):
+    # print(img)
+    # print(max(0,est_ytip-kernel),est_ytip+kernel, max(0,est_xtip-kernel),est_xtip+kernel)
+    img = img[max(0,est_ytip-kernel):est_ytip+kernel, max(0,est_xtip-kernel):est_xtip+kernel, 1].copy()
+    # print(img)
+    x, y = np.where(img > 10)
+    samples = np.array([x,y]).T
+    mm = preprocessing.MinMaxScaler()
+    samples = mm.fit_transform(samples)
+    # samples = scipy.stats.zscore(samples)
+
+    pcamodel = PCA()
+    pcamodel.fit(samples)
+    pca_cor = pcamodel.transform(samples)
+    # print(pca_cor)
+    dx, dy = pcamodel.components_[0]
+    if dx > 0:
+        axis = np.array([[est_xtip-rate*dx, est_ytip-rate*dy], [est_xtip, est_ytip]], dtype=int)
+    else:
+        axis = np.array([[est_xtip, est_ytip], [est_xtip+rate*dx, est_ytip+rate*dy]], dtype=int)
+
+    return axis
+
+
+def lineList(x1, y1, x2, y2): 
+    line_lst = []
+    step = 0
+    dx = abs(x2 - x1)
+    dy = abs(y2 - y1)
+    if dx > dy:
+        if x1 > x2 :
+            step = 0
+            if y1 > y2:
+                step = 1
+            else:
+                step = -1
+            x1, x2 = x2, x1 # swap
+            y1 = y2;
         else:
-            tmp_theta += dtheta
+            if y1 < y2:
+                step = 1
+            else:
+                step = -1
+        line_lst.append((x1, y1))
+        s = dx >> 1
+        x1 += 1
+        while (x1 <= x2):
+            s -= dy
+            if s < 0:
+                s += dx
+                y1 += step
+            line_lst.append((x1, y1))
+            x1 += 1
+    else:
+        if y1 > y2:
+            if x1 > x2:
+                step = 1
+            else:
+                step = -1
+           
+            y1, y2 = y2, y1 # swap
+            x1 = x2
+        else:
+            if x1 < x2:
+                step = 1
+            else:
+                step = -1
+        line_lst.append((x1, y1))
+        s = dy >> 1
+        y1 += 1
+        while y1 <= y2:
+            s -= dx
+            if s < 0:
+                s += dy
+                x1 += step
+            line_lst.append((x1, y1))
+            y1 += 1
+    return  line_lst
 
-    return score
+#   img         イメージ
+#   start_point 始点
+#   end_point   終点
+#   gap         点線ギャップ（間隔）
+#   linewidth   線幅
+#   color       色
+#
+def drawDashedLine(img, start_point, end_point, gap, linewidth, color):
+    li = lineList(start_point[0], start_point[1], end_point[0], end_point[1])
+    fwd = start_point
+    bwd = start_point
+    j = 0
+    for i, pt in enumerate(li):
+        if i % gap == 0:
+            bwd = pt
+
+            if(j % 2):
+                cv2.line(img, fwd, bwd, color, linewidth, lineType=cv2.LINE_AA)
+            fwd = bwd
+            j += 1
+    return img
+
+
+def annotate_pose(image):
+    mp_drawing = mp.solutions.drawing_utils 
+    drawing_spec = mp_drawing.DrawingSpec(thickness=6, circle_radius=1, color=(0,0,0))
+    drawing_spec2 = mp_drawing.DrawingSpec(thickness=6, circle_radius=1, color=(255,0,255))
+    with mp_pose.Pose(
+        static_image_mode=True, min_detection_confidence=0.5) as pose:
+        # Convert the BGR image to RGB and process it with MediaPipe Pose.
+        results = pose.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+        # Print nose landmark.
+        image_hight, image_width, _ = image.shape
+        annotated_image = image.copy()
+        mp_drawing.draw_landmarks(
+            image=annotated_image,
+            landmark_list=results.pose_landmarks,
+            connections=mp_pose.POSE_CONNECTIONS,
+            landmark_drawing_spec=drawing_spec2,
+            connection_drawing_spec=drawing_spec,
+            )
+    return annotated_image

@@ -12,6 +12,7 @@ import { ColorSchemeName, StyleSheet } from 'react-native';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
+
 import TopScreen from '../screens/TopScreen';
 import HomeGameTabScreen from '../screens/HomeGameTabScreen';
 import HomeScoreTabScreen from '../screens/HomeScoreTabScreen';
@@ -20,6 +21,7 @@ import GameScreen from '../screens/GameScreen';
 import GameResultScreen from '../screens/GameResultScreen';
 import AnalyticsScreen from '../screens/AnalyticsScreen';
 import { RootStackParamList, HomeTabParamList } from '../types';
+
 import LinkingConfiguration from './LinkingConfiguration';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {

@@ -6,4 +6,4 @@ services:
         volumes:
             - ./app:/app
         ports:
-            - 10.240.10.207:5000:5000
+            - 5000:5000

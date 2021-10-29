@@ -13,4 +13,7 @@ RUN pip install flask numpy matplotlib
 RUN pip install pybase64
 RUN pip install natsort
 
+RUN pip install scikit-learn
+RUN pip install mediapipe
+
 RUN mkdir /app
