@@ -20,6 +20,7 @@ import CalibrationScreen from '../screens/CalibrationScreen';
 import GameScreen from '../screens/GameScreen';
 import GameResultScreen from '../screens/GameResultScreen';
 import AnalyticsScreen from '../screens/AnalyticsScreen';
+import TrajectoryScreen from '../screens/TrajectoryScreen';
 import { RootStackParamList, HomeTabParamList } from '../types';
 
 import LinkingConfiguration from './LinkingConfiguration';
@@ -48,6 +49,8 @@ function RootNavigator() {
       <Stack.Screen name="Calibration" component={CalibrationScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Game" component={GameScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Result" component={GameResultScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Trajectory" component={TrajectoryScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Analytics" component={AnalyticsScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
@@ -77,7 +80,7 @@ function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="ScoreTab"
-        component={AnalyticsScreen}
+        component={HomeScoreTabScreen}
         options={{
           title: 'Analytics',
           tabBarIcon: ( props ) => <Ionicons style={styles.tabBarIcon} name="analytics" size={props.size} color={props.color}/>,
