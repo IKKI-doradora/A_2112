@@ -18,8 +18,9 @@ import TabOneScreen from '../screens/TabOneScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
 // import TakeSerialPictureScreen from '../screens/TakeSerialPictureScreen';
 // import { ViewShotScreen } from "../screens/ViewShotScreen"
-import { TakeVideoScreen } from '../screens/TakeVideoScreen';
-import { TakeSerialPictureButton } from '../components/TakeSerialPictureButton';
+// import { TakeVideoScreen } from '../screens/TakeVideoScreen';
+import trajectoryScreen from '../screens/TrajectoryScreen';
+// import { TakeSerialPictureButton } from '../components/TakeSerialPictureButton';
 
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
@@ -71,8 +72,9 @@ function BottomTabNavigator() {
         name="TabOne"
         // component={TabOneScreen}
         // component={TakeSerialPictureScreen}
-        component={TakeSerialPictureButton}
+        // component={TakeSerialPictureButton}
         // component={TakeVideoScreen}
+        component={trajectoryScreen}
         options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
           title: 'Tab One',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
