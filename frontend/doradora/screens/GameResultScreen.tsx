@@ -1,44 +1,66 @@
-import { useNavigation } from '@react-navigation/core';
 import * as React from 'react';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { useState } from 'react';
+import { StyleSheet, Image, Platform, LayoutChangeEvent, TouchableOpacity, Text } from 'react-native';
 import { View } from '../components/Themed';
-import { RootStackScreenProps } from '../types';
+import AnalyticsChart from '../components/AnalyticsChart';
+import { RootStackScreenProps, GameDetail, Game } from '../types'
+import RenderDarts from '../components/RenderDarts';
+import { useNavigation, useRoute } from '@react-navigation/core';
 
 type GameResultScreenProps = RootStackScreenProps<'Result'>;
 
 export default function GameResultScreen() {
-  const navigation = useNavigation<GameResultScreenProps['navigation']>()
+  const navigation = useNavigation<GameResultScreenProps['navigation']>();
+  const route = useRoute<GameResultScreenProps['route']>();
+
+  const [chartWidth, setChartWidth] = useState<number>(0);
+  const [chartHeight, setChartHeight] = useState<number>(0);
+
+  const onLayout = (e: LayoutChangeEvent) => {
+    setChartWidth(e.nativeEvent.layout.width);
+    setChartHeight(e.nativeEvent.layout.width);
+  };
+
+  const darts = route.params.data.rounds.flatMap(v => v.darts);
 
   return (
-    <View style={styles.buttonContainer} >
-      <TouchableOpacity style={styles.button} >
-        <Text style={styles.buttonTitle} onPress={() => navigation.navigate("Home")} >To Home Screen</Text>
-      </TouchableOpacity>
+    <View style={styles.container}>
+      <View style={styles.boardContainer}>
+        <RenderDarts darts={darts} />
+      </View>
+      <View style={styles.chartContainer} onLayout={onLayout}>
+        <AnalyticsChart
+          width={chartWidth}
+          height={chartHeight}
+          details={[route.params.data]}
+          uid={"0"}
+          isRound={true}
+          backHomeButtonFn={() => navigation.navigate("Home")}
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  buttonContainer: {
-    height: '100%',
-    width: '100%',
+  container: {
+    flex: 8,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
 
-  button: {
-    width: 200,
-    height: 100,
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: 'orange',
-    alignItems: 'center',
+	boardContainer: {
+    flex: 3,
+		padding: 15,
     justifyContent: 'center',
-    margin: 3
+    alignItems: 'center',
+    backgroundColor: 'black',
   },
 
-  buttonTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  chartContainer: {
+    flex: 3,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

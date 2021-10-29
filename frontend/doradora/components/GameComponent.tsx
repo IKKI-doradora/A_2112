@@ -39,7 +39,7 @@ export default function GameComponent(){
 
   const initDart = {x:-2, y:-2, score:0};
   const initRound ={darts: [initDart,initDart,initDart], score: 0};
-  const initTable ={rounds: [initRound], totalScore: 0};
+  const initTable ={rounds: Array(8).fill(initRound), totalScore: 0};
 
   const [Table, setTable] = useState<GameDetail>(initTable);
   const [Dart, setDart] = useState<Dart>(initDart);
