@@ -7,9 +7,6 @@ import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 
-import TrajectoryScreen from './screens/TrajectoryScreen';
-import DartsBoard from './components/DartsBoard';
-
 export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
@@ -19,11 +16,7 @@ export default function App() {
   } else {
     return (
       <SafeAreaProvider>
-        <TrajectoryScreen />
-        {/* <View style={{alignItems: "center", justifyContent: "center"}}>
-          <DartsBoard diameter={300} maxZIndex={0}/>
-        </View> */}
-        {/* <Navigation colorScheme={colorScheme} /> */}
+        <Navigation colorScheme={colorScheme} />
         <StatusBar />
       </SafeAreaProvider>
     );
