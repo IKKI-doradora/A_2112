@@ -10,7 +10,7 @@ import * as ImageManipulator from 'expo-image-manipulator'
 import CapturePreview from '../components/CapturePreview'
 let camera: Camera
 
-const url = 'http://192.168.1.4:5000'
+const url = 'http://192.168.0.162:5000'
 // const url = 'http://proc.memotube.xyz';
 const windowWidth = Dimensions.get('window').width
 const windowHeight = Dimensions.get('window').height
