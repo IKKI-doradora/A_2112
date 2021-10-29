@@ -6,7 +6,7 @@ import { RootStackScreenProps } from '../types';
 
 type GameResultScreenProps = RootStackScreenProps<'Result'>;
 
-export default function GameScreen() {
+export default function GameResultScreen() {
   const navigation = useNavigation<GameResultScreenProps['navigation']>()
 
   return (

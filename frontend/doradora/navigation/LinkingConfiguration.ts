@@ -31,6 +31,7 @@ const linking: LinkingOptions<RootStackParamList> = {
       Calibration: 'calibration',
       Game: 'game',
       Result: 'result',
+      Analytics: 'analytics',
       MoveOne: 'moveOne',
       MoveTwo: 'moveTwo',
       Modal: 'modal',

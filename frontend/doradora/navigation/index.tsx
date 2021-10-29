@@ -22,6 +22,7 @@ import HomeScoreTabScreen from '../screens/HomeScoreTabScreen';
 import CalibrationScreen from '../screens/CalibrationScreen';
 import GameScreen from '../screens/GameScreen';
 import GameResultScreen from '../screens/GameResultScreen';
+import AnalyticsScreen from '../screens/AnalyticsScreen';
 import { RootStackParamList, HomeTabParamList } from '../types';
 import MoveOneScreen from '../screens/MoveOneScreen';
 import MoveTwoScreen from '../screens/MoveTwoScreen';
@@ -51,6 +52,7 @@ function RootNavigator() {
       <Stack.Screen name="Calibration" component={CalibrationScreen} options={{ title: '較正' }} />
       <Stack.Screen name="Game" component={GameScreen} options={{ title: 'ゲーム' }} />
       <Stack.Screen name="Result" component={GameResultScreen} options={{ title: '結果' }} />
+      {/* <Stack.Screen name="Analytics" component={AnalyticsScreen} options={{ title: '分析' }} /> */}
       <Stack.Screen name="MoveOne" component={MoveOneScreen} />
       <Stack.Screen name="MoveTwo" component={MoveTwoScreen} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
@@ -86,7 +88,7 @@ function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="ScoreTab"
-        component={HomeScoreTabScreen}
+        component={AnalyticsScreen}
         options={{
           title: 'Score',
           tabBarIcon: ( props ) => <Ionicons style={styles.tabBarIcon} name="analytics" size={props.size} color={props.color}/>,
