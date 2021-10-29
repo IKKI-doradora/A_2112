@@ -32,10 +32,6 @@ const linking: LinkingOptions<RootStackParamList> = {
       Game: 'game',
       Result: 'result',
       Analytics: 'analytics',
-      MoveOne: 'moveOne',
-      MoveTwo: 'moveTwo',
-      Modal: 'modal',
-      NotFound: '*',
     },
   },
 };

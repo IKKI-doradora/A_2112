@@ -18,12 +18,8 @@ export type RootStackParamList = {
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   Calibration: undefined;
   Game: undefined;
-  Result: undefined;
+  Result: {data: GameDetail;};
   Analytics: undefined;
-  MoveOne: undefined;
-  MoveTwo: {count: number};
-  Modal: undefined;
-  NotFound: undefined;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<

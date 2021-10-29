@@ -58,14 +58,14 @@ export default function GameComponent(){
       newTable.rounds[Round] = RoundGame;
       newTable.totalScore += RoundGame.score;
       setTable(newTable);
-      
+
       // Roundを空に
       setRoundGame(initRound);
       setCount(0);
-      
+
       if( Round < 7){
         setRound(Round + 1);
-      }    
+      }
       else{
         setFinButton("Game Fin");
         setCount(4);
@@ -96,20 +96,20 @@ export default function GameComponent(){
   return (
     <View style={styles.scoreContainer}>
       <View style={styles.leftContainer}>
-        <Badge 
-          value={`R ${Round+1}`} 
-          status="error" 
+        <Badge
+          value={`R ${Round+1}`}
+          status="error"
           containerStyle={{ top: 30, left: 160 }}
         />
-        <RenderDarts data = {RoundGame.darts}/>
+        <RenderDarts darts={RoundGame.darts}/>
       </View>
       <View style={styles.rightContainer}>
-        <Button 
-          title="Throwed" 
+        <Button
+          title="Throwed"
           disabled = {Count>=3}
           onPress={() => onGetData()}
         />
-        <Button 
+        <Button
           disabled = {Count<3}
           onPress={() => on3Throw()}
           title={FinButton}
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   scoreContainer: {
 		flex: 8,
     flexDirection: 'row',
-    backgroundColor: 'rgba(0,0,0,0.3)' 
+    backgroundColor: 'rgba(0,0,0,0.3)'
   },
   leftContainer: {
     flex: 3,
@@ -132,6 +132,6 @@ const styles = StyleSheet.create({
   },
   rightContainer: {
     flex: 2,
-    alignItems: 'stretch',    
+    alignItems: 'stretch',
   },
 });

@@ -4,12 +4,13 @@ import { StyleSheet, Image, Platform, LayoutChangeEvent, TouchableOpacity, Text 
 import { View } from '../components/Themed';
 import AnalyticsChart from '../components/AnalyticsChart';
 import { GameDetail, Game } from '../types'
+import RenderDarts from '../components/RenderDarts';
 
 function makeDemoData(): Game {
   let uids = new Map<string, GameDetail>();
   uids.set("0", {
     rounds: Array(8).fill({
-      darts: [{x: 0, y: 0, score: 0}, {x: 0, y: 0, score: 0}, {x: 0, y: 0, score: 0}],
+      darts: [{x: 1, y: 0, score: 0}, {x: 0, y: 0, score: 0}, {x: 0, y: 0, score: 0}],
       score: Math.round(Math.random() * 100),
     }),
     totalScore: Math.round(Math.random() * 100)
@@ -39,7 +40,7 @@ export default function AnalyticsScreen() {
     isCountUp ? (
       <View style={styles.container}>
         <View style={styles.boardContainer}>
-          <RenderDarts/>
+          <RenderDarts darts={demoData[0].uids.get("0")?.rounds[0]?.darts ?? [{x: 0, y: 0, score: 0}]} />
         </View>
         <View style={styles.chartContainer} onLayout={onLayout}>
           <AnalyticsChart
@@ -67,26 +68,6 @@ export default function AnalyticsScreen() {
         </View>
       </View>
     )
-  );
-}
-
-function RenderDarts() {
-  const radius = 142;
-
-  return (
-    <View>
-      <Image
-        style={styles.board}
-        source={require('../assets/images/board_c2.png')}
-      />
-      <View style={styles.dartsLayer} >
-        <View style={[styles.darts, {top: radius, left: 0}]} />
-        <View style={[styles.darts, {top: 0, left: radius}]} />
-        <View style={[styles.darts, {top: radius, left: radius*2}]} />
-        <View style={[styles.darts, {top: radius / 2, left: radius / 2}]} />
-        <View style={[styles.darts, {top: radius * 1.5, left: radius * 1.2}]} />
-      </View>
-    </View>
   );
 }
 

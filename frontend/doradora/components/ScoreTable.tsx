@@ -2,6 +2,7 @@ import * as React from 'react';
 import { View, StyleSheet,ScrollView } from 'react-native';
 import { Table, TableWrapper, Row, Rows, Col } from 'react-native-table-component';
 import { useState } from 'react';
+import { GameDetail, Round } from '../types';
 
 const CONTENT = {
   // tableHead: ['', 'PL1', 'PL2'],
@@ -11,32 +12,38 @@ const CONTENT = {
   // rowWidth: [65,65,65,65]
 };
 
-export default function ScoreTable(props) {
-  const [state, setstate] = useState({tableHead:CONTENT.tableHead})
-  const rawdata = props.scores;
-  const TotalScore = [`Total Score`,`${rawdata.totalScore}`];
+type ScoreTableProps = {
+  scores: GameDetail;
+};
+
+export default function ScoreTable(props: ScoreTableProps) {
+  // const [state, setState] = useState({tableHead:CONTENT.tableHead})
+  const rawData = props.scores;
+  const TotalScore = [`Total Score`,`${rawData.totalScore}`];
 
   const tableData = [];
-  
+  const ZeroData: Round = {darts: [], score: 0};
+
   for (let i = 0; i < 8; i += 1) {
-    const rowData = [];
-    rowData[i] = `R${i+1}`
-    rawdata.rounds.push({score: 0});
+    const rowData = [`R${i+1}`];
+    rawData.rounds.push(ZeroData);
     for (let j = 1; j < 2; j += 1) {
-      rowData.push(`${rawdata.rounds[i].score}`);
+      rowData.push(`${rawData.rounds[i].score}`);
     }
     tableData.push(rowData);
   }
+
   return (
     <View style={styles.container}>
       <ScrollView horizontal={true}>
         <View>
           <Table borderStyle={{borderWidth: 1, borderColor: '#C1C0B9'}}>
             {/* <Row data={state.tableHead} widthArr={state.widthArr} style={styles.header} textStyle={styles.text}/> */}
-            <Row 
-              data={TotalScore} 
-              widthArr={CONTENT.headerWidth} 
-              style={styles.header} 
+            <Row
+              key={0}
+              data={TotalScore}
+              widthArr={CONTENT.headerWidth}
+              style={styles.header}
               textStyle={[styles.text,{color: "white"}]}
             />
           </Table>
@@ -45,7 +52,7 @@ export default function ScoreTable(props) {
               {
                 tableData.map((rowData, index) => (
                   <Row
-                    key={index}
+                    key={index+1}
                     data={rowData}
                     widthArr={CONTENT.headerWidth}
                     style={[styles.row, index%2 && {backgroundColor: '#F7F6E7'}]}

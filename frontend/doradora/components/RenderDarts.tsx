@@ -2,24 +2,27 @@ import { useNavigation } from '@react-navigation/core';
 import * as React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, View } from '../components/Themed';
-// import { DartsParamList } from '../types';
+import { Round } from '../types';
 import { Dimensions, Image, Platform, ImageBackground } from 'react-native';
 import { useState} from 'react';
 import { setStatusBarBackgroundColor } from 'expo-status-bar';
 
+type RenderDartsProps = {
+  darts: Round['darts'];
+}
 
-export default function RenderDarts(props){
+export default function RenderDarts(props: RenderDartsProps){
   const [dimensions, setDimensions] = useState({x:0, y:0, width:0, height:0})
   var boardRadius = (dimensions.width < dimensions.height ? dimensions.width : dimensions.height) / 2;
   const dartsRadius = 8;
   // var r0 = boardRadius -dartsRadius; //dartsRadiusによる補正
-  var r0 = -dartsRadius; //dartsRadiusによる補正 
+  var r0 = -dartsRadius; //dartsRadiusによる補正
 
   // const positions = props.data.uids[320].positions;
-  const data = props.data;
+  const data = props.darts;
 
 
-  return (   
+  return (
     <View>
       <Image
         onLayout={(event) => {
@@ -31,17 +34,20 @@ export default function RenderDarts(props){
       />
       <View style={styles.dartsLayer} >
         {
-          data.map( dartsXY => (
-            <View 
-              style={[styles.darts, 
-              { width: dartsRadius*2,
-                height: dartsRadius*2,
-                borderRadius: dartsRadius,
-                top: (dartsXY.x*boardRadius +r0), 
-                left:(dartsXY.y*boardRadius +r0)
-              }
-            ]}/>
-          ))
+          data.map( (dartsXY, index) =>
+            <View
+              key={index}
+              style={[
+                styles.darts, {
+                  width: dartsRadius*2,
+                  height: dartsRadius*2,
+                  borderRadius: dartsRadius,
+                  top: (dartsXY.x*boardRadius +r0),
+                  left:(dartsXY.y*boardRadius +r0)
+                }
+              ]}
+            />
+          )
         }
       </View>
     </View>
