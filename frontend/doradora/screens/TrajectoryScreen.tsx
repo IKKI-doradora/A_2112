@@ -17,8 +17,6 @@ export default function TrajectoryScreen() {
           quality: 1,
         });
     
-        // console.log(result);
-    
         if (!result.cancelled) {
             _getTrajectory(result.uri);
             console.log(result.uri);
@@ -28,15 +26,12 @@ export default function TrajectoryScreen() {
     const _getTrajectory = async (uri: string) => {
         setSourceUri(uri);
         const video = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
-
         console.log(video.length);
 
         // キャッシュへの書き込みテスト
         // const newUri = FileSystem.cacheDirectory + "trajectory.mov";
         // await FileSystem.writeAsStringAsync(newUri, video, { encoding: 'base64' });
         // setTrajectoryUri(newUri);
-
-        // console.log(video);
        
         fetch("http://192.168.43.129:5000/trajectory", {
             method: "POST",
@@ -45,8 +40,6 @@ export default function TrajectoryScreen() {
         })
         .then(res => {console.log(res); return res.json()})
         .then(async data => {
-            console.log(data.base64mp4);
-            console.log("OK!");
             const newUri = FileSystem.cacheDirectory + "trajectory.mov";
             await FileSystem.writeAsStringAsync(newUri, data.base64mp4, { encoding: "base64" });
             setTrajectoryUri(newUri);
