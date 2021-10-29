@@ -14,6 +14,7 @@ import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import ModalScreen from '../screens/ModalScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
+<<<<<<< HEAD
 // import TabOneScreen from '../screens/TabOneScreen';
 // import TabTwoScreen from '../screens/TabTwoScreen';
 import TopScreen from '../screens/TopScreen';
@@ -25,6 +26,15 @@ import GameResultScreen from '../screens/GameResultScreen';
 import { RootStackParamList, HomeTabParamList } from '../types';
 import MoveOneScreen from '../screens/MoveOneScreen';
 import MoveTwoScreen from '../screens/MoveTwoScreen';
+import TabOneScreen from '../screens/TabOneScreen';
+import TabTwoScreen from '../screens/TabTwoScreen';
+// import TakeSerialPictureScreen from '../screens/TakeSerialPictureScreen';
+// import { ViewShotScreen } from "../screens/ViewShotScreen"
+// import { TakeVideoScreen } from '../screens/TakeVideoScreen';
+import trajectoryScreen from '../screens/TrajectoryScreen';
+// import { TakeSerialPictureButton } from '../components/TakeSerialPictureButton';
+
+import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
@@ -77,12 +87,39 @@ function BottomTabNavigator() {
         tabBarActiveTintColor: Colors[colorScheme].tint,
       }}>
       <BottomTab.Screen
+<<<<<<< HEAD
         name="GameTab"
         component={HomeGameTabScreen}
         options={{
           title: 'Game',
           tabBarIcon: ( props ) => <FontAwesome style={styles.tabBarIcon} name="gamepad" size={props.size} color={props.color} />
         }}
+=======
+        name="TabOne"
+        // component={TabOneScreen}
+        // component={TakeSerialPictureScreen}
+        // component={TakeSerialPictureButton}
+        // component={TakeVideoScreen}
+        component={trajectoryScreen}
+        options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
+          title: 'Tab One',
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          headerRight: () => (
+            <Pressable
+              onPress={() => navigation.navigate('Modal')}
+              style={({ pressed }) => ({
+                opacity: pressed ? 0.5 : 1,
+              })}>
+              <FontAwesome
+                name="info-circle"
+                size={25}
+                color={Colors[colorScheme].text}
+                style={{ marginRight: 15 }}
+              />
+            </Pressable>
+          ),
+        })}
+>>>>>>> urataCam
       />
       <BottomTab.Screen
         name="ScoreTab"
