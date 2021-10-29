@@ -81,7 +81,7 @@ def arrow(count):
 
 @app.route('/trajectory', methods = ['POST'])
 def proc_movie():
-    base64Movie = json.loads(request.data.decode('UTF-8'))["base64Movie"]
+    base64Movie = json.loads(request.data.decode('UTF-8'))["base64"]
     dec_base64 = base64.b64decode(base64Movie)
     dec_arrays = np.frombuffer(dec_base64, dtype=np.uint8)
     images = []
@@ -90,9 +90,9 @@ def proc_movie():
         image = cv2.imdecode(dec_array, cv2.IMREAD_COLOR)
         images.append(image)
 
-    base64MP4 = detc_traj(images)
+    base64mp4 = detc_traj(images)
     
-    return make_response(jsonify({'base64MP4':base64MP4 }),200)
+    return make_response(jsonify({'base64mp4':base64mp4 }),200)
 
 
 if __name__ == "__main__":
