@@ -41,20 +41,25 @@ export type HomeTabScreenProps<Screen extends keyof HomeTabParamList> = Composit
   NativeStackScreenProps<RootStackParamList>
 >;
 
-export type Position = {
+export type Dart = {
   x: number;
   y: number;
+  score: number;
 }
 
-export type DartsProps = {
-  positions: Array<Array<Position>>;
-  scores: Array<Array<number>>;
-  totalScore: number;
+export type Round = {
+  darts: Dart[];
+  score: number; // 3本の合計
+}
+
+export type GameDetail = {
+  rounds: Round[];
+  totalScore: number; // roundの合計
 };
 
-export type GameProps = {
+export type Game = {
   game_id: string;
   type: 0 | 1 | 2;
   n_rounds: number;
-  uids: Map<string, DartsProps>;
+  uids: Map<string, GameDetail>;
 };
