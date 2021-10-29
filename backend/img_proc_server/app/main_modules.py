@@ -196,10 +196,12 @@ def detect_arrow(img_prev, img, arrow_count):
     return ref_image, theta, r
 
 
-def detc_traj(frames):
+def detc_traj(cap):
     # 調整用パラメータ
-    start_idx = 1910
-    end_idx = 1990
+    start_idx = 220
+    end_idx = 320
+    # start_idx = 0
+    # end_idx = 2
 
     hmin = 200
     hmax = 480
@@ -209,6 +211,13 @@ def detc_traj(frames):
     x_offset = 200
     vis_x_offset = x_offset + wmin
     vis_y_offset = hmin
+
+    # cap を frames に変換
+    frames = []
+    for idx in range(start_idx,end_idx,1):
+        cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
+        _, frame = cap.read()
+        frames.append(frame)
 
     # 羽, 矢先端軌道検出
     cv2_imgs = []
@@ -270,21 +279,21 @@ def detc_traj(frames):
 
         tmp_img = cv2.cvtColor(tmp_img, cv2.COLOR_BGR2RGB)
         gif_imgs.append(Image.fromarray(tmp_img))
-    gif_imgs[0].save('./video/output3.gif', save_all=True, append_images=gif_imgs[1:], optimize=False, loop=0)
+    gif_imgs[0].save('./work/output3.gif', save_all=True, append_images=gif_imgs[1:], optimize=False, loop=0)
 
     # mp4に変換
     height, width, layers = tmp_img.shape
     size = (width,height)
 
-    out = cv2.VideoWriter('./video_proc.mp4',cv2.VideoWriter_fourcc(*'DIVX'), 15, size)
+    out = cv2.VideoWriter('./work/video_proc.mp4',cv2.VideoWriter_fourcc(*'DIVX'), 15, size)
     for i in range(len(imgs)):
         out.write(imgs[i])
-        out.release()
+    out.release()
 
     # base64に変換
-    with open('./video_proc.mp4', "rb") as f:
+    with open('./work/video_proc.mp4', "rb") as f:
         data = f.read()
     
-    encode = base64.b64encode(data)
+    encode = base64.b64encode(data).decode('UTF-8')
     
     return encode
