@@ -55,7 +55,7 @@ export default function RenderDarts(props: RenderDartsProps){
 const styles = StyleSheet.create({
   board: {
     width:  'auto',
-    height: '100%',
+    height: '97%',
     aspectRatio: 1,
     opacity: 0.8
   },

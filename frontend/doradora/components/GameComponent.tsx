@@ -16,7 +16,7 @@ const Data = {
   uids: {
     320: {
       positions: [
-        [[0.3, 0.8],  [0.1, 0.1],  [0.2, 0.2]],
+        [[0.0, 0.0],  [0.1, 0.1],  [0.2, 0.2]],
         [[0.3, 0.3],  [-0.5, 0.4],  [0.5, 0.5]],
         [[-0.3, 0.3], [-0.5, 0.2], [-0.6, 0.5]],
         [[0.3, -0.3], [0.4, 0.1], [0.7, -0.5]],
@@ -101,20 +101,16 @@ export default function GameComponent(){
           icon={
             <Icon
               name="home-variant"
-              size={30}
+              size={25}
             />}
           type="clear"
-          containerStyle={{ top: 50, left: -170 }}
-          style = {{
-              position: 'absolute',
-              zIndex: 10,
-              elevation: Platform.OS === 'android' ? 10 : 0,}}
+          containerStyle={{ top: 40, left: -170 }}
           onPress={() => navigation.navigate("Home")}
         />
         <Badge
           value={`R ${Round+1}`}
           status="error"
-          containerStyle={{ top: 30, left: 160 }}
+          containerStyle={{ top: 10, left: 160 }}
         />
         <RenderDarts darts={RoundGame.darts}/>
       </View>
@@ -137,15 +133,20 @@ export default function GameComponent(){
 
 const styles = StyleSheet.create({
   scoreContainer: {
-		flex: 8,
+    // position: 'absolute',
+		flex: 1,
     flexDirection: 'row',
     backgroundColor: 'rgba(0,0,0,0.3)'
   },
   leftContainer: {
+    // position: 'absolute',
+
     flex: 3,
     padding: 10,
   },
   rightContainer: {
+    // position: 'absolute',
+
     flex: 2,
     alignItems: 'stretch',
   },
