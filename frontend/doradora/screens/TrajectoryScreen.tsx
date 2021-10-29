@@ -4,6 +4,7 @@ import { View, Text } from "../components/Themed"
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { Video } from "expo-av"
+import HomeButton from '../components/HomeButton';
 
 export default function TrajectoryScreen() {
     const [trajectoryUri, setTrajectoryUri] = useState<string | null>(null);
@@ -54,6 +55,7 @@ export default function TrajectoryScreen() {
 
     return (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{position: "absolute"}}><HomeButton top={-160} left={-300}/></View>
             <View style={{flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                 <TouchableOpacity onPress={pickVideo} style={styles.button}><Text>Pick an video from camera roll</Text></TouchableOpacity>
             </View>

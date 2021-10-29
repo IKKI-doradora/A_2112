@@ -57,7 +57,7 @@ export default function AnalyticsScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.boardContainer}>
-        <RenderDarts darts={demoData[0].uids.get("0")?.rounds[0]?.darts ?? [{x: 0, y: 0, score: 0}]} />
+        <RenderDarts darts={demoData[0].uids.get("0")?.rounds[0]?.darts ?? [{x: 0, y: 0, score: 0}]} isAnalysisColor={true}/>
       </View>
       <View style={styles.chartContainer} onLayout={onLayout}>
         <AnalyticsChart
@@ -86,7 +86,6 @@ const styles = StyleSheet.create({
 		padding: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'black',
   },
 
   chartContainer: {
