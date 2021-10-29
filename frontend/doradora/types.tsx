@@ -48,7 +48,7 @@ export type Dart = {
 }
 
 export type Round = {
-  darts: [Dart, Dart, Dart];
+  darts: Dart[];
   score: number; // 3本の合計
 }
 
