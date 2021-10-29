@@ -14,9 +14,12 @@ declare global {
 }
 
 export type RootStackParamList = {
-  Root: NavigatorScreenParams<RootTabParamList> | undefined;
-  Modal: undefined;
-  NotFound: undefined;
+  Top: undefined;
+  Home: NavigatorScreenParams<HomeTabParamList> | undefined;
+  Calibration: undefined;
+  Game: undefined;
+  Result: {data: GameDetail;};
+  Analytics: undefined;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<
@@ -24,12 +27,35 @@ export type RootStackScreenProps<Screen extends keyof RootStackParamList> = Nati
   Screen
 >;
 
-export type RootTabParamList = {
-  TabOne: undefined;
-  TabTwo: undefined;
+export type HomeTabParamList = {
+  GameTab: undefined;
+  ScoreTab: undefined;
 };
 
-export type RootTabScreenProps<Screen extends keyof RootTabParamList> = CompositeScreenProps<
-  BottomTabScreenProps<RootTabParamList, Screen>,
+export type HomeTabScreenProps<Screen extends keyof HomeTabParamList> = CompositeScreenProps<
+  BottomTabScreenProps<HomeTabParamList, Screen>,
   NativeStackScreenProps<RootStackParamList>
 >;
+
+export type Dart = {
+  x: number;
+  y: number;
+  score: number;
+}
+
+export type Round = {
+  darts: Dart[];
+  score: number; // 3本の合計
+}
+
+export type GameDetail = {
+  rounds: Round[];
+  totalScore: number; // roundの合計
+};
+
+export type Game = {
+  game_id: string;
+  type: 0 | 1 | 2;
+  n_rounds: number;
+  uids: Map<string, GameDetail>;
+};
