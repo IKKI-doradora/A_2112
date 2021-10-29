@@ -12,19 +12,17 @@ import { ColorSchemeName, StyleSheet } from 'react-native';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-import ModalScreen from '../screens/ModalScreen';
-import NotFoundScreen from '../screens/NotFoundScreen';
-// import TabOneScreen from '../screens/TabOneScreen';
-// import TabTwoScreen from '../screens/TabTwoScreen';
+
 import TopScreen from '../screens/TopScreen';
 import HomeGameTabScreen from '../screens/HomeGameTabScreen';
 import HomeScoreTabScreen from '../screens/HomeScoreTabScreen';
 import CalibrationScreen from '../screens/CalibrationScreen';
 import GameScreen from '../screens/GameScreen';
 import GameResultScreen from '../screens/GameResultScreen';
+import AnalyticsScreen from '../screens/AnalyticsScreen';
+import TrajectoryScreen from '../screens/TrajectoryScreen';
 import { RootStackParamList, HomeTabParamList } from '../types';
-import MoveOneScreen from '../screens/MoveOneScreen';
-import MoveTwoScreen from '../screens/MoveTwoScreen';
+
 import LinkingConfiguration from './LinkingConfiguration';
 
 import GameTest from '../screens/GameTest'
@@ -50,15 +48,11 @@ function RootNavigator() {
     <Stack.Navigator>
       <Stack.Screen name="Top" component={TopScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Home" component={BottomTabNavigator} options={{ headerShown: false }} />
-      <Stack.Screen name="Calibration" component={CalibrationScreen} options={{ title: '較正', headerShown: false }} />
-      <Stack.Screen name="Game" component={GameScreen} options={{ title: 'ゲーム' }} />
-      <Stack.Screen name="Result" component={GameResultScreen} options={{ title: '結果' }} />
-      <Stack.Screen name="MoveOne" component={MoveOneScreen} />
-      <Stack.Screen name="MoveTwo" component={MoveTwoScreen} />
-      <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
-      <Stack.Group screenOptions={{ presentation: 'modal' }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
-      </Stack.Group>
+      <Stack.Screen name="Calibration" component={CalibrationScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Game" component={GameScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Result" component={GameResultScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Trajectory" component={TrajectoryScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Analytics" component={AnalyticsScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
@@ -91,7 +85,7 @@ function BottomTabNavigator() {
         // component={HomeScoreTabScreen}
         component={GameTest}
         options={{
-          title: 'Score',
+          title: 'Analytics',
           tabBarIcon: (props) => <Ionicons style={styles.tabBarIcon} name="analytics" size={props.size} color={props.color} />,
         }}
       />

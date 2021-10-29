@@ -2,8 +2,10 @@ version: '3'
 services: 
     web:
         build: .
-        command: python3 app/app.py
-        volumes:
-            - ./app:/app
+        command: python3 app.py
         ports:
-            - 10.240.10.207:5000:5000
+            - 5000:5000
+        volumes:
+            - ./app/work:/work
+            - ./app:/app
+        working_dir: /app
