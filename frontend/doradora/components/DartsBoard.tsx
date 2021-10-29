@@ -11,6 +11,12 @@ export default function DartsBoard(props: DartsBoardProps) {
     const unit = diameter / 40;
     const colors = ["#AA0000", "#00AA00", "#000000", "#FFFFCC"];
     const radiusesUnits = [20, 18, 12, 10];
+    const tileses = [...Array(10)].map((_, i) => {
+        return <View
+        
+            
+        />
+    })
     
     return (
         <View style={{width: diameter, height: diameter,}}>
