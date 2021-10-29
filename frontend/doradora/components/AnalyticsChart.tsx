@@ -2,32 +2,32 @@ import * as React from 'react';
 import { useState, useMemo } from 'react';
 import { TouchableOpacity, View, StyleSheet, Text } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
-import { GameDetail, Game } from '../types';
+import { GameDetail } from '../types';
 
 type AnalyticsChartProps = {
   width: number;
   height: number;
-  games: Game[];
+  details: GameDetail[];
   uid: string;
   isRound: boolean;
   backHomeButtonFn: () => void;
 };
 
-const InvalidDetail: GameDetail = {
-  rounds: [{
-    darts: [{x: 0, y: 0, score: 0}, {x: 0, y: 0, score: 0}, {x: 0, y: 0, score: 0}],
-    score: -1,
-  }],
-  totalScore: -1,
-}
+// const InvalidDetail: GameDetail = {
+//   rounds: [{
+//     darts: [{x: 0, y: 0, score: 0}, {x: 0, y: 0, score: 0}, {x: 0, y: 0, score: 0}],
+//     score: -1,
+//   }],
+//   totalScore: -1,
+// }
 
 export default function AnalyticsChart(props: AnalyticsChartProps) {
-  const [isRound, setIsRound] = useState<boolean>(false);
-  const details = useMemo<GameDetail[]>(() => props.games.map(v => v.uids.get(props.uid) ?? InvalidDetail).filter(v => v.totalScore > 0), [props.games, props.uid])  // ダーツの情報を抜き取る
+  const [isRound, setIsRound] = useState<boolean>(props.isRound);
+  // const details = useMemo<GameDetail[]>(() => props.games.map(v => v.uids.get(props.uid) ?? InvalidDetail).filter(v => v.totalScore > 0), [props.games, props.uid])  // ダーツの情報を抜き取る
 
   return (
     <View style={styles.container}>
-      {isRound ? <GameRoundScoreChart details={details} {...props} /> : <GameTotalScoreChart details={details} {...props} />}
+      {isRound ? <GameRoundScoreChart {...props} /> : <GameTotalScoreChart {...props} />}
       <View style={styles.buttonContainer} >
           <TouchableOpacity style={[styles.button, {width: props.width * 0.9, height: props.height * 0.12}]} onPress={props.backHomeButtonFn} >
             <Text style={styles.buttonTitle} >Back</Text>

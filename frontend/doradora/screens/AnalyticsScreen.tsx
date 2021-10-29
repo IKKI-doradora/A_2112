@@ -34,7 +34,18 @@ export default function AnalyticsScreen() {
     setChartHeight(e.nativeEvent.layout.width);
   }
 
+  // uid と gameの配列 から そのプレイヤーのGameDetailのみを取り出す
+  const uid = "0";
   const demoData = Array(10).fill(1).map(() => makeDemoData());
+
+  const InvalidDetail: GameDetail = {
+    rounds: [{
+      darts: [{x: 0, y: 0, score: 0}, {x: 0, y: 0, score: 0}, {x: 0, y: 0, score: 0}],
+      score: -1,
+    }],
+    totalScore: -1,
+  }
+  const details = demoData.map(v => v.uids.get(uid) ?? InvalidDetail).filter(v => v.totalScore > 0)  // ダーツの情報を抜き取る
 
   return (
     isCountUp ? (
@@ -46,8 +57,8 @@ export default function AnalyticsScreen() {
           <AnalyticsChart
             width={chartWidth}
             height={chartHeight}
-            games={demoData}
-            uid={"0"}
+            details={details}
+            uid={uid}
             isRound={false}
             backHomeButtonFn={() => setIsCountUp(false)}
           />
@@ -79,14 +90,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-	board: {
-    width:  'auto',
-		height: '100%',
-		aspectRatio: 1,
-    justifyContent: 'center',
-    backgroundColor: 'black',
-  },
-
 	boardContainer: {
     flex: 3,
 		padding: 5,
@@ -99,21 +102,6 @@ const styles = StyleSheet.create({
     flex: 3,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-
-  dartsLayer: {
-    position: 'absolute',
-    zIndex: 10,
-    elevation: Platform.OS === 'android' ? 10 : 0,
-    backgroundColor: 'green',
-  },
-
-  darts: {
-    position: 'absolute',
-    borderRadius: 10,
-    width: 20,
-    height: 20,
-    backgroundColor: 'cyan',
   },
 
   buttonContainer: {

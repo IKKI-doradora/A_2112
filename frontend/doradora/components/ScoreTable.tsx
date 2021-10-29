@@ -26,7 +26,7 @@ export default function ScoreTable(props: ScoreTableProps) {
 
   for (let i = 0; i < 8; i += 1) {
     const rowData = [`R${i+1}`];
-    rawData.rounds.push(ZeroData);
+    // rawData.rounds.push(ZeroData);
     for (let j = 1; j < 2; j += 1) {
       rowData.push(`${rawData.rounds[i].score}`);
     }
