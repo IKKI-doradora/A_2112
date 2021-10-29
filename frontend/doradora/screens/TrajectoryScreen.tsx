@@ -7,7 +7,8 @@ import { Video } from "expo-av"
 
 export default function TrajectoryScreen() {
     const [trajectoryUri, setTrajectoryUri] = useState<string | null>(null);
-    
+    const [sourceUri, setSourceUri] = useState<string | null>(null);
+     
     const pickVideo = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Videos,
@@ -20,32 +21,36 @@ export default function TrajectoryScreen() {
     
         if (!result.cancelled) {
             _getTrajectory(result.uri);
+            console.log(result.uri);
         }
     }
 
     const _getTrajectory = async (uri: string) => {
-        const video = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' })
-        console.log(video);
+        setSourceUri(uri);
+        const video = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
+
         console.log(video.length);
 
         // キャッシュへの書き込みテスト
         // const newUri = FileSystem.cacheDirectory + "trajectory.mov";
+        // await FileSystem.writeAsStringAsync(newUri, video, { encoding: 'base64' });
         // setTrajectoryUri(newUri);
-        // await FileSystem.writeAsStringAsync(newUri, video);
-        
-        // 本処理
-        fetch("http://192.168.43.1:5000/trajectory", {
+
+        // console.log(video);
+       
+        fetch("http://192.168.43.129:5000/trajectory", {
             method: "POST",
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({base64: video}),
         })
-            .then(res => {return res.json()})
-            .then(async data => {
-                console.log(data.base64mp4);
-                const newUri = FileSystem.cacheDirectory + "trajectory.mov";
-                setTrajectoryUri(newUri);
-                await FileSystem.writeAsStringAsync(newUri, data.base64mp4);
-            });
+        .then(res => {console.log(res); return res.json()})
+        .then(async data => {
+            console.log(data.base64mp4);
+            console.log("OK!");
+            const newUri = FileSystem.cacheDirectory + "trajectory.mov";
+            await FileSystem.writeAsStringAsync(newUri, data.base64mp4, { encoding: "base64" });
+            setTrajectoryUri(newUri);
+        });
 
         // 通信テスト
         // fetch("http://proc.memotube.xyz/video", {
@@ -55,6 +60,7 @@ export default function TrajectoryScreen() {
         // })
         //     .then(res => {return res.text()})
         //     .then(data => console.log(data));
+        
     }
     
 
@@ -73,6 +79,7 @@ export default function TrajectoryScreen() {
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             <View style={{flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                 <TouchableOpacity onPress={pickVideo} style={styles.button}><Text>Pick an video from camera roll</Text></TouchableOpacity>
+                {/* <TouchableOpacity onPress={() => {setTrajectoryUri(uri => uri)}} style={styles.button}/> */}
             </View>
             <View style={{flex: 5, alignItems: 'center', justifyContent: 'center' }}>
                 {trajectoryUri ? (

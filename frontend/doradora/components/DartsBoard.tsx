@@ -1,36 +1,64 @@
-import { View } from "react-native";
+import { View, PixelRatio } from "react-native";
 import * as React from "react";
 
 type DartsBoardProps = {
     diameter: number,
     maxZIndex: number,
+    colorses: Array<Array<string>>,
 }
 
 export default function DartsBoard(props: DartsBoardProps) {
-    const { diameter, maxZIndex } = props;
+    const { diameter, maxZIndex, colorses } = props;
     const unit = diameter / 40;
-    const colors = ["#AA0000", "#00AA00", "#000000", "#FFFFCC"];
-    const radiusesUnits = [20, 18, 12, 10];
+    const radiusUnits = [20, 18, 12, 10];
+
+    const tileses = [...Array(8)].map((_, i) => 
+        <Tiles colors={colorses[i]} radius={radiusUnits[Math.floor(i / 2)] * unit} maxRadius={diameter / 2} isTileCenter={i % 2 === 0} zIndex={Math.floor(i / 2) - 5}/>
+    );
+
+    const lims = [...Array(4)].map((_, i) => {
+        const radius = 2 * radiusUnits[i] * unit * 1.02;
+        return <View style={{
+            borderColor: "#000000", 
+            width: radius, 
+            height: radius, 
+            borderWidth: radius * 0.01, 
+            borderRadius: radius, 
+
+            position: "absolute", 
+            top: diameter / 2 - radius / 2,
+            left: diameter / 2 - radius / 2, 
+            zIndex: maxZIndex,
+        }}/>
+    });
     
     return (
         <View style={{width: diameter, height: diameter,}}>
-            <Tiles color={colors[0]} radius={20 * unit} maxRadius={diameter/2} isTileCenter={true} zIndex={maxZIndex-5}/>
-            <Tiles color={colors[1]} radius={20 * unit} maxRadius={diameter/2} isTileCenter={false} zIndex={maxZIndex-5}/>
-            <Tiles color={colors[2]} radius={18 * unit} maxRadius={diameter/2} isTileCenter={true} zIndex={maxZIndex-4}/>
-            <Tiles color={colors[3]} radius={18 * unit} maxRadius={diameter/2} isTileCenter={false} zIndex={maxZIndex-4}/>
-            <Tiles color={colors[0]} radius={12 * unit} maxRadius={diameter/2} isTileCenter={true} zIndex={maxZIndex-3}/>
-            <Tiles color={colors[1]} radius={12 * unit} maxRadius={diameter/2} isTileCenter={false} zIndex={maxZIndex-3}/>
-            <Tiles color={colors[2]} radius={10 * unit} maxRadius={diameter/2} isTileCenter={true} zIndex={maxZIndex-2}/>
-            <Tiles color={colors[3]} radius={10 * unit} maxRadius={diameter/2} isTileCenter={false} zIndex={maxZIndex-2}/>
-            <View style={{borderColor: colors[0], borderWidth: 2 * unit, borderRadius: 2 * unit, position: "absolute", left: diameter / 2 - 2 * unit, top: diameter / 2 - 2 *　unit, zIndex: maxZIndex}}/>
-            <View style={{borderColor: colors[2], borderWidth: unit, borderRadius: unit, position: "absolute", left: diameter / 2 - unit, top: diameter / 2 - unit, zIndex: maxZIndex}}/>
-
+            {tileses}
+            <View style={{borderColor: colorses[8][0], 
+                borderWidth: 2 * unit, 
+                borderRadius: 2 * unit, 
+                position: "absolute", 
+                left: diameter / 2 - 2 * unit, 
+                top: diameter / 2 - 2 *　unit, 
+                zIndex: maxZIndex}}
+            />
+            <View style={{
+                borderColor: colorses[8][1], 
+                borderWidth: unit, 
+                borderRadius: unit, 
+                position: "absolute", 
+                left: diameter / 2 - unit, 
+                top: diameter / 2 - unit, 
+                zIndex: maxZIndex}}
+            />
+            {lims}
         </View>
     );
 }
 
 type TilesProps = {
-    color: string,
+    colors: Array<string>,
     radius: number,
     maxRadius: number,
     isTileCenter: Boolean,
@@ -38,20 +66,19 @@ type TilesProps = {
 }
 
 function Tiles(props: TilesProps){
-    const { color, radius, maxRadius, isTileCenter, zIndex } = props;
+    const { colors, radius, maxRadius, isTileCenter, zIndex } = props;
     const width = Math.sqrt(Math.pow(radius, 2) * (1-0.90)) / 2;
     const tiles = [...Array(10)].map((_, i) => {
         return <View style={{
             position: "absolute",
 
             borderBottomWidth: radius,
-            borderBottomColor: color,
+            borderBottomColor: colors[i],
             borderLeftWidth: width,
             borderLeftColor: "transparent",
             borderRightWidth: width,
             borderRightColor: "transparent",
-            // borderRadius: 100,
-
+            // borderRadius: 50 / PixelRatio.get(),
             zIndex: zIndex,
             
             transform: [{translateY: -1 * radius / 2}, {"rotate": isTileCenter ? `${i * 36}deg` : `${18 + i * 36}deg`}, {translateY: radius / 2}],
