@@ -4,9 +4,10 @@ import { Camera } from 'expo-camera';
 import React from 'react';
 
 // const TEXTURE_SIZE = { width: 1440, height: 1920 };
-const TEXTURE_SIZE = { width: 1080, height: 1920 };
+const TEXTURE_SIZE = { width: 1280, height: 960 };
+// const TEXTURE_SIZE = { width: 1080, height: 1920 };
 
-const TENSOR_WIDTH = 1080;
+const TENSOR_WIDTH = 52;
 
 const CAMERA_RATIO = TEXTURE_SIZE.height / TEXTURE_SIZE.width;
 
@@ -23,6 +24,7 @@ type Props = {
   width: number,
   autorender: boolean,
   onReady: (images: any) => void,
+  _ref?: (r: any) => void,
 }
 
 export function CustomTensorCamera(props: Props) {
@@ -41,6 +43,7 @@ export function CustomTensorCamera(props: Props) {
   return (
     <TensorCamera
       {...props}
+      ref={props._ref}
       useCustomShadersToResize={false}
       style={[styles.camera, sizeStyle]}
       cameraTextureWidth={TEXTURE_SIZE.width}
