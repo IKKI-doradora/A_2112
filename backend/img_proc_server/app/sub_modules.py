@@ -94,6 +94,7 @@ def is_ignore_pixel(img, idx, column, kernel_size, p):
 def extract_arrow(img, condition, diff_image = False, ignore_kernel_size = 3, p = 50):
     img_arrow = img.copy()
 
+
     if not diff_image:    
         img_arrow[:,:,0] = np.where(condition, 255, 0)
         img_arrow[:,:,1] = np.where(condition, 255, 0)

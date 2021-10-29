@@ -12,29 +12,16 @@ import { ColorSchemeName, StyleSheet } from 'react-native';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-import ModalScreen from '../screens/ModalScreen';
-import NotFoundScreen from '../screens/NotFoundScreen';
-<<<<<<< HEAD
-// import TabOneScreen from '../screens/TabOneScreen';
-// import TabTwoScreen from '../screens/TabTwoScreen';
+
 import TopScreen from '../screens/TopScreen';
 import HomeGameTabScreen from '../screens/HomeGameTabScreen';
 import HomeScoreTabScreen from '../screens/HomeScoreTabScreen';
 import CalibrationScreen from '../screens/CalibrationScreen';
 import GameScreen from '../screens/GameScreen';
 import GameResultScreen from '../screens/GameResultScreen';
+import AnalyticsScreen from '../screens/AnalyticsScreen';
 import { RootStackParamList, HomeTabParamList } from '../types';
-import MoveOneScreen from '../screens/MoveOneScreen';
-import MoveTwoScreen from '../screens/MoveTwoScreen';
-import TabOneScreen from '../screens/TabOneScreen';
-import TabTwoScreen from '../screens/TabTwoScreen';
-// import TakeSerialPictureScreen from '../screens/TakeSerialPictureScreen';
-// import { ViewShotScreen } from "../screens/ViewShotScreen"
-// import { TakeVideoScreen } from '../screens/TakeVideoScreen';
-import trajectoryScreen from '../screens/TrajectoryScreen';
-// import { TakeSerialPictureButton } from '../components/TakeSerialPictureButton';
 
-import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
@@ -58,15 +45,9 @@ function RootNavigator() {
     <Stack.Navigator>
       <Stack.Screen name="Top" component={TopScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Home" component={BottomTabNavigator} options={{ headerShown: false }} />
-      <Stack.Screen name="Calibration" component={CalibrationScreen} options={{ title: '較正', headerShown: false }} />
-      <Stack.Screen name="Game" component={GameScreen} options={{ title: 'ゲーム' }} />
-      <Stack.Screen name="Result" component={GameResultScreen} options={{ title: '結果' }} />
-      <Stack.Screen name="MoveOne" component={MoveOneScreen} />
-      <Stack.Screen name="MoveTwo" component={MoveTwoScreen} />
-      <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
-      <Stack.Group screenOptions={{ presentation: 'modal' }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
-      </Stack.Group>
+      <Stack.Screen name="Calibration" component={CalibrationScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Game" component={GameScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Result" component={GameResultScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
@@ -87,45 +68,18 @@ function BottomTabNavigator() {
         tabBarActiveTintColor: Colors[colorScheme].tint,
       }}>
       <BottomTab.Screen
-<<<<<<< HEAD
         name="GameTab"
         component={HomeGameTabScreen}
         options={{
           title: 'Game',
           tabBarIcon: ( props ) => <FontAwesome style={styles.tabBarIcon} name="gamepad" size={props.size} color={props.color} />
         }}
-=======
-        name="TabOne"
-        // component={TabOneScreen}
-        // component={TakeSerialPictureScreen}
-        // component={TakeSerialPictureButton}
-        // component={TakeVideoScreen}
-        component={trajectoryScreen}
-        options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <Pressable
-              onPress={() => navigation.navigate('Modal')}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.5 : 1,
-              })}>
-              <FontAwesome
-                name="info-circle"
-                size={25}
-                color={Colors[colorScheme].text}
-                style={{ marginRight: 15 }}
-              />
-            </Pressable>
-          ),
-        })}
->>>>>>> urataCam
       />
       <BottomTab.Screen
         name="ScoreTab"
-        component={HomeScoreTabScreen}
+        component={AnalyticsScreen}
         options={{
-          title: 'Score',
+          title: 'Analytics',
           tabBarIcon: ( props ) => <Ionicons style={styles.tabBarIcon} name="analytics" size={props.size} color={props.color}/>,
         }}
       />

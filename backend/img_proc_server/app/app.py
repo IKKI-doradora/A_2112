@@ -37,6 +37,7 @@ def calib():
     arrow_point = json.loads(request.data.decode('UTF-8'))["arrowPoint"]
     marker_points = json.loads(request.data.decode('UTF-8'))["markerPoints"]
     crop_points = json.loads(request.data.decode('UTF-8'))["cropPoints"]
+    manual_marker = json.loads(request.data.decode('UTF-8'))["manualMarker"]
 
     img_org = image_preprocess(base64Image, calib=True)
     
@@ -44,7 +45,7 @@ def calib():
     # arrow_point = [int(arrow_point[0]*h  - h_crop[0]), int(arrow_point[1]*w -w_crop[0])]
     # marker_points = np.array([[int(marker_point[1]*w - w_crop[0]), int(marker_point[0]*h - h_crop[0])] for marker_point in marker_points])
 
-    img = init_calib(img_org, arrow_point, marker_points, crop_points, debug=True)
+    img = init_calib(img_org, arrow_point, marker_points, crop_points, debug=True, manual_marker=manual_marker)
 
     if img is None:
         return make_response(jsonify({'base64Image':base64Image }),200)
@@ -56,27 +57,26 @@ def calib():
         return make_response(jsonify({'base64Image':base64Image2 }),200)
 
 
-@app.route('/arrow/<int:count>', methods = ['POST'])
+@app.route('/arrow', methods = ['POST'])
 def arrow(count):
+    base64ImagePrev = json.loads(request.data.decode('UTF-8'))["base64ImagePrev"]
     base64Image = json.loads(request.data.decode('UTF-8'))["base64Image"]
 
-    img, img_org = image_preprocess(base64Image, calib=False)
-    # ToDO
-    # ...
-    # retun board_x, board_y, score
+    img_prev, _ = image_preprocess(base64ImagePrev, calib=False)
+    img, img_org = image_preprocess(base64ImagePrev, calib=False)
 
-    # img = reference_board()
+    # img, r, theta, score = detect_arrow(img, img_prev, count)
+    img, x, y, score = detect_arrow(img, img_prev, count)
 
-    img, r, theta, score = detect_arrow(img, count)
+    # if img is None:
+    #     return make_response(jsonify({'base64Image':base64Image }),200)
+    # else:
+    #     # img = cv2.resize(img, img_org.shape[:2])
+    #     retval, buffer = cv2.imencode('.jpg', img)
+    #     base64Image2 = base64.b64encode(buffer).decode('UTF-8')
+    #     return make_response(jsonify({'base64Image':base64Image2 }),200)
 
-    if img is None:
-        return make_response(jsonify({'base64Image':base64Image }),200)
-    else:
-        # img = cv2.resize(img, img_org.shape[:2])
-        retval, buffer = cv2.imencode('.jpg', img)
-        base64Image2 = base64.b64encode(buffer).decode('UTF-8')
-    
-        return make_response(jsonify({'base64Image':base64Image2 }),200)
+    return make_response(jsonify({'x': x, 'y': y, 'score': score}),200)
 
 
 @app.route('/trajectory', methods = ['POST'])

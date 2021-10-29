@@ -2,18 +2,25 @@ import React, { useState } from 'react'
 import { StyleSheet, Text, View, TouchableOpacity, Pressable, Image } from 'react-native'
 import { Camera } from 'expo-camera'
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
+import { useNavigation } from '@react-navigation/core';
+import { RootStackScreenProps } from '../types';
 
+
+type CalibrationScreenProps = RootStackScreenProps<'Calibration'>;
 
 export default function CaputuprePreview({ photo, retakePicture, calibrateCV, sendArrowImage }: any) {
+    const navigation = useNavigation<CalibrationScreenProps['navigation']>()
+
     const [arrowPosition, setArrowPosition] = useState({ 'x': 250, 'y': 125 })
     const [nowZoomLevel, setNowZoomLevel] = useState(1.0)
     const [anchorActivations, setAnchorActivations] = useState([false, false, false, false])
-    const [markerActivatioin, setMarkerActivations] = useState([false, false, false, false])
+    const [markerActivation, setMarkerActivations] = useState([false, false, false, false])
     const [rMarker, setRMarker] = useState(4)
     const [rAnchor, setRAnchor] = useState(6)
     const [markerPositions, setMarkerPositions] = useState([[50, 250], [200, 250], [125, 120], [125, 380]])
     const [anchorPositions, setAnchorPositions] = useState([[20, 30], [230, 30], [230, 500], [20, 500]])
     const [doneImgProcess, setDoneImgProcess] = useState(false)
+    const [isManulMarker, setIsManualMarker] = useState(false)
 
     const moveMarkerPosition = (evt: any) => {
         console.log("-----------------")
@@ -41,8 +48,8 @@ export default function CaputuprePreview({ photo, retakePicture, calibrateCV, se
             }
             setAnchorPositions(ap)
             setAnchorActivations([false, false, false, false])
-        } else if (markerActivatioin.some((v) => v == true)) {
-            const id = markerActivatioin.findIndex((v) => v == true)
+        } else if (markerActivation.some((v) => v == true)) {
+            const id = markerActivation.findIndex((v) => v == true)
             const x = evt.nativeEvent.locationX
             const y = evt.nativeEvent.locationY
             let ap = markerPositions
@@ -79,6 +86,14 @@ export default function CaputuprePreview({ photo, retakePicture, calibrateCV, se
         setNowZoomLevel(zoomableViewEventObject.zoomLevel)
         // setRMarker(1.*rMarker/zoomableViewEventObject.zoomLevel)
         // setRAnchor(1.*rAnchor/zoomableViewEventObject.zoomLevel)
+    }
+
+    const switchManualMarker = () => {
+        if (isManulMarker) {
+            setIsManualMarker(false)
+        } else {
+            setIsManualMarker(true)
+        }
     }
 
 
@@ -122,111 +137,36 @@ export default function CaputuprePreview({ photo, retakePicture, calibrateCV, se
                 }}
                 ></View>
 
-                <Pressable
-                    style={{
-                        width: 2 * rAnchor,
-                        height: 2 * rAnchor,
-                        borderRadius: rAnchor,
-                        backgroundColor: anchorActivations[0] ? 'purple' : "orange",
-                        overflow: "hidden",
-                        position: 'absolute',
-                        top: anchorPositions[0][0] - rAnchor,
-                        left: anchorPositions[0][1] - rAnchor,
-                    }}
-                    onPress={(evt) => activateRectangleAnchor(evt, 0)}
-                ></Pressable >
-                <Pressable
-                    style={{
-                        width: 2 * rAnchor,
-                        height: 2 * rAnchor,
-                        borderRadius: rAnchor,
-                        backgroundColor: anchorActivations[1] ? 'purple' : "orange",
-                        overflow: "hidden",
-                        position: 'absolute',
-                        top: anchorPositions[1][0] - rAnchor,
-                        left: anchorPositions[1][1] - rAnchor,
-                    }}
-                    onPress={(evt) => activateRectangleAnchor(evt, 1)}
-                ></Pressable >
-                <Pressable
-                    style={{
-                        width: 2 * rAnchor,
-                        height: 2 * rAnchor,
-                        borderRadius: rAnchor,
-                        backgroundColor: anchorActivations[2] ? 'purple' : "orange",
-                        overflow: "hidden",
-                        position: 'absolute',
-                        top: anchorPositions[2][0] - rAnchor,
-                        left: anchorPositions[2][1] - rAnchor,
-                    }}
-                    onPress={(evt) => activateRectangleAnchor(evt, 2)}
-                ></Pressable >
-                <Pressable
-                    style={{
-                        width: 2 * rAnchor,
-                        height: 2 * rAnchor,
-                        borderRadius: rAnchor,
-                        backgroundColor: anchorActivations[3] ? 'purple' : "orange",
-                        overflow: "hidden",
-                        position: 'absolute',
-                        top: anchorPositions[3][0] - rAnchor,
-                        left: anchorPositions[3][1] - rAnchor,
-                    }}
-                    onPress={(evt) => activateRectangleAnchor(evt, 3)}
-                ></Pressable >
+                {(() => {
+                    let anchors = []
+                    for (let i = 0; i < 4; i++) {
+                        anchors.push(
+                            <Pressable
+                                style={anchorStyle(anchorActivations[i], anchorPositions[i], rAnchor)} //position: 'absolute' によるワーニング. 期待通りに動く. むしろこれを外すとマーカー位置がおかしくなる.
+                                onPress={(evt) => activateRectangleAnchor(evt, i)}
+                                key={i}
+                            ></Pressable >
+                        )
+                    }
+                    return anchors
+                })()}
 
-                <Pressable
-                    style={{
-                        width: 2 * rMarker,
-                        height: 2 * rMarker,
-                        borderRadius: rMarker,
-                        backgroundColor: markerActivatioin[0] ? 'purple' : "green",
-                        overflow: "hidden",
-                        position: 'absolute',
-                        top: markerPositions[0][0] - rMarker,
-                        left: markerPositions[0][1] - rMarker,
-                    }}
-                    onPress={(evt) => activateMarker(evt, 0)}
-                ></Pressable >
-                <Pressable
-                    style={{
-                        width: 2 * rMarker,
-                        height: 2 * rMarker,
-                        borderRadius: rMarker,
-                        backgroundColor: markerActivatioin[1] ? 'purple' : "green",
-                        overflow: "hidden",
-                        position: 'absolute',
-                        top: markerPositions[1][0] - rMarker,
-                        left: markerPositions[1][1] - rMarker,
-                    }}
-                    onPress={(evt) => activateMarker(evt, 1)}
-                ></Pressable >
-                <Pressable
-                    style={{
-                        width: 2 * rMarker,
-                        height: 2 * rMarker,
-                        borderRadius: rMarker,
-                        backgroundColor: markerActivatioin[2] ? 'purple' : "green",
-                        overflow: "hidden",
-                        position: 'absolute',
-                        top: markerPositions[2][0] - rMarker,
-                        left: markerPositions[2][1] - rMarker,
-                    }}
-                    onPress={(evt) => activateMarker(evt, 2)}
-                ></Pressable >
-                <Pressable
-                    style={{
-                        width: 2 * rMarker,
-                        height: 2 * rMarker,
-                        borderRadius: rMarker,
-                        backgroundColor: markerActivatioin[3] ? 'purple' : "green",
-                        overflow: "hidden",
-                        position: 'absolute',
-                        top: markerPositions[3][0] - rMarker,
-                        left: markerPositions[3][1] - rMarker,
-                    }}
-                    onPress={(evt) => activateMarker(evt, 3)}
-                ></Pressable >
+                {isManulMarker ?
+                    (() => {
+                        let markers = []
+                        for (let i = 0; i < 4; i++) {
+                            markers.push(
+                                <Pressable
+                                    style={markerStyle(markerActivation[i], markerPositions[i], rMarker)} //position: 'absolute' によるワーニング. 期待通りに動く. むしろこれを外すとマーカー位置がおかしくなる.
+                                    onPress={(evt) => activateMarker(evt, i)}
+                                    key={i}
+                                ></Pressable >
+                            )
+                        }
+                        return markers
+                    })()
+                : <></>}
+
 
             </ReactNativeZoomableView>
 
@@ -243,10 +183,17 @@ export default function CaputuprePreview({ photo, retakePicture, calibrateCV, se
                     </TouchableOpacity>
                 </View>
                 :
-                <View style={{ position: 'absolute', bottom: 10, left: 500 }}>
-                    <TouchableOpacity style={styles.button} >
-                        <Text style={styles.buttonTitle} onPress={(evt) => calibrateCV(evt, [arrowPosition.y, arrowPosition.x], markerPositions, anchorPositions, setDoneImgProcess)} >Calibrate Image</Text>
-                    </TouchableOpacity>
+                <View>
+                    <View style={{ position: 'absolute', bottom: 10, left: 250 }}>
+                        <TouchableOpacity style={styles.button} >
+                            <Text style={styles.buttonTitle} onPress={switchManualMarker} >Manual Marker</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{ position: 'absolute', bottom: 10, left: 500 }}>
+                        <TouchableOpacity style={styles.button} >
+                            <Text style={styles.buttonTitle} onPress={(evt) => calibrateCV(evt, [arrowPosition.y, arrowPosition.x], markerPositions, anchorPositions, setDoneImgProcess, isManulMarker)} >Calibrate Image</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             }
 
@@ -266,7 +213,7 @@ const styles = StyleSheet.create({
 
     button: {
         width: 160,
-        height: 40,
+        height: 30,
         padding: 0,
         borderRadius: 10,
         backgroundColor: 'orange',
@@ -281,3 +228,25 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 });
+
+const markerStyle = (markerActivation: boolean, moveMarkerPosition: Array<number>, rMarker: number) => ({
+    width: 2 * rMarker,
+    height: 2 * rMarker,
+    borderRadius: rMarker,
+    backgroundColor: markerActivation ? 'purple' : "red",
+    // overflow: "hidden",
+    position: 'absolute',
+    top: moveMarkerPosition[0] - rMarker,
+    left: moveMarkerPosition[1] - rMarker,
+})
+
+const anchorStyle = (anchorActivation: boolean, anchorPosition: Array<number>, rAnchor: number) => ({
+    width: 2 * rAnchor,
+    height: 2 * rAnchor,
+    borderRadius: rAnchor,
+    backgroundColor: anchorActivation ? 'purple' : "orange",
+    overflow: "hidden",
+    position: 'absolute',
+    top: anchorPosition[0] - rAnchor,
+    left: anchorPosition[1] - rAnchor,
+})

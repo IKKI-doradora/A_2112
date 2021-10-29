@@ -1,3 +1,4 @@
+import { Asset } from 'expo-asset';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { View } from "react-native"
@@ -13,6 +14,9 @@ import DartsBoard from './components/DartsBoard';
 export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
+  Asset.loadAsync(require('./assets/images/backboard.jpg'));
+  Asset.loadAsync(require('./assets/images/icon.png'));
+  Asset.loadAsync(require('./assets/images/board_c.png'));
 
   if (!isLoadingComplete) {
     return null;
