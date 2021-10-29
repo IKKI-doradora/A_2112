@@ -1,4 +1,4 @@
-import { View, PixelRatio } from "react-native";
+import { View } from "react-native";
 import * as React from "react";
 
 type DartsBoardProps = {
@@ -23,7 +23,6 @@ export default function DartsBoard(props: DartsBoardProps) {
             width: radius, 
             height: radius, 
             borderWidth: radius * 0.01, 
-            borderRadius: radius, 
 
             position: "absolute", 
             top: diameter / 2 - radius / 2,
