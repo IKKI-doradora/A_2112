@@ -19,7 +19,8 @@ export type RootStackParamList = {
   Calibration: undefined;
   Game: undefined;
   Result: {data: GameDetail;};
-  Analytics: undefined;
+  Analytics: {type: 0 | 1 | 2;};
+  Trajectory: undefined;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<

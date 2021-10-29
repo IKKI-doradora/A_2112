@@ -32,6 +32,7 @@ const linking: LinkingOptions<RootStackParamList> = {
       Game: 'game',
       Result: 'result',
       Analytics: 'analytics',
+      Trajectory: 'trajectory',
     },
   },
 };

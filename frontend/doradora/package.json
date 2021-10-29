@@ -31,6 +31,7 @@
     "expo-font": "~10.0.3",
     "expo-gl": "~11.0.3",
     "expo-image-manipulator": "~10.1.2",
+    "expo-image-picker": "^11.0.3",
     "expo-linking": "~2.4.2",
     "expo-splash-screen": "~0.13.3",
     "expo-status-bar": "~1.1.0",
@@ -48,8 +49,8 @@
     "react-native-svg": "12.1.1",
     "react-native-table-component": "^1.2.1",
     "react-native-web": "0.17.1",
-    "zustand": "^3.6.0",
-    "react-native-zoomable-view": "^0.3.1"
+    "react-native-zoomable-view": "^0.3.1",
+    "zustand": "^3.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

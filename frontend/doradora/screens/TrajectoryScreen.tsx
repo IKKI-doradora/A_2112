@@ -8,13 +8,13 @@ import { Video } from "expo-av"
 export default function TrajectoryScreen() {
     const [trajectoryUri, setTrajectoryUri] = useState<string | null>(null);
     const [sourceUri, setSourceUri] = useState<string | null>(null);
-     
+
     const pickVideo = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 1,
+        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
         });
     
         if (!result.cancelled) {
