@@ -18,11 +18,8 @@ export type RootStackParamList = {
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   Calibration: undefined;
   Game: undefined;
-  Result: undefined;
-  MoveOne: undefined;
-  MoveTwo: {count: number};
-  Modal: undefined;
-  NotFound: undefined;
+  Result: {data: GameDetail;};
+  Analytics: undefined;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<
@@ -39,3 +36,26 @@ export type HomeTabScreenProps<Screen extends keyof HomeTabParamList> = Composit
   BottomTabScreenProps<HomeTabParamList, Screen>,
   NativeStackScreenProps<RootStackParamList>
 >;
+
+export type Dart = {
+  x: number;
+  y: number;
+  score: number;
+}
+
+export type Round = {
+  darts: Dart[];
+  score: number; // 3本の合計
+}
+
+export type GameDetail = {
+  rounds: Round[];
+  totalScore: number; // roundの合計
+};
+
+export type Game = {
+  game_id: string;
+  type: 0 | 1 | 2;
+  n_rounds: number;
+  uids: Map<string, GameDetail>;
+};
