@@ -6,21 +6,19 @@ import { Round } from '../types';
 import { Dimensions, Image, Platform, ImageBackground } from 'react-native';
 import { useState} from 'react';
 import { setStatusBarBackgroundColor } from 'expo-status-bar';
+import { RootStackScreenProps } from '../types';
 
 type RenderDartsProps = {
   darts: Round['darts'];
 }
+type GameResultScreenProps = RootStackScreenProps<'Result'>;
 
 export default function RenderDarts(props: RenderDartsProps){
   const [dimensions, setDimensions] = useState({x:0, y:0, width:0, height:0})
   var boardRadius = (dimensions.width < dimensions.height ? dimensions.width : dimensions.height) / 2;
   const dartsRadius = 8;
-  // var r0 = boardRadius -dartsRadius; //dartsRadiusによる補正
   var r0 = -dartsRadius; //dartsRadiusによる補正
-
-  // const positions = props.data.uids[320].positions;
   const data = props.darts;
-
 
   return (
     <View>

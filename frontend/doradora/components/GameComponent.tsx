@@ -1,12 +1,13 @@
 import { useNavigation } from '@react-navigation/core';
 import * as React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { Text, View } from '../components/Themed';
 import { Dart, Round, GameDetail, RootStackScreenProps} from '../types';
 import { useState} from 'react';
 import { Button,Badge} from 'react-native-elements';
 import ScoreTable from '../components/ScoreTable';
 import RenderDarts from '../components/RenderDarts';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 
 type GameScreenProps = RootStackScreenProps<'Game'>;
@@ -96,6 +97,20 @@ export default function GameComponent(){
   return (
     <View style={styles.scoreContainer}>
       <View style={styles.leftContainer}>
+        <Button 
+          icon={
+            <Icon
+              name="home-variant"
+              size={30}
+            />}
+          type="clear"
+          containerStyle={{ top: 50, left: -170 }}
+          style = {{
+              position: 'absolute',
+              zIndex: 10,
+              elevation: Platform.OS === 'android' ? 10 : 0,}}
+          onPress={() => navigation.navigate("Home")}
+        />
         <Badge
           value={`R ${Round+1}`}
           status="error"
