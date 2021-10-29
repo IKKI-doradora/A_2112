@@ -11,7 +11,7 @@ import { setStatusBarBackgroundColor } from 'expo-status-bar';
 export default function RenderDarts(props){
   const [dimensions, setDimensions] = useState({x:0, y:0, width:0, height:0})
   var boardRadius = (dimensions.width < dimensions.height ? dimensions.width : dimensions.height) / 2;
-  const dartsRadius = 6;
+  const dartsRadius = 8;
   // var r0 = boardRadius -dartsRadius; //dartsRadiusによる補正
   var r0 = -dartsRadius; //dartsRadiusによる補正 
 
@@ -27,7 +27,7 @@ export default function RenderDarts(props){
           setDimensions({x:x, y:y, width:width, height:height});
         }}
         style={styles.board}
-        source={require('../assets/images/board_c2.png')}
+        source={require('../assets/images/board_c.png')}
       />
       <View style={styles.dartsLayer} >
         {

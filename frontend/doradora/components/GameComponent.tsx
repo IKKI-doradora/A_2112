@@ -3,7 +3,6 @@ import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { Text, View } from '../components/Themed';
 import { Dart, Round, GameDetail, RootStackScreenProps} from '../types';
-import { Dimensions, Image, Platform, ImageBackground } from 'react-native';
 import { useState} from 'react';
 import { Button,Badge} from 'react-native-elements';
 import ScoreTable from '../components/ScoreTable';
@@ -125,7 +124,7 @@ const styles = StyleSheet.create({
   scoreContainer: {
 		flex: 8,
     flexDirection: 'row',
-    backgroundColor: 'rgba(0,0,0,0.6)' 
+    backgroundColor: 'rgba(0,0,0,0.3)' 
   },
   leftContainer: {
     flex: 3,

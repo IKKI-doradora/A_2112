@@ -11,13 +11,14 @@ import { useState} from 'react';
 
 
 type GameScreenProps = RootStackScreenProps<'Game'>;
+const myImg = require('../assets/images/backboard.jpg');
 
 export default function GameScreen() {
   const navigation = useNavigation<GameScreenProps['navigation']>();
 
 return (
   <View style={styles.container}>
-    <ImageBackground source={require('../assets/images/backboard.jpg')} resizeMode='cover' style={{width:'100%', height:'100%'}}>
+    <ImageBackground source={myImg} resizeMode='cover' style={{width:'100%', height:'100%'}}>
       <GameComponent/> 
     </ImageBackground>
   </View>
