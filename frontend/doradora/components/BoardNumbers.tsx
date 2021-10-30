@@ -12,7 +12,7 @@ export default function BoardNumbers(props: Props){
     const { diameter, fontSize, textColors, zIndex } = props;
     const numbers = [6, 13, 4, 18, 1, 20, 5, 12, 9, 14, 11, 8, 16, 7, 19, 3, 17, 2, 15, 10];
     const boardNumbers = [...Array(20)].map((_, i) => (
-        <View style={{
+        <View key={i} style={{
             width: fontSize, 
             height: fontSize, 
 
