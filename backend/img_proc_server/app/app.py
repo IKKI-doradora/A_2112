@@ -66,10 +66,10 @@ def arrow():
     img_prev, _ = image_preprocess(base64ImagePrev, calib=False)
     img, img_org = image_preprocess(base64Image, calib=False)
 
-    cv2.imwrite('./work/test1.png', img)
-    cv2.imwrite('./work/test2.png', img_prev)
+    # cv2.imwrite('./work/test1.png', img)
+    # cv2.imwrite('./work/test2.png', img_prev)
     # img, r, theta, score = detect_arrow(img, img_prev, count)
-    img, x, y, score = detect_arrow(img, img_prev)
+    img, x, y, score = detect_arrow(img, img_prev, debug=False)
 
     # if img is None:
     #     return make_response(jsonify({'base64Image':base64Image }),200)

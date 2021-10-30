@@ -28,7 +28,7 @@ def extract_est_tip(img, diff_image=False, ignore_kernel_size=3, p=50, calib=Fal
 
     if not diff_image:
         # cond_green = (img[:, :, 0] > 40) & (img[:, :, 1] > 40) & (img[:, :, 2] < 30)
-        cond_green = (img[:, :, 0] < 80) & (img[:, :, 1] > 80) & (img[:, :, 2] > 30)
+        cond_green = (img[:, :, 0] <60) & (img[:, :, 1] > 60) & (img[:, :, 2] < 70)
         img_c[:, :, 0] = np.where(cond_green, 255, 0)
         img_c[:, :, 1] = np.where(cond_green, 255, 0)
         img_c[:, :, 2] = np.where(cond_green, 255, 0)

@@ -9,6 +9,9 @@ from PIL import Image, ImageDraw
 from sub_modules import *
 
 
+IGNORE_KERNEL_SIZE = 12
+P = 60
+
 def image_preprocess(base64Image, calib=False):
     tmp1 = base64.b64decode(base64Image)
     tmp2 = np.frombuffer(tmp1, dtype=np.uint8)
@@ -46,7 +49,7 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True, man
 
     # 予測補正量計算
     arrow_point = [int(arrow_point[0]*h - h_crop[0]),int(arrow_point[1]*w - w_crop[0])]
-    status, img_arrow, est_xtip, est_ytip = extract_est_tip(img, diff_image=False, ignore_kernel_size=2, p=90, calib=True)
+    status, img_arrow, est_xtip, est_ytip = extract_est_tip(img, diff_image=False, ignore_kernel_size=IGNORE_KERNEL_SIZE, p=P, calib=True)
     if status == MISS:
         return img_arrow
 
@@ -54,8 +57,9 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True, man
     dx = true_xtip - est_xtip
     dy = true_ytip - est_ytip
 
-    # _ = cv2.circle(_, (arrow_point[1], arrow_point[0]), 3, (0, 120, 120), -1)  # 視覚デバッグ用
-    # _ = cv2.circle(_, (est_xtip, est_ytip), 3, (0, 0, 255), -1) 
+    _ = cv2.circle(img_arrow, (arrow_point[1], arrow_point[0]), 3, (0, 120, 120), -1)  # 視覚デバッグ用
+    _ = cv2.circle(_, (est_xtip, est_ytip), 3, (0, 0, 255), -1) 
+    cv2.imwrite('./work/calib_tip.png', _)
     # return _
 
     # 変換前後の対応点を設定
@@ -63,7 +67,7 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True, man
         marker_points = np.array([[int(marker_point[1]*w - w_crop[0]), int(marker_point[0]*h - h_crop[0])] for marker_point in marker_points])
     else:
         img_filtered = img.copy()
-        cond_green = (img_filtered[:,:,0]>60)&(img_filtered[:,:,1]>85)&(img_filtered[:,:,2]<70)
+        cond_green = (img_filtered[:,:,0]>50)&(img_filtered[:,:,0]<30)&(img_filtered[:,:,1]>30)&(img_filtered[:,:,2]<30)
 
         img_filtered[:,:,0] = np.where(cond_green, 255, 0)
         img_filtered[:,:,1] = np.where(cond_green, 255, 0)
@@ -76,7 +80,7 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True, man
         img_filtered[:,:,2] = np.where(img_filtered[:,:,2]>0, 255, 0)
 
         img_filtered_gray = cv2.cvtColor(img_filtered, cv2.COLOR_BGR2GRAY)
-        circles = cv2.HoughCircles(img_filtered_gray , cv2.HOUGH_GRADIENT, dp=0.3, minDist=50, param1=100, param2=2, minRadius=0, maxRadius=0)[0]
+        circles = cv2.HoughCircles(img_filtered_gray , cv2.HOUGH_GRADIENT, dp=0.6, minDist=200, param1=100, param2=2, minRadius=0, maxRadius=0)[0]
         circles = [circle for circle in circles if circle[2] < 20] # 画角に合わせて要調整
         if debug:
             print(circles)
@@ -150,7 +154,7 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True, man
     return img_disp
   
 
-def detect_arrow(img_prev, img):
+def detect_arrow(img_prev, img, debug=True):
     # 補正付き投擲位置推定
     # status, img, est_tipx, est_tipy = extract_est_tip(img, ignore_kernel_size=3, calib=False)
     # if status == MISS:
@@ -170,16 +174,33 @@ def detect_arrow(img_prev, img):
 
     img_org = img.copy()
 
-    # _, img_prev, _, _ = extract_est_tip(img_prev, ignore_kernel_size=3, calib=False)
-    # _, img, _, _ = extract_est_tip(img, ignore_kernel_size=3, calib=False)
+    # No diff
+    # _, _, est_tipx0, est_tipy0 = extract_est_tip(img, diff_image=False, ignore_kernel_size=IGNORE_KERNEL_SIZE, p=P, calib=True)
+    # status, img, est_tipx, est_tipy = extract_est_tip(img, diff_image=False, ignore_kernel_size=IGNORE_KERNEL_SIZE, p=P, calib=False)
+    # if debug:
+    #     cv2.circle(img, (int(est_tipx0), int(est_tipy0)), 4, (255, 0, 255), -1)
+    #     cv2.circle(img, (int(est_tipx), int(est_tipy)), 4, (0, 0, 255), -1)
+    #     cv2.imwrite('./work/out_gray.png', img)
 
-    # cv2.imwrite('./work/test1.png', img_prev)
-    # cv2.imwrite('./work/test2.png', img)
+    #     cv2.circle(img_org, (int(est_tipx0), int(est_tipy0)), 4, (255, 0, 255), -1)
+    #     cv2.circle(img_org, (int(est_tipx), int(est_tipy)), 4, (0, 0, 255), -1)
+    #     cv2.imwrite('./work/out_color.png', img_org)
 
-    # img = cv2.absdiff(img, img_prev)
-    status, img, est_tipx, est_tipy = extract_est_tip(img, diff_image=False, ignore_kernel_size=2, p=90, calib=False)
-    # status, img, est_tipx, est_tipy = extract_est_tip(img, diff_image=True, ignore_kernel_size=5, calib=False)
-    print(est_tipx, est_tipy)
+
+    # Use diff
+    _, img_prev, _, _ = extract_est_tip(img_prev, ignore_kernel_size=IGNORE_KERNEL_SIZE, p = P, calib=False)
+    _, img, _, _ = extract_est_tip(img, ignore_kernel_size=IGNORE_KERNEL_SIZE, p = P, calib=False)
+    cv2.imwrite('./work/gray1.png', img_prev)
+    cv2.imwrite('./work/gray2.png', img)
+    img = cv2.absdiff(img, img_prev)
+    status, img, est_tipx, est_tipy = extract_est_tip(img, diff_image=True, ignore_kernel_size=IGNORE_KERNEL_SIZE, p = P, calib=False)
+    if debug:
+        img_diff = img.copy()
+        cv2.circle(img_diff, (int(est_tipx), int(est_tipy)), 4, (0, 0, 255), -1)
+        cv2.imwrite('./work/gray_diff.png', img_diff)
+        color_diff = img_org.copy()
+        cv2.circle(img_org, (int(est_tipx), int(est_tipy)), 4, (0, 0, 255), -1)
+        cv2.imwrite('./work/color_diff.png', color_diff)
 
     # cv2.circle(img, (int(est_tipx), int(est_tipy)), 4, (0, 0, 255), -1)
     # cv2.imwrite('./work/test3.png', img)
@@ -190,8 +211,7 @@ def detect_arrow(img_prev, img):
     # cv2.circle(img_org, (int(est_tipx), int(est_tipy)), 4, (0, 0, 255), -1)
     # cv2.imwrite('./work/out_color.png', img_org)
 
-    cv2.circle(img, (int(est_tipx), int(est_tipy)), 4, (0, 0, 255), -1)
-    cv2.imwrite('./work/out_gray.png', img)
+    
 
     # print("est tip: ", est_tipx, est_tipy)
     if status == MISS:
@@ -214,24 +234,32 @@ def detect_arrow(img_prev, img):
     # x = est_tipx_front -196
     # y = est_tipy_front - 181
     theta = atan2(y, x)
-    # r = np.linalg.norm(np.array([x,y]), ord=2) / board_radius #正規化
+    r = np.linalg.norm(np.array([x,y]), ord=2) / board_radius #正規化
     r = np.linalg.norm(np.array([x,y]), ord=2) / board_radius
 
-    score = calc_score(r, theta)
+    # score = calc_score(r, theta)
 
-    print(r, theta, score)
+    # print(r, theta, score)
 
     # 視覚的に確認
     ref_image, ref_r, ref_center = reference_board()
     vis_x = ref_r * r * np.cos(theta) + ref_center[0]
     vis_y = ref_r * r * np.sin(theta) + ref_center[1]
-    # print(int(vis_x), int(vis_y))
+
+    score = calc_score(r=ref_r * r,theta=theta)
+
+    # r = r / ref_r
+
     cv2.circle(ref_image, (int(vis_x), int(vis_y)), 4, (0, 0, 255), -1)
     cv2.imwrite('./work/image_ref.png', ref_image)
-    
-    print(theta, r, score)
 
-    return ref_image, theta, r, score
+    theta = (theta+2*np.pi)
+    x = r * np.cos(theta)
+    y = r * -np.sin(theta)
+
+    print('x',x,'y',y,'theta',theta, 'score', score)
+    
+    return ref_image, x, y, score
     #(204,180), (203,189), (168,301), (171,181)
 
 def detc_traj(cap):
@@ -298,7 +326,6 @@ def detc_traj(cap):
                 print(idx)
         else:
             axis_list.append([[None, None], [None,None]])
-
 
         vis_frame = frames[idx].copy()
 
@@ -373,11 +400,16 @@ def detc_traj(cap):
 
 
 def calc_score(r, theta):
+    theta += np.pi
+
+    score_list = [11,14,9,12,5,20,1,18,4,13,6,10,15,2,17,3,19,7,16,8]
+
     dtheta = 2*np.pi/20
     tmp_theta = - 0.5*dtheta
-    score_list = [6,13,4,18,1,20,5,12,9,14,11,8,16,7,19,3,17,2,15,10]
-    triple_range = (106/198, 126/198)
-    double_range = (178/198, 1)
+    triple_range = (106, 126)
+    double_range = (178, 198)
+
+    # print("r",r,"theta",theta)
 
     for i, score in enumerate(score_list):
         if r <= 8:
