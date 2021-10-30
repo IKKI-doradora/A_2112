@@ -28,7 +28,6 @@ export function PushGameDetail(userID: string, detail: GameDetail): void {
 };
 
 
-
 export default app;
 
 

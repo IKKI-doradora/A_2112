@@ -12,13 +12,13 @@ import * as tf from "@tensorflow/tfjs";
 import { repeatVector } from '@tensorflow/tfjs-layers/dist/exports_layers'
 import { Button } from 'react-native-elements/dist/buttons/Button'
 
-type Position = {
+type Dart = {
   x: number,
   y: number,
   score: number
 }
 
-type DartsCallBack = (position: Position) => void;
+type DartsCallBack = (position: Dart) => void;
 
 
 let camera: Camera | null;
@@ -142,8 +142,8 @@ export function DartsCamera(props: DartsCameraProps) {
         'Content-Type': 'application/json'
       },
     }).then(res => {
-      console.log('response here');
-      console.log(res)
+      console.log('response here', res, 'aa');
+      console.log(res.json().then(console.log))
     })
   }
 
@@ -151,9 +151,18 @@ export function DartsCamera(props: DartsCameraProps) {
     if (refCamera.current) {
       if (isInterval.current == false) {
         refCamera.current.takePictureAsync({ base64: true }).then((pic) => {
-          // console.log(refCaptured.current)
-          submitPictures(refCaptured.current[refCaptured.current.length - 1], pic.base64 as string)
-          refCaptured.current.push(pic.base64 as string);
+          ImageManipulator.manipulateAsync(
+            pic.uri,
+            [{ resize: { width: pic.width / 3, height: pic.height / 3 } },],
+            // [{ resize: { width: 450, height: 900 } },],
+            { base64: true, compress: 1 }
+          ).then((res) => {
+            // console.log(refCaptured.current)
+            // console.log(res.height, res.width)
+            submitPictures(refCaptured.current[refCaptured.current.length - 1], res.base64 as string)
+            refCaptured.current.push(res.base64 as string);
+          }
+          )
         })
         isInterval.current = true
         setTimeout(() => {
@@ -216,7 +225,7 @@ export function DartsCamera(props: DartsCameraProps) {
       <CustomTensorCamera
         width={size.width}
         onReady={onReady}
-        autorender={true}
+        autorender={false}
         _ref={(r) => { if (r) refCamera.current = r.camera }}
       />
     ),
@@ -227,7 +236,7 @@ function GameTest() {
 
   const refCameraStart = useRef<() => void>(null!);
 
-  const handleThrow = (position: Position) => {
+  const handleThrow = (position: Dart) => {
     console.log(position)
   }
 
