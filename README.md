@@ -1,6 +1,6 @@
 # DartsChart (ダーツチャート)
 
-[![IMAGE ALT TEXT HERE](https://jphacks.com/wp-content/uploads/2021/07/JPHACKS2021_ogp.jpg)](https://youtu.be/rShKgHzKbX4)
+[![IMAGE ALT TEXT HERE](https://user-images.githubusercontent.com/73517450/139520734-a81d1d0c-5807-48ab-8bca-fa93eb0ca9b2.png)](https://youtu.be/rShKgHzKbX4)
 
 ## 製品概要
 **Darts x Tech**<br/>
