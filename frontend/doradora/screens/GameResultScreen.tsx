@@ -26,7 +26,7 @@ export default function GameResultScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.boardContainer}>
-        <RenderDarts darts={darts} isAnalysisColor={true}/>
+        <RenderDarts darts={darts} isAnalysisColor={true} highlights={[]}/>
       </View>
       <View style={styles.chartContainer} onLayout={onLayout}>
         <AnalyticsChart

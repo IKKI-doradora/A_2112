@@ -57,7 +57,7 @@ export default function AnalyticsScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.boardContainer}>
-        <RenderDarts darts={demoData[0].uids.get("0")?.rounds[0]?.darts ?? [{x: 0, y: 0, score: 0}]} isAnalysisColor={true}/>
+        <RenderDarts darts={demoData[0].uids.get("0")?.rounds[0]?.darts ?? [{x: 0, y: 0, score: 0}]} isAnalysisColor={true} highlights={[]}/>
       </View>
       <View style={styles.chartContainer} onLayout={onLayout}>
         <AnalyticsChart

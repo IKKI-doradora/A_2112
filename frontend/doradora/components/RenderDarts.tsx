@@ -13,6 +13,7 @@ import BoardNumbers from "./BoardNumbers"
 type RenderDartsProps = {
   darts: Round['darts'];
   isAnalysisColor: Boolean;
+  highlights: Array<Array<number>>;
 }
 type GameResultScreenProps = RootStackScreenProps<'Result'>;
 
@@ -23,21 +24,15 @@ export default function RenderDarts(props: RenderDartsProps){
   var r0 = -dartsRadius; //dartsRadiusによる補正
   const data = props.darts;
 
-  const { isAnalysisColor } = props;
+  const { isAnalysisColor, highlights } = props;
 
-  const normalColors = ["#FF4444", "#44FF4F", "#000000", "#FFFFF8"]
-  const analysisColors = ["#AAFFFF", "#AAAFFF", "#BBBBBB", "#FFFFFF"]
-  const tileColors = [
-    [...Array(10)].map((_, i) => isAnalysisColor ? analysisColors[0] : normalColors[0]),
-    [...Array(10)].map((_, i) => isAnalysisColor ? analysisColors[1] : normalColors[1]),
-    [...Array(10)].map((_, i) => isAnalysisColor ? analysisColors[2] : normalColors[2]),
-    [...Array(10)].map((_, i) => isAnalysisColor ? analysisColors[3] : normalColors[3]),
-    [...Array(10)].map((_, i) => isAnalysisColor ? analysisColors[0] : normalColors[0]),
-    [...Array(10)].map((_, i) => isAnalysisColor ? analysisColors[1] : normalColors[1]),
-    [...Array(10)].map((_, i) => isAnalysisColor ? analysisColors[2] : normalColors[2]),
-    [...Array(10)].map((_, i) => isAnalysisColor ? analysisColors[3] : normalColors[3]),
-    isAnalysisColor ? [analysisColors[0], analysisColors[2]] : [normalColors[0], normalColors[2]]
-  ];
+  const normalColors = ["#FF4444", "#44DD44", "#000000", "#FFFF88"];
+  const analysisColors = ["#AAFFFF", "#AAAFFF", "#BBBBBB", "#FFFFFF"];
+  const highlightColors = ["#FF8888", "#BBFFBB", "#888888", "#FFFFDD"];
+  
+  const tileColors = [...Array(8)].map((_, i) => [...Array(10)].map((_, j) => isAnalysisColor ? analysisColors[i % 4] : normalColors[i % 4]));
+  tileColors.push(isAnalysisColor ? [analysisColors[0], analysisColors[2]] : [normalColors[0], normalColors[2]]);
+  highlights.forEach(xy => xy[0] === 8 ? tileColors[xy[0]][xy[1]] = highlightColors[xy[1] * 2]: tileColors[xy[0]][xy[1]] = highlightColors[xy[0] % 4]);
   const textColors = [...Array(20)].map((_, i) => isAnalysisColor ? "transparent" : "#FFFFFF");
 
   return (

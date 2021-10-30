@@ -105,7 +105,7 @@ export default function GameComponent(){
           status="error"
           containerStyle={{ top: 10, left: 160 }}
         />
-        <RenderDarts darts={RoundGame.darts} isAnalysisColor={false}/>
+        <RenderDarts darts={RoundGame.darts} isAnalysisColor={false} highlights={[[3, 0], [7, 0]]}/>
       </View>
       <View style={styles.rightContainer}>
         <Button
