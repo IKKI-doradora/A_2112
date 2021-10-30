@@ -19,7 +19,7 @@ export default function DartsBoard(props: DartsBoardProps) {
     const lims = [...Array(4)].map((_, i) => {
         const radius = 2 * radiusUnits[i] * unit * 1.02;
         return <View style={{
-            borderColor: "#000000", 
+            borderColor: "#444444", 
             width: radius, 
             height: radius, 
             borderWidth: radius * 0.01, 
