@@ -9,6 +9,7 @@ import ScoreTable from '../components/ScoreTable';
 import RenderDarts from '../components/RenderDarts';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import HomeButton from "./HomeButton";
+import { PushGameDetail } from '../hooks/firebase'
 
 type GameScreenProps = RootStackScreenProps<'Game'>;
 
