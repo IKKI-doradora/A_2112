@@ -67,8 +67,8 @@ export default function RenderDarts(props: RenderDartsProps){
                   width: dartsRadius*2,
                   height: dartsRadius*2,
                   borderRadius: dartsRadius,
-                  top: (dartsXY.x*boardRadius +r0),
-                  left:(dartsXY.y*boardRadius +r0)
+                  bottom: (dartsXY.y*boardRadius +r0),
+                  left:(dartsXY.x*boardRadius +r0)
                 }
               ]}
             />

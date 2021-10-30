@@ -83,30 +83,33 @@ export default function GameComponent() {
         PushGameDetail(uid, newTable);
       }
     }
+    refCameraStart.current();
   }
 
-  const onGetData = () => {
-    // とりあえずダミーデータから値を取得
-    const x = Data.uids[uid].positions[Round][Count][0];
-    const y = Data.uids[uid].positions[Round][Count][1];
-    const score = Data.uids[uid].scores[Round][Count];
+  const onGetData = (dart: Dart) => {   
 
-    // 1投を更新
-    const newDart = { x: x, y: y, score: score };
-    setDart(newDart);
 
     // Roundを更新
-    const newRoundGame = { ...RoundGame };
-    newRoundGame.darts[Count] = newDart;
-    newRoundGame.score += newDart.score;
-    setRoundGame(newRoundGame);
-    setCount(Count + 1);
+    console.log(dart);
+    if(dart.x){
+      setCount(count => {
+        console.log(count); 
+        if(count > 2) return count;
+        setRoundGame(roundGame => {
+          const newRoundGame = {...roundGame};
+          newRoundGame.darts[count] = dart;
+          newRoundGame.score += dart.score;
+          return newRoundGame;
+        })
+        return count + 1 
+      });
+    }
   }
 
   return (
     <View style={styles.scoreContainer}>
       <View style={{ position: "absolute", zIndex: -10, width: 40, height: 30 }}>
-        <DartsCamera onThrow={handleThrow} _ref={(r: () => void) => { refCameraStart.current = r }} />
+        <DartsCamera onThrow={(d)=>onGetData(d)} _ref={(r: () => void) => { refCameraStart.current = r }} />
       </View>
       <View style={styles.leftContainer}>
         <View style={{position: "absolute",}}>
@@ -121,12 +124,6 @@ export default function GameComponent() {
       </View >
     <View style={styles.rightContainer}>
       <Button
-        title="Throwed"
-        disabled={Count >= 3}
-        onPress={() => onGetData()}
-      />
-      <Button
-        disabled={Count < 3}
         onPress={() => on3Throw()}
         title={FinButton}
       />

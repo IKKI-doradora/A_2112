@@ -11,6 +11,7 @@ import CapturePreview from '../components/CapturePreview'
 import database from '../hooks/firebase'
 import { set, ref, push, update } from 'firebase/database';
 import { useStore } from '../hooks/useStore';
+import Navigation from '../navigation';
 
 let camera: Camera
 
@@ -20,6 +21,7 @@ const windowWidth = Dimensions.get('window').width
 const windowHeight = Dimensions.get('window').height
 
 export default function CameraTest() {
+  const navigation = useNavigation<RootStackScreenProps<"Game">['navigation']>();
   const [startCamera, setStartCamera] = useState(false)
   const [previewVisible, setPreviewVisible] = useState(false)
   const [capturedImage, setCapturedImage] = useState<any>(null)
@@ -177,7 +179,7 @@ export default function CameraTest() {
           style={{
             flex: 1,
             backgroundColor: '#fff',
-            justifyContent: 'center',
+            justifyContent: 'space-around',
             alignItems: 'center'
           }}
         >
@@ -203,7 +205,31 @@ export default function CameraTest() {
               Take picture
             </Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Game")}
+            style={{
+              width: 130,
+              borderRadius: 4,
+              backgroundColor: '#14274e',
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: 40
+            }}
+          >
+            <Text
+              style={{
+                color: '#fff',
+                fontWeight: 'bold',
+                textAlign: 'center'
+              }}
+            >
+              Start game
+            </Text>
+          </TouchableOpacity>
         </View>
+        
       )}
 
       <StatusBar style="auto" />
