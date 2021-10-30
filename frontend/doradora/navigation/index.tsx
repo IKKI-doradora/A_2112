@@ -25,6 +25,8 @@ import { RootStackParamList, HomeTabParamList } from '../types';
 
 import LinkingConfiguration from './LinkingConfiguration';
 
+import GameTest from '../screens/GameTest'
+
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
     <NavigationContainer
@@ -75,15 +77,16 @@ function BottomTabNavigator() {
         component={HomeGameTabScreen}
         options={{
           title: 'Game',
-          tabBarIcon: ( props ) => <FontAwesome style={styles.tabBarIcon} name="gamepad" size={props.size} color={props.color} />
+          tabBarIcon: (props) => <FontAwesome style={styles.tabBarIcon} name="gamepad" size={props.size} color={props.color} />
         }}
       />
       <BottomTab.Screen
         name="ScoreTab"
-        component={HomeScoreTabScreen}
+        // component={HomeScoreTabScreen}
+        component={GameTest}
         options={{
           title: 'Analytics',
-          tabBarIcon: ( props ) => <Ionicons style={styles.tabBarIcon} name="analytics" size={props.size} color={props.color}/>,
+          tabBarIcon: (props) => <Ionicons style={styles.tabBarIcon} name="analytics" size={props.size} color={props.color} />,
         }}
       />
     </BottomTab.Navigator>

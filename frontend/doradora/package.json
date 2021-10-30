@@ -21,6 +21,7 @@
     "@react-navigation/native-stack": "^6.1.0",
     "@tensorflow/tfjs": "^3.11.0",
     "@tensorflow/tfjs-react-native": "^0.7.0",
+    "@types/react-native-table-component": "^1.2.2",
     "@unimodules/core": "~7.2.0",
     "expo": "~43.0.0",
     "expo-asset": "~8.4.3",

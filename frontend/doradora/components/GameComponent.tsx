@@ -14,7 +14,7 @@ type GameScreenProps = RootStackScreenProps<'Game'>;
 
 const Data = {
   uids: {
-    320: {
+    "320": {
       positions: [
         [[0.0, 0.0],  [0.1, 0.1],  [0.2, 0.2]],
         [[0.3, 0.3],  [-0.5, 0.4],  [0.5, 0.5]],
@@ -47,7 +47,7 @@ export default function GameComponent(){
   const [Round, setRound] = useState<number>(0);
   const [Count, setCount] = useState<number>(0);
   const [FinButton, setFinButton] = useState<string>("Round Fin");
-  const uid = 320;
+  const uid = "320";
 
   const on3Throw = () => {
     if(Count==4){
@@ -71,7 +71,7 @@ export default function GameComponent(){
         setFinButton("Game Fin");
         setCount(4);
         // ここで　firebase に uids を送信
-        const uids ={};
+        PushGameDetail(uid, newTable);
       }
     }
   }
