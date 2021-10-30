@@ -18,7 +18,7 @@ def post():
     img2 = cv2.flip(img, 1)
     retval, buffer = cv2.imencode('.jpg', img2)
     base64Image2 = base64.b64encode(buffer).decode('UTF-8')
-    print(base64Image2)
+    # print(base64Image2)
     # plt.imshow(img)
     # plt.show()
     
@@ -59,15 +59,17 @@ def calib():
 
 
 @app.route('/arrow', methods = ['POST'])
-def arrow(count):
+def arrow():
     base64ImagePrev = json.loads(request.data.decode('UTF-8'))["base64ImagePrev"]
     base64Image = json.loads(request.data.decode('UTF-8'))["base64Image"]
 
     img_prev, _ = image_preprocess(base64ImagePrev, calib=False)
-    img, img_org = image_preprocess(base64ImagePrev, calib=False)
+    img, img_org = image_preprocess(base64Image, calib=False)
 
+    cv2.imwrite('./work/test1.png', img)
+    cv2.imwrite('./work/test2.png', img_prev)
     # img, r, theta, score = detect_arrow(img, img_prev, count)
-    img, x, y, score = detect_arrow(img, img_prev, count)
+    img, x, y, score = detect_arrow(img, img_prev)
 
     # if img is None:
     #     return make_response(jsonify({'base64Image':base64Image }),200)
@@ -88,7 +90,7 @@ def proc_movie():
     # f = open(movie_path, 'wb')
     # f.write(dec_movie)
     # f.close()
-    print(cv2.VideoCapture(movie_path).set(cv2.CAP_PROP_POS_FRAMES, 0))
+    # print(cv2.VideoCapture(movie_path).set(cv2.CAP_PROP_POS_FRAMES, 0))
     with open(movie_path, 'wb') as f:
       f.write(dec_movie)
     cap = cv2.VideoCapture(movie_path)

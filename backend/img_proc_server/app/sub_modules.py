@@ -7,8 +7,8 @@ from sklearn.decomposition import PCA
 from sklearn import preprocessing
 import mediapipe as mp
 
-PARAM_PATH = './proc_params'
-IMAGE_DIR = './images/'
+PARAM_PATH = './work/proc_params.dat'
+IMAGE_DIR = './work/'
 SUCCESS = 'success'
 MISS = 'miss'
 
@@ -16,9 +16,8 @@ MISS = 'miss'
 def is_ignore_pixel(img, idx, column, kernel_size, p):
     img_crop = img[max(0, idx-int(kernel_size/2)):idx+int(kernel_size/2),
                    max(0, column-int(kernel_size/2)):column+int(kernel_size/2), 1]
-    if np.percentile(img_crop, p) == 255:
-        # print(idx,column)
-        # print(img_crop)
+    # print(np.percentile(img_crop, p))
+    if np.percentile(img_crop, p) > 10:
         return False
     else:
         return True
@@ -28,19 +27,22 @@ def extract_est_tip(img, diff_image=False, ignore_kernel_size=3, p=50, calib=Fal
     img_c = img.copy()
 
     if not diff_image:
-        cond_green = (img[:, :, 0] > 40) & (img[:, :, 1] > 40) & (img[:, :, 2] < 30)
+        # cond_green = (img[:, :, 0] > 40) & (img[:, :, 1] > 40) & (img[:, :, 2] < 30)
+        cond_green = (img[:, :, 0] < 80) & (img[:, :, 1] > 80) & (img[:, :, 2] > 30)
         img_c[:, :, 0] = np.where(cond_green, 255, 0)
         img_c[:, :, 1] = np.where(cond_green, 255, 0)
         img_c[:, :, 2] = np.where(cond_green, 255, 0)
 
     est_xtip, est_ytip = None, None
     for c in range(0, img.shape[1]):
+        # print("C:", c, np.max(img_c[:, c, 1]))
         i = np.argmax(img_c[:, c, 1])
         if is_ignore_pixel(img_c, i, c, ignore_kernel_size, p):
             continue
         est_xtip = c
         est_ytip = i
         break
+    # print(est_xtip, est_ytip)
 
     if est_xtip == None:
         return MISS, img_c, None, None
@@ -80,7 +82,7 @@ def reference_board():
     return img, coordinate_r, coordinate_center
 
 
-def is_ignore_pixel(img, idx, column, kernel_size, p):
+def is_ignore_pixel2(img, idx, column, kernel_size, p):
     img_crop = img[max(0,idx-int(kernel_size/2)):idx+int(kernel_size/2), max(0,column-int(kernel_size/2)):column+int(kernel_size/2), 1]
     # print(img_crop.shape)
     if np.percentile(img_crop, p) == 255:
@@ -104,7 +106,7 @@ def extract_arrow(img, condition, diff_image = False, ignore_kernel_size = 3, p 
     est_xtip, est_ytip = np.nan, np.nan
     for c in range(0,img.shape[1]):
         i = np.argmax(img_arrow[:,c,1])
-        state, img_crop = is_ignore_pixel(img_arrow,i,c,ignore_kernel_size,p)
+        state, img_crop = is_ignore_pixel2(img_arrow,i,c,ignore_kernel_size,p)
         if state:
             continue
         est_xtip = c
@@ -237,3 +239,14 @@ def annotate_pose(image):
             connection_drawing_spec=drawing_spec,
             )
     return annotated_image
+
+
+def detect_release(img_arrow, img_hand, axis, kernel=5):
+    p_grasp = axis[np.argmin(axis[:,0])]
+    pg_minw, pg_maxw = p_grasp[0]-kernel, p_grasp[0]+kernel
+    pg_minh, pg_maxh = p_grasp[1]-kernel, p_grasp[1]+kernel
+    grasp_area = np.sum(img_hand[pg_minh:pg_maxh,pg_minw:pg_maxw,:])
+    if grasp_area == 0:
+        return True
+    else:
+        return False
