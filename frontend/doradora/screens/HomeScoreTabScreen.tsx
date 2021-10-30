@@ -11,7 +11,7 @@ export default function HomeScoreTabScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={[styles.button, {backgroundColor: 'orange'}]} onPress={() => navigation.navigate('Analytics', {type: 0})} >
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Analytics', {type: 0})} >
           <Text style={styles.buttonTitle} >Count up</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => {}} >
@@ -22,7 +22,7 @@ export default function HomeScoreTabScreen() {
         </TouchableOpacity>
       </View>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={[styles.button, {backgroundColor: 'orange'}]} onPress={() => navigation.navigate('Trajectory')} >
+        <TouchableOpacity style={[styles.trajectoryButton]} onPress={() => navigation.navigate('Trajectory')} >
           <Text style={styles.buttonTitle} >Trajectory</Text>
         </TouchableOpacity>
       </View>
@@ -55,7 +55,18 @@ const styles = StyleSheet.create({
     height: 100,
     padding: 10,
     borderRadius: 10,
-    backgroundColor: 'lightgray',
+    backgroundColor: 'orange',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: 3
+  },
+
+  trajectoryButton: {
+    width: 600,
+    height: 100,
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: 'orange',
     alignItems: 'center',
     justifyContent: 'center',
     margin: 3

@@ -7,8 +7,8 @@ import { useState} from 'react';
 import { Button,Badge} from 'react-native-elements';
 import ScoreTable from '../components/ScoreTable';
 import RenderDarts from '../components/RenderDarts';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { PushGameDetail } from '../hooks/firebase';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import HomeButton from "./HomeButton";
 
 type GameScreenProps = RootStackScreenProps<'Game'>;
 
@@ -97,22 +97,15 @@ export default function GameComponent(){
   return (
     <View style={styles.scoreContainer}>
       <View style={styles.leftContainer}>
-        <Button
-          icon={
-            <Icon
-              name="home-variant"
-              size={25}
-            />}
-          type="clear"
-          containerStyle={{ top: 40, left: -170 }}
-          onPress={() => navigation.navigate("Home")}
-        />
+        <View style={{position: "absolute",}}>
+          <HomeButton top={-160} left={-170}/>
+        </View>
         <Badge
           value={`R ${Round+1}`}
           status="error"
           containerStyle={{ top: 10, left: 160 }}
         />
-        <RenderDarts darts={RoundGame.darts}/>
+        <RenderDarts darts={RoundGame.darts} isAnalysisColor={false}/>
       </View>
       <View style={styles.rightContainer}>
         <Button
