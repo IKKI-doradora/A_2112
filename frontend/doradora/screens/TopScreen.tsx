@@ -13,7 +13,7 @@ export default function TopScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={{flex: 2, width: "100%"}}>
+      <View style={{flex: 2, width: "100%", backgroundColor: 'rgba(50,50,50,1)'}}>
         <Image style={styles.logo} source={myImg}/>
       </View>
       <View style={{flex: 1}}>
@@ -31,14 +31,15 @@ const styles = StyleSheet.create({
   container: {
     // paddingTop: 0,
     width: "100%",
-    padding: 20,
+    // padding: 20,
     flex: 1,
     backgroundColor: "#DDDDDD",
   },
 
   logo: {
-    width: "100%",
-    height: 250,
+    width:  '90%',
+    height: '90%',
+    // aspectRatio: 1,
   },
 
   button: {
