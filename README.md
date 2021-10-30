@@ -1,6 +1,6 @@
 # DartsChart (ダーツチャート)
 
-[![IMAGE ALT TEXT HERE](https://jphacks.com/wp-content/uploads/2021/07/JPHACKS2021_ogp.jpg)](https://www.youtube.com/watch?v=LUPQFB4QyVo)
+[![IMAGE ALT TEXT HERE](https://jphacks.com/wp-content/uploads/2021/07/JPHACKS2021_ogp.jpg)](https://youtu.be/rShKgHzKbX4)
 
 ## 製品概要
 **Darts x Tech**<br/>
@@ -56,7 +56,7 @@
 * 画像の差分からダーツを投げたタイミングや的に命中した位置を特定する独自の画像処理システム
 * 動画から矢の起動や向きを特定するシステム
 * https://colab.research.google.com/drive/19AMq7MwhBRN7Xm8rr_IQa3Smur2G2ziR?usp=sharing
-
+* https://youtu.be/rShKgHzKbX4
 #### 製品に取り入れた研究内容（データ・ソフトウェアなど）（※アカデミック部門の場合のみ提出必須）
 * 
 * 
