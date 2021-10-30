@@ -6,7 +6,9 @@
 **Darts x Tech**<br/>
 誰でも手軽に家でダーツを始められ, 高額な機器よりも高機能なサービスを提供する, 本格分析ダーツアプリケーション.
 
-DEMO(YouTube)[https://youtu.be/rShKgHzKbX4]
+機能紹介(YouTube)[https://youtu.be/rShKgHzKbX4]
+
+実機DEMO(YouTube)(https://youtu.be/yEwLPt1AmA0)
 
 ## 背景(製品開発のきっかけ、課題等）
 私たちはダーツというスポーツにかねてから憧れがありました。
@@ -88,6 +90,10 @@ DEMO(YouTube)[https://youtu.be/rShKgHzKbX4]
 
 * 画像の差分からダーツを投げたタイミングを検出（クライアント）
 * 画像から的に命中したダーツの正確な位置を特定する画像処理システム（サーバーサイド）
+
+https://user-images.githubusercontent.com/28818747/139559620-d85c9f59-156e-4f2e-9c26-460b8661ec13.mp4
+
+実機デモ映像Full version(https://youtu.be/yEwLPt1AmA0)
 
 ## 動画から矢の軌道・向きを特定し, プレイヤーの投擲フォームを定量化・可視化するシステム
 
