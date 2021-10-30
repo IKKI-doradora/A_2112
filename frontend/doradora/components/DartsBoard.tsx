@@ -3,26 +3,27 @@ import * as React from "react";
 
 type DartsBoardProps = {
     diameter: number,
+    tileColors: Array<Array<string>>,
     maxZIndex: number,
-    colorses: Array<Array<string>>,
 }
 
 export default function DartsBoard(props: DartsBoardProps) {
-    const { diameter, maxZIndex, colorses } = props;
+    const { diameter, tileColors, maxZIndex } = props;
     const unit = diameter / 40;
     const radiusUnits = [20, 18, 12, 10];
 
     const tileses = [...Array(8)].map((_, i) => 
-        <Tiles colors={colorses[i]} radius={radiusUnits[Math.floor(i / 2)] * unit} maxRadius={diameter / 2} isTileCenter={i % 2 === 0} zIndex={Math.floor(i / 2) - 5}/>
+        <Tiles colors={tileColors[i]} radius={radiusUnits[Math.floor(i / 2)] * unit} maxRadius={diameter / 2} isTileCenter={i % 2 === 0} zIndex={Math.floor(i / 2) - 5}/>
     );
 
     const lims = [...Array(4)].map((_, i) => {
         const radius = 2 * radiusUnits[i] * unit * 1.02;
         return <View style={{
-            borderColor: "#000000", 
+            borderColor: "#444444", 
             width: radius, 
             height: radius, 
             borderWidth: radius * 0.01, 
+            borderRadius: radius,
 
             position: "absolute", 
             top: diameter / 2 - radius / 2,
@@ -34,7 +35,7 @@ export default function DartsBoard(props: DartsBoardProps) {
     return (
         <View style={{width: diameter, height: diameter,}}>
             {tileses}
-            <View style={{borderColor: colorses[8][0], 
+            <View style={{borderColor: tileColors[8][0], 
                 borderWidth: 2 * unit, 
                 borderRadius: 2 * unit, 
                 position: "absolute", 
@@ -43,7 +44,7 @@ export default function DartsBoard(props: DartsBoardProps) {
                 zIndex: maxZIndex}}
             />
             <View style={{
-                borderColor: colorses[8][1], 
+                borderColor: tileColors[8][1], 
                 borderWidth: unit, 
                 borderRadius: unit, 
                 position: "absolute", 
@@ -77,7 +78,6 @@ function Tiles(props: TilesProps){
             borderLeftColor: "transparent",
             borderRightWidth: width,
             borderRightColor: "transparent",
-            // borderRadius: 50 / PixelRatio.get(),
             zIndex: zIndex,
             
             transform: [{translateY: -1 * radius / 2}, {"rotate": isTileCenter ? `${i * 36}deg` : `${18 + i * 36}deg`}, {translateY: radius / 2}],

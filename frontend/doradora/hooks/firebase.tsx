@@ -2,6 +2,7 @@ import Constants from "expo-constants";
 // import 'firebase/firestore';
 import firebase, { initializeApp } from 'firebase/app';
 import { getDatabase, set, ref, push, update } from 'firebase/database';
+import { GameDetail } from "../types";
 
 // import { getAuth, onAuthStateChanged, FacebookAuthProvider, signInWithCredential, signInAnonymously, signInWithEmailAndPassword } from 'firebase/auth';
 
@@ -19,6 +20,12 @@ export function writeUserInfo(userId: string, { username = '', email = '', image
 	return true
 }
 
+// gameIDは後で
+export function PushGameDetail(userID: string, detail: GameDetail): void {
+	update(ref(database, "games/adsfasgasdfadsfasdg/uids/" + userID), {
+		...detail
+	});
+};
 
 
 export default app;

@@ -26,7 +26,7 @@ export default function GameResultScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.boardContainer}>
-        <RenderDarts darts={darts} />
+        <RenderDarts darts={darts} isAnalysisColor={true}/>
       </View>
       <View style={styles.chartContainer} onLayout={onLayout}>
         <AnalyticsChart
@@ -55,7 +55,6 @@ const styles = StyleSheet.create({
 		padding: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'black',
   },
 
   chartContainer: {

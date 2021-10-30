@@ -12,10 +12,10 @@ type AnalyticsScreenProps = RootStackScreenProps<'Analytics'>;
 function makeDemoData(): Game {
   let uids = new Map<string, GameDetail>();
   uids.set("0", {
-    rounds: Array(8).fill({
-      darts: [{x: 1, y: 0, score: 0}, {x: 0, y: 0, score: 0}, {x: 0, y: 0, score: 0}],
+    rounds: Array(8).fill(1).map(() => ({
+      darts: Array(3).fill(1).map(() => {return {x: Math.random()*1.5-0.75, y: Math.random()*1.5-0.75, score: 0}}),
       score: Math.round(Math.random() * 100),
-    }),
+    })),
     totalScore: Math.round(Math.random() * 100)
   })
 
@@ -38,7 +38,7 @@ export default function AnalyticsScreen() {
 
   const onLayout = (e: LayoutChangeEvent) => {
     setChartWidth(e.nativeEvent.layout.width);
-    setChartHeight(e.nativeEvent.layout.width);
+    setChartHeight(e.nativeEvent.layout.height);
   }
 
   // uid と gameの配列 から そのプレイヤーのGameDetailのみを取り出す
@@ -53,11 +53,12 @@ export default function AnalyticsScreen() {
     totalScore: -1,
   }
   const details = demoData.map(v => v.uids.get(uid) ?? InvalidDetail).filter(v => v.totalScore > 0)  // ダーツの情報を抜き取る
+  const darts = details.flatMap(v => v.rounds.flatMap(vv => vv.darts));
 
   return (
     <View style={styles.container}>
       <View style={styles.boardContainer}>
-        <RenderDarts darts={demoData[0].uids.get("0")?.rounds[0]?.darts ?? [{x: 0, y: 0, score: 0}]} />
+        <RenderDarts darts={darts} />
       </View>
       <View style={styles.chartContainer} onLayout={onLayout}>
         <AnalyticsChart
@@ -86,11 +87,11 @@ const styles = StyleSheet.create({
 		padding: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'black',
   },
 
   chartContainer: {
     flex: 3,
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },

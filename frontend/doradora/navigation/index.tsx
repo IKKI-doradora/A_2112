@@ -82,8 +82,8 @@ function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="ScoreTab"
-        // component={HomeScoreTabScreen}
-        component={GameTest}
+        component={HomeScoreTabScreen}
+        // component={GameTest}
         options={{
           title: 'Analytics',
           tabBarIcon: (props) => <Ionicons style={styles.tabBarIcon} name="analytics" size={props.size} color={props.color} />,

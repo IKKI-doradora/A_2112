@@ -10,12 +10,14 @@ import RenderDarts from '../components/RenderDarts';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { DartsCamera } from '../screens/DartsCamera';
 
+import HomeButton from "./HomeButton";
+import { PushGameDetail } from '../hooks/firebase'
 
 type GameScreenProps = RootStackScreenProps<'Game'>;
 
 const Data = {
   uids: {
-    320: {
+    "320": {
       positions: [
         [[0.0, 0.0], [0.1, 0.1], [0.2, 0.2]],
         [[0.3, 0.3], [-0.5, 0.4], [0.5, 0.5]],
@@ -48,7 +50,7 @@ export default function GameComponent() {
   const [Round, setRound] = useState<number>(0);
   const [Count, setCount] = useState<number>(0);
   const [FinButton, setFinButton] = useState<string>("Round Fin");
-  const uid = 320;
+  const uid = "320";
 
   const refCameraStart = React.useRef<() => void>(null!);
 
@@ -78,7 +80,7 @@ export default function GameComponent() {
         setFinButton("Game Fin");
         setCount(4);
         // ここで　firebase に uids を送信
-        const uids = {};
+        PushGameDetail(uid, newTable);
       }
     }
   }
@@ -107,37 +109,30 @@ export default function GameComponent() {
         <DartsCamera onThrow={handleThrow} _ref={(r: () => void) => { refCameraStart.current = r }} />
       </View>
       <View style={styles.leftContainer}>
-        <Button
-          icon={
-            <Icon
-              name="home-variant"
-              size={25}
-            />}
-          type="clear"
-          containerStyle={{ top: 40, left: -170 }}
-          onPress={() => navigation.navigate("Home")}
-        />
+        <View style={{position: "absolute",}}>
+          <HomeButton top={-160} left={-170}/>
+        </View>
         <Badge
           value={`R ${Round + 1}`}
           status="error"
           containerStyle={{ top: 10, left: 160 }}
         />
-        <RenderDarts darts={RoundGame.darts} />
-      </View>
-      <View style={styles.rightContainer}>
-        <Button
-          title="Throwed"
-          disabled={Count >= 3}
-          onPress={() => onGetData()}
-        />
-        <Button
-          disabled={Count < 3}
-          onPress={() => on3Throw()}
-          title={FinButton}
-        />
-        <ScoreTable scores={Table} />
-      </View>
+        <RenderDarts darts={RoundGame.darts} isAnalysisColor={false}/>
+      </View >
+    <View style={styles.rightContainer}>
+      <Button
+        title="Throwed"
+        disabled={Count >= 3}
+        onPress={() => onGetData()}
+      />
+      <Button
+        disabled={Count < 3}
+        onPress={() => on3Throw()}
+        title={FinButton}
+      />
+      <ScoreTable scores={Table} />
     </View>
+    </View >
   );
 }
 
