@@ -7,14 +7,14 @@ import { useState} from 'react';
 import { Button,Badge} from 'react-native-elements';
 import ScoreTable from '../components/ScoreTable';
 import RenderDarts from '../components/RenderDarts';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { PushGameDetail } from '../hooks/firebase';
 
 type GameScreenProps = RootStackScreenProps<'Game'>;
 
 const Data = {
   uids: {
-    320: {
+    "320": {
       positions: [
         [[0.0, 0.0],  [0.1, 0.1],  [0.2, 0.2]],
         [[0.3, 0.3],  [-0.5, 0.4],  [0.5, 0.5]],
@@ -47,7 +47,7 @@ export default function GameComponent(){
   const [Round, setRound] = useState<number>(0);
   const [Count, setCount] = useState<number>(0);
   const [FinButton, setFinButton] = useState<string>("Round Fin");
-  const uid = 320;
+  const uid = "320";
 
   const on3Throw = () => {
     if(Count==4){
@@ -71,7 +71,7 @@ export default function GameComponent(){
         setFinButton("Game Fin");
         setCount(4);
         // ここで　firebase に uids を送信
-        const uids ={};
+        PushGameDetail(uid, newTable);
       }
     }
   }
@@ -97,7 +97,7 @@ export default function GameComponent(){
   return (
     <View style={styles.scoreContainer}>
       <View style={styles.leftContainer}>
-        <Button 
+        <Button
           icon={
             <Icon
               name="home-variant"
