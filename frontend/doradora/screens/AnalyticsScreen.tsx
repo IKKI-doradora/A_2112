@@ -58,7 +58,7 @@ export default function AnalyticsScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.boardContainer}>
-        <RenderDarts darts={darts} />
+        <RenderDarts darts={darts} isAnalysisColor={true}/>
       </View>
       <View style={styles.chartContainer} onLayout={onLayout}>
         <AnalyticsChart
