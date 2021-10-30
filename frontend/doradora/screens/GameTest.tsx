@@ -272,7 +272,7 @@ export function DartsCamera(props: DartsCameraProps) {
         'Content-Type': 'application/json'
       },
     }).then(res => {
-      console.log('response here');
+      console.log('response here',res,'aaa');
       console.log(res)
     })
   }

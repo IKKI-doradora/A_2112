@@ -165,7 +165,7 @@ export default function CaputuprePreview({ photo, retakePicture, calibrateCV, se
                         }
                         return markers
                     })()
-                : <></>}
+                    : <></>}
 
 
             </ReactNativeZoomableView>
@@ -176,13 +176,12 @@ export default function CaputuprePreview({ photo, retakePicture, calibrateCV, se
                 </TouchableOpacity>
             </View>
 
-            {doneImgProcess ?
-                <View style={{ position: 'absolute', bottom: 10, left: 500 }}>
-                    <TouchableOpacity style={styles.button} >
-                        <Text style={styles.buttonTitle} onPress={() => navigation.navigate("Game")} >To Game Screen</Text>
-                    </TouchableOpacity>
-                </View>
-                :
+            <View style={{ position: 'absolute', bottom: 10, left: 700 }}>
+                <TouchableOpacity style={styles.button} >
+                    <Text style={styles.buttonTitle} onPress={() => navigation.navigate("Game")} >To Game Screen</Text>
+                </TouchableOpacity>
+            </View>
+            {
                 <View>
                     <View style={{ position: 'absolute', bottom: 10, left: 250 }}>
                         <TouchableOpacity style={styles.button} >

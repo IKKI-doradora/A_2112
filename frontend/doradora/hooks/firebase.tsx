@@ -21,7 +21,6 @@ export function writeUserInfo(userId: string, { username = '', email = '', image
 
 
 
-
 export default app;
 
 

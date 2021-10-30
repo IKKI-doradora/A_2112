@@ -52,6 +52,7 @@ export function CustomTensorCamera(props: Props) {
       resizeHeight={TENSOR_SIZE.height}
       resizeDepth={3}
       type={Camera.Constants.Type.back}
+      ratio={'16:9'}
     />
   );
 }
@@ -60,5 +61,7 @@ export function CustomTensorCamera(props: Props) {
 const styles = StyleSheet.create({
   camera: {
     zIndex: 0,
+    // height:40,
+    // width:30,
   },
 });
