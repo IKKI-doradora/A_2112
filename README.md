@@ -3,7 +3,7 @@
 [![IMAGE ALT TEXT HERE](https://jphacks.com/wp-content/uploads/2021/07/JPHACKS2021_ogp.jpg)](https://www.youtube.com/watch?v=LUPQFB4QyVo)
 
 ## 製品概要
-**Darts x Tech**\\
+**Darts x Tech**<br/>
 誰でも手軽に家でダーツを始められ, 高額な機器よりも高機能なサービスを提供する, 本格分析ダーツアプリケーション.
 
 ### 背景(製品開発のきっかけ、課題等）
