@@ -66,7 +66,7 @@ function GameTotalScoreChart(props: GameTotalScoreChartProps) {
         labels: xLabel,
         datasets: [{
           data: data,
-          color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
+          color: (opacity = 1) => `rgba(150, 150, 255, ${opacity})`,
           strokeWidth: 2
         }],
         legend: ["total score"]
@@ -79,7 +79,7 @@ function GameTotalScoreChart(props: GameTotalScoreChartProps) {
         backgroundGradientFromOpacity: 0,
         backgroundGradientTo: "black",
         backgroundGradientToOpacity: 0,
-        color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
+        color: (opacity = 1) => `rgba(150, 150, 255, ${opacity})`,
         labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
         barPercentage: 0.5,
       }}
@@ -120,7 +120,7 @@ function GameRoundScoreChart(props: GameRoundScoreChartProps) {
         labels: xLabel,
         datasets: [{
           data: data,
-          color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
+          color: (opacity = 1) => `rgba(150, 150, 255, ${opacity})`,
           strokeWidth: 2
         }],
         legend: ["round score"]
@@ -133,7 +133,7 @@ function GameRoundScoreChart(props: GameRoundScoreChartProps) {
         backgroundGradientFromOpacity: 0,
         backgroundGradientTo: "black",
         backgroundGradientToOpacity: 0,
-        color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
+        color: (opacity = 1) => `rgba(150, 150, 255, ${opacity})`,
         labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
         barPercentage: 0.5,
       }}
