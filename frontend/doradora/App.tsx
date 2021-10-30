@@ -14,6 +14,8 @@ export default function App() {
   Asset.loadAsync(require('./assets/images/backboard.jpg'));
   Asset.loadAsync(require('./assets/images/icon.png'));
   Asset.loadAsync(require('./assets/images/board_c.png'));
+  Asset.loadAsync(require("./assets/images/logo.png"));
+  Asset.loadAsync(require("./assets/images/logo2.png"));
 
   if (!isLoadingComplete) {
     return null;

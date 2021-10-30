@@ -6,17 +6,22 @@ import  {Image}  from 'react-native';
 import { RootStackScreenProps } from '../types';
 
 type TopScreenProps = RootStackScreenProps<'Top'>;
-const myImg = require('../assets/images/icon.png');
+const myImg = require('../assets/images/logo3.png');
 
 export default function TopScreen() {
   const navigation = useNavigation<TopScreenProps['navigation']>()
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')} >
-        <Text style={styles.buttonTitle} >START!!</Text>
-      </TouchableOpacity>
-      <Image style={styles.logo} source={myImg} />
+      <View style={{flex: 2, width: "100%"}}>
+        <Image style={styles.logo} source={myImg}/>
+      </View>
+      <View style={{flex: 1}}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')} >
+          <Text style={styles.buttonTitle}>START!!</Text>
+        </TouchableOpacity>
+      </View>
+      {/* <Image style={styles.logo} source={myImg} /> */}
 
     </View>
   );
@@ -24,14 +29,16 @@ export default function TopScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 0,
-    flexDirection: 'row',
+    // paddingTop: 0,
+    width: "100%",
+    padding: 20,
     flex: 1,
+    backgroundColor: "#DDDDDD",
   },
 
   logo: {
-    width: 400,
-    height: 400,
+    width: "100%",
+    height: 250,
   },
 
   button: {
