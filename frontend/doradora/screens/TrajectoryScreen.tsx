@@ -27,7 +27,7 @@ export default function TrajectoryScreen() {
         setSourceUri(uri);
         const video = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
        
-        fetch("http://192.168.43.129:5000/trajectory", {
+        fetch("http://192.168.0.162:5000/trajectory", {
             method: "POST",
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({base64: video}),
