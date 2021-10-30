@@ -8,6 +8,10 @@ import { StyleSheet, Text, TouchableOpacity, View, Alert, Dimensions } from 'rea
 import { Camera } from 'expo-camera'
 import * as ImageManipulator from 'expo-image-manipulator'
 import CapturePreview from '../components/CapturePreview'
+import database from '../hooks/firebase'
+import { set, ref, push, update } from 'firebase/database';
+import { useStore } from '../hooks/useStore';
+
 let camera: Camera
 
 const url = 'http://192.168.0.162:5000'
@@ -19,6 +23,7 @@ export default function CameraTest() {
   const [startCamera, setStartCamera] = useState(false)
   const [previewVisible, setPreviewVisible] = useState(false)
   const [capturedImage, setCapturedImage] = useState<any>(null)
+  const user = useStore(e => e.user)
 
   const __startCamera = async () => {
     // const { status } = await Camera.requestPermissionsAsync()
@@ -37,6 +42,7 @@ export default function CameraTest() {
     // console.log(photo)
     // console.log(photo.base64)
     setPreviewVisible(true)
+    console.log(photo.height,photo.width)
     setCapturedImage(photo)
   }
 
@@ -51,13 +57,14 @@ export default function CameraTest() {
     console.log("-----------------")
     console.log(windowHeight, windowWidth)
     console.log(capturedImage.height, capturedImage.width)
-    
+
     const resizedImage = await ImageManipulator.manipulateAsync(
       capturedImage.uri,
       [{ resize: { width: capturedImage.width / 3, height: capturedImage.height / 3 } },],
       // [{ resize: { width: 450, height: 900 } },],
       { base64: true, compress: 1 }
     )
+    console.log(capturedImage.width,capturedImage.height)
 
     arrowPoint[0] /= windowHeight
     arrowPoint[1] /= windowWidth
@@ -70,19 +77,26 @@ export default function CameraTest() {
       markerPoint[1] /= windowWidth
     })
 
+    const _body = ({
+      base64Image: resizedImage.base64,
+      arrowPoint: arrowPoint,
+      markerPoints: markerPoints,
+      cropPoints: cropPoints,
+      manualMarker: isManualMarker,
+    })
+
+    // update(ref(database), 'users/' + users.uid, _body)
+
+
+
     fetch(url + "/calib", {
       method: 'POST',
-      body: JSON.stringify({
-        base64Image: resizedImage.base64,
-        arrowPoint: arrowPoint,
-        markerPoints: markerPoints,
-        cropPoints: cropPoints,
-        manualMarker: isManualMarker,
-      }),
+      body: JSON.stringify(_body),
       headers: {
         'Content-Type': 'application/json'
-      },
-    })
+      }
+    },
+    )
       .then(res => res.json())
       .then(
         data => {
@@ -111,6 +125,7 @@ export default function CameraTest() {
           ) : (
             <Camera
               style={{ flex: 1 }}
+              ratio={'16:9'}
               ref={(r) => {
                 camera = r
               }}
