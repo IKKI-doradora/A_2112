@@ -30,7 +30,7 @@ export type RootStackScreenProps<Screen extends keyof RootStackParamList> = Nati
 
 export type HomeTabParamList = {
   GameTab: undefined;
-  ScoreTab: undefined;
+  AnalyticsTab: undefined;
 };
 
 export type HomeTabScreenProps<Screen extends keyof HomeTabParamList> = CompositeScreenProps<

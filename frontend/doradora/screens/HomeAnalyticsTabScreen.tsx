@@ -5,11 +5,11 @@ import { HomeTabScreenProps } from '../types';
 import { Text } from 'react-native-elements';
 import { View } from '../components/Themed';
 
-type HomeScoreTabScreenProps = HomeTabScreenProps<'ScoreTab'>;
+type HomeAnalyticsTabScreenProps = HomeTabScreenProps<'AnalyticsTab'>;
 const myImg = require('../assets/images/backboard.jpg');
 
-export default function HomeScoreTabScreen() {
-  const navigation = useNavigation<HomeScoreTabScreenProps['navigation']>();
+export default function HomeAnalyticsTabScreen() {
+  const navigation = useNavigation<HomeAnalyticsTabScreenProps['navigation']>();
 
   return (
     <ImageBackground source={myImg} resizeMode='cover' style={styles.container}>

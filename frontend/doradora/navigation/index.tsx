@@ -15,7 +15,7 @@ import useColorScheme from '../hooks/useColorScheme';
 
 import TopScreen from '../screens/TopScreen';
 import HomeGameTabScreen from '../screens/HomeGameTabScreen';
-import HomeScoreTabScreen from '../screens/HomeScoreTabScreen';
+import HomeAnalyticsTabScreen from '../screens/HomeAnalyticsTabScreen';
 import CalibrationScreen from '../screens/CalibrationScreen';
 import GameScreen from '../screens/GameScreen';
 import GameResultScreen from '../screens/GameResultScreen';
@@ -81,8 +81,8 @@ function BottomTabNavigator() {
         }}
       />
       <BottomTab.Screen
-        name="ScoreTab"
-        component={HomeScoreTabScreen}
+        name="AnalyticsTab"
+        component={HomeAnalyticsTabScreen}
         // component={GameTest}
         options={{
           title: 'Analytics',
