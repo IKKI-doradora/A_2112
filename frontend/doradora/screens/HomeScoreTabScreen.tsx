@@ -1,42 +1,55 @@
 import { useNavigation } from '@react-navigation/core';
 import * as React from 'react';
-import { Text, View, TouchableOpacity, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { HomeTabScreenProps } from '../types';
+import { Text } from 'react-native-elements';
+import { View } from '../components/Themed';
 
 type HomeScoreTabScreenProps = HomeTabScreenProps<'ScoreTab'>;
+const myImg = require('../assets/images/backboard.jpg');
 
 export default function HomeScoreTabScreen() {
   const navigation = useNavigation<HomeScoreTabScreenProps['navigation']>();
 
   return (
-    <View style={styles.container}>
+    <ImageBackground source={myImg} resizeMode='cover' style={styles.container}>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Analytics', {type: 0})} >
-          <Text style={styles.buttonTitle} >Count up</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => {}} >
-          <Text style={styles.buttonTitle} >X01</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => {}} >
-          <Text style={styles.buttonTitle} >Cricket</Text>
-        </TouchableOpacity>
+        <SelectGameButton title={"Count up"} onPress={() => navigation.navigate('Analytics', {type: 0})} />
+        <SelectGameButton title={"X01"} onPress={() => {}} />
+        <SelectGameButton title={"Cricket"} onPress={() => {}} />
       </View>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={[styles.trajectoryButton]} onPress={() => navigation.navigate('Trajectory')} >
+        <TouchableOpacity style={styles.trajectoryButton} onPress={() => navigation.navigate('Trajectory')} >
           <Text style={styles.buttonTitle} >Trajectory</Text>
         </TouchableOpacity>
       </View>
+    </ImageBackground>
+  );
+};
+
+type SelectGameButtonProps = {
+  title: string;
+  onPress: () => void;
+};
+
+function SelectGameButton(props: SelectGameButtonProps) {
+  return (
+    <View>
+      <TouchableOpacity style={styles.button} onPress={props.onPress}>
+        <Text style={styles.buttonTitle} >{props.title}</Text>
+      </TouchableOpacity>
     </View>
   );
-}
-
+};
 
 const styles = StyleSheet.create({
   container: {
-    flex: 8,
+    flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    width:'100%',
+    height:'100%',
   },
 
   buttonContainer: {
