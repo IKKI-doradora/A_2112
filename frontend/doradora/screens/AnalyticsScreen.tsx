@@ -66,7 +66,7 @@ export default function AnalyticsScreen() {
           height={chartHeight}
           details={details}
           isRound={false}
-          backHomeButtonFn={() => navigation.navigate("Home", {screen: "ScoreTab"})}
+          backHomeButtonFn={() => navigation.navigate("Home", {screen: "AnalyticsTab"})}
         />
       </View>
     </View>
