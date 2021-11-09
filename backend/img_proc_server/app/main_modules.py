@@ -9,16 +9,23 @@ from PIL import Image, ImageDraw
 from sub_modules import *
 
 
+IGNORE_KERNEL_SIZE = 12
+P = 60
+
 def image_preprocess(base64Image, calib=False):
     tmp1 = base64.b64decode(base64Image)
     tmp2 = np.frombuffer(tmp1, dtype=np.uint8)
     img_org = cv2.imdecode(tmp2, cv2.IMREAD_COLOR)
+    # print("org shape", img_org.shape)
 
+    # cv2.imwrite('./work/test3.png', img_org)
     if not calib:
         with open(PARAM_PATH, 'rb') as f:
             proc_params = pickle.load(f)
         h_crop, w_crop = proc_params["crop_points"]
-        img = img_org[h_crop[0]:h_crop[1], w_crop[0]:w_crop[1], :]
+        img = img_org[int(h_crop[0]):int(h_crop[1]), int(w_crop[0]):int(w_crop[1]), :]
+        # print(img.shape)
+        # cv2.imwrite('./work/test3_crop.png', img)
 
         return img, img_org
 
@@ -32,25 +39,27 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True, man
     h, w = img.shape[:2]
     crop_points = np.array(
         [[int(crop_point[0]*h), int(crop_point[1]*w)] for crop_point in crop_points])
+    # print(crop_points)
     h_crop = np.sort(list(set(crop_points[:, 0])))
     w_crop = np.sort(list(set(crop_points[:, 1])))
     img = img[h_crop[0]:h_crop[1], w_crop[0]:w_crop[1], :]
 
     # 変換後にボードを囲う矩形サイズ
-    react_size = min(img.shape[:2])
+    rect_size = min(img.shape[:2])
 
     # 予測補正量計算
     arrow_point = [int(arrow_point[0]*h - h_crop[0]),int(arrow_point[1]*w - w_crop[0])]
-    status, _, est_xtip, est_ytip = extract_est_tip(img, diff_image=False, ignore_kernel_size=3, p=50, calib=True)
+    status, img_arrow, est_xtip, est_ytip = extract_est_tip(img, diff_image=False, ignore_kernel_size=IGNORE_KERNEL_SIZE, p=P, calib=True)
     if status == MISS:
-        return None
+        return img_arrow
 
     true_xtip, true_ytip = arrow_point[1], arrow_point[0]
     dx = true_xtip - est_xtip
     dy = true_ytip - est_ytip
 
-    # _ = cv2.circle(_, (arrow_point[1], arrow_point[0]), 3, (0, 120, 120), -1)  # 視覚デバッグ用
-    # _ = cv2.circle(_, (est_xtip, est_ytip), 3, (0, 0, 255), -1) 
+    _ = cv2.circle(img_arrow, (arrow_point[1], arrow_point[0]), 3, (0, 120, 120), -1)  # 視覚デバッグ用
+    _ = cv2.circle(_, (est_xtip, est_ytip), 3, (0, 0, 255), -1) 
+    cv2.imwrite('./work/calib_tip.png', _)
     # return _
 
     # 変換前後の対応点を設定
@@ -58,7 +67,7 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True, man
         marker_points = np.array([[int(marker_point[1]*w - w_crop[0]), int(marker_point[0]*h - h_crop[0])] for marker_point in marker_points])
     else:
         img_filtered = img.copy()
-        cond_green = (img_filtered[:,:,0]>30)&(img_filtered[:,:,1]>70)&(img_filtered[:,:,2]<60)
+        cond_green = (img_filtered[:,:,0]>50)&(img_filtered[:,:,0]<30)&(img_filtered[:,:,1]>30)&(img_filtered[:,:,2]<30)
 
         img_filtered[:,:,0] = np.where(cond_green, 255, 0)
         img_filtered[:,:,1] = np.where(cond_green, 255, 0)
@@ -71,8 +80,8 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True, man
         img_filtered[:,:,2] = np.where(img_filtered[:,:,2]>0, 255, 0)
 
         img_filtered_gray = cv2.cvtColor(img_filtered, cv2.COLOR_BGR2GRAY)
-        circles = cv2.HoughCircles(img_filtered_gray , cv2.HOUGH_GRADIENT, dp=0.3, minDist=50, param1=100, param2=2, minRadius=0, maxRadius=0)[0]
-        circles = [circle for circle in circles if circle[2] < 10] # 画角に合わせて要調整
+        circles = cv2.HoughCircles(img_filtered_gray , cv2.HOUGH_GRADIENT, dp=0.6, minDist=200, param1=100, param2=2, minRadius=0, maxRadius=0)[0]
+        circles = [circle for circle in circles if circle[2] < 20] # 画角に合わせて要調整
         if debug:
             print(circles)
 
@@ -105,7 +114,7 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True, man
     p_trans = p_trans[idx]
 
     p_original = np.float32(marked_points)
-    p_trans = p_trans.astype(np.float32)*react_size
+    p_trans = p_trans.astype(np.float32)*rect_size
 
     # 射影変換行列
     M1 = cv2.getPerspectiveTransform(p_original, p_trans)
@@ -115,10 +124,11 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True, man
     img = cv2.circle(img, (est_xtip, est_ytip), 3, (0, 0, 255), -1) 
     for marker_point in marker_points:
         cv2.circle(img, marker_point, 6, (0, 0, 255), 1)
+    img_disp = cv2.warpPerspective(img, M1, (rect_size, rect_size))
     img = cv2.warpPerspective(img, M1, (img.shape[1], img.shape[0]))
 
     # ボード中心, 半径計算
-    board_center = [react_size*0.5, react_size*0.5]
+    board_center = [rect_size*0.5, rect_size*0.5]
     # デバッグ用として video のマーカー・半径比を使用, 後で修正
     vec = np.array(marker_points[0]) - np.array(board_center)
     board_radius = np.linalg.norm(vec, ord=2) * 19.5 / 24
@@ -144,7 +154,7 @@ def init_calib(img_org, arrow_point, marker_points, crop_points, debug=True, man
     return img_disp
   
 
-def detect_arrow(img_prev, img, arrow_count):
+def detect_arrow(img_prev, img, debug=True):
     # 補正付き投擲位置推定
     # status, img, est_tipx, est_tipy = extract_est_tip(img, ignore_kernel_size=3, calib=False)
     # if status == MISS:
@@ -162,12 +172,50 @@ def detect_arrow(img_prev, img, arrow_count):
     #         img = cv2.absdiff(img, img_prev)
     #         img, est_tipx, est_tipy = extract_est_tip(img, ignore_kernel_size=3, diff_image=True, calib=False)
 
-    _, img_prev, _, _ = extract_est_tip(img_prev, ignore_kernel_size=3, calib=False)
-    _, img, _, _ = extract_est_tip(img, ignore_kernel_size=3, calib=False)
+    img_org = img.copy()
+
+    # No diff
+    # _, _, est_tipx0, est_tipy0 = extract_est_tip(img, diff_image=False, ignore_kernel_size=IGNORE_KERNEL_SIZE, p=P, calib=True)
+    # status, img, est_tipx, est_tipy = extract_est_tip(img, diff_image=False, ignore_kernel_size=IGNORE_KERNEL_SIZE, p=P, calib=False)
+    # if debug:
+    #     cv2.circle(img, (int(est_tipx0), int(est_tipy0)), 4, (255, 0, 255), -1)
+    #     cv2.circle(img, (int(est_tipx), int(est_tipy)), 4, (0, 0, 255), -1)
+    #     cv2.imwrite('./work/out_gray.png', img)
+
+    #     cv2.circle(img_org, (int(est_tipx0), int(est_tipy0)), 4, (255, 0, 255), -1)
+    #     cv2.circle(img_org, (int(est_tipx), int(est_tipy)), 4, (0, 0, 255), -1)
+    #     cv2.imwrite('./work/out_color.png', img_org)
+
+
+    # Use diff
+    _, img_prev, _, _ = extract_est_tip(img_prev, ignore_kernel_size=IGNORE_KERNEL_SIZE, p = P, calib=False)
+    _, img, _, _ = extract_est_tip(img, ignore_kernel_size=IGNORE_KERNEL_SIZE, p = P, calib=False)
+    cv2.imwrite('./work/gray1.png', img_prev)
+    cv2.imwrite('./work/gray2.png', img)
     img = cv2.absdiff(img, img_prev)
-    status, img, est_tipx, est_tipy = extract_est_tip(img, ignore_kernel_size=3, calib=False)
+    status, img, est_tipx, est_tipy = extract_est_tip(img, diff_image=True, ignore_kernel_size=IGNORE_KERNEL_SIZE, p = P, calib=False)
+    if debug:
+        img_diff = img.copy()
+        cv2.circle(img_diff, (int(est_tipx), int(est_tipy)), 4, (0, 0, 255), -1)
+        cv2.imwrite('./work/gray_diff.png', img_diff)
+        color_diff = img_org.copy()
+        cv2.circle(img_org, (int(est_tipx), int(est_tipy)), 4, (0, 0, 255), -1)
+        cv2.imwrite('./work/color_diff.png', color_diff)
+
+    # cv2.circle(img, (int(est_tipx), int(est_tipy)), 4, (0, 0, 255), -1)
+    # cv2.imwrite('./work/test3.png', img)
+
+    # cv2.circle(img_org, (int(est_tipx), int(est_tipy)), 4, (0, 0, 255), -1)
+    # cv2.imwrite('./work/test4.png', img_org)
+
+    # cv2.circle(img_org, (int(est_tipx), int(est_tipy)), 4, (0, 0, 255), -1)
+    # cv2.imwrite('./work/out_color.png', img_org)
+
+    
+
+    # print("est tip: ", est_tipx, est_tipy)
     if status == MISS:
-        return None, None, None
+        return None, None, None, 0
 
     # 正面化, ボード座標系 (曲座標) に変換
     with open(PARAM_PATH, 'rb') as f:
@@ -183,32 +231,50 @@ def detect_arrow(img_prev, img, arrow_count):
 
     x = est_tipx_front - board_center[0]
     y = est_tipy_front - board_center[1]
-    theta = atan2(y, x) 
+    # x = est_tipx_front -196
+    # y = est_tipy_front - 181
+    theta = atan2(y, x)
     r = np.linalg.norm(np.array([x,y]), ord=2) / board_radius #正規化
+    r = np.linalg.norm(np.array([x,y]), ord=2) / board_radius
+
+    # score = calc_score(r, theta)
+
+    # print(r, theta, score)
 
     # 視覚的に確認
     ref_image, ref_r, ref_center = reference_board()
     vis_x = ref_r * r * np.cos(theta) + ref_center[0]
     vis_y = ref_r * r * np.sin(theta) + ref_center[1]
-    print(int(vis_x), int(vis_y))
+
+    score = calc_score(r=ref_r * r,theta=theta)
+
+    # r = r / ref_r
+
     cv2.circle(ref_image, (int(vis_x), int(vis_y)), 4, (0, 0, 255), -1)
+    cv2.imwrite('./work/image_ref.png', ref_image)
 
-    return ref_image, theta, r
+    theta = (theta+2*np.pi)
+    x = r * np.cos(theta)
+    y = r * -np.sin(theta)
 
+    print('x',x,'y',y,'theta',theta, 'score', score)
+    
+    return ref_image, x, y, score
+    #(204,180), (203,189), (168,301), (171,181)
 
 def detc_traj(cap):
     # 調整用パラメータ
-    start_idx = 220
-    end_idx = 320
-    # start_idx = 0
-    # end_idx = 2
+    # start_idx = 220
+    # end_idx = 320
+    start_idx = 315
+    end_idx = 450
 
     hmin = 200
-    hmax = 480
+    hmax = 530
     wmin = 50
-    wmax = 1250
+    wmax = 1600
 
-    x_offset = 200
+    x_offset = 350
     vis_x_offset = x_offset + wmin
     vis_y_offset = hmin
 
@@ -219,7 +285,9 @@ def detc_traj(cap):
         _, frame = cap.read()
         frames.append(frame)
 
-    # 羽, 矢先端軌道検出
+    # 羽, 矢先端軌道, リリース位置を検出
+    release_flag = False
+    release_idx = 0
     cv2_imgs = []
     trajectory = []
     axis_list = []
@@ -227,20 +295,37 @@ def detc_traj(cap):
         # print(idx)
         tmp_img = frames[idx][hmin:hmax,wmin+x_offset:wmax,:].copy()
 
-        cond_blue = (0<tmp_img[:,:,0]) & (tmp_img[:,:,0]<90)
+        # 手の検出
+        cond_blue = (130<tmp_img[:,:,0]) & (tmp_img[:,:,0]<180)
+        cond_green = (150<tmp_img[:,:,1]) & (tmp_img[:,:,1]<190)
+        cond_red = (200<tmp_img[:,:,2]) & (tmp_img[:,:,2]<230)
+        condition = cond_blue & cond_green & cond_red
+        img_hand, _, _ = extract_arrow(tmp_img, condition, ignore_kernel_size = 8, p = 60)
+
+        # 羽の検出
+        cond_blue = (30<tmp_img[:,:,0]) & (tmp_img[:,:,0]<90)
         cond_green = 70<tmp_img[:,:,1]
-        cond_red = (0<tmp_img[:,:,2]) & (tmp_img[:,:,2]<90)
+        cond_red = (30<tmp_img[:,:,2]) & (tmp_img[:,:,2]<90)
         condition = cond_blue & cond_green & cond_red
 
-        img_arrow, est_xtip, est_ytip = extract_arrow(tmp_img, condition, ignore_kernel_size = 8, p = 80)
+        cond_blue = (100<tmp_img[:,:,0]) & (tmp_img[:,:,0]<150)
+        cond_green = 150<tmp_img[:,:,1]
+        cond_red = (100<tmp_img[:,:,2]) & (tmp_img[:,:,2]<150)
+        condition = (cond_blue & cond_green & cond_red) | condition
+
+        img_arrow, est_xtip, est_ytip = extract_arrow(tmp_img, condition, ignore_kernel_size = 16, p = 70)
         trajectory.append([est_xtip, est_ytip])
 
+        # 先端の検出
         if est_xtip == est_xtip:
-            axis = estimate_axis(img_arrow, est_xtip, est_ytip, kernel=10, rate=60)
+            axis = estimate_axis(img_arrow, est_xtip, est_ytip, kernel=30, rate=55)
             axis_list.append(axis)
+            if detect_release(img_arrow, img_hand, axis, kernel=10) and (not release_flag):
+                release_flag = True
+                release_idx = idx
+                print(idx)
         else:
             axis_list.append([[None, None], [None,None]])
-
 
         vis_frame = frames[idx].copy()
 
@@ -255,22 +340,37 @@ def detc_traj(cap):
     max_idx = np.argmin(np.nan_to_num(np.array(trajectory)[:,1],nan = 1000))
     max_height_x = int(trajectory[max_idx][0])
     max_height_y = int(trajectory[max_idx][1])
+    release_x = int(trajectory[release_idx][0])
+    release_y = int(trajectory[release_idx][1])
 
     imgs = []
     gif_imgs = []
     for i, img in enumerate(cv2_imgs):
         tmp_img = img.copy()
+        if i >= release_idx:
+            cv2.circle(tmp_img, (release_x+vis_x_offset, release_y+vis_y_offset), 36, (255, 255, 255), 1)
+            cv2.circle(tmp_img, (release_x+vis_x_offset, release_y+vis_y_offset), 32, (0, 0, 0), 2)
+            cv2.circle(tmp_img, (release_x+vis_x_offset, release_y+vis_y_offset), 28, (255, 255, 255), 1)
+            cv2.putText(tmp_img,
+                    text='Release',
+                    org=(release_x+40+vis_x_offset, release_y-60+vis_y_offset),
+                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=1.5,
+                    color=(0, 0, 0),
+                    thickness=4,
+                    lineType=cv2.LINE_4)
+            drawDashedLine(tmp_img, (release_x+vis_x_offset, release_y+vis_y_offset), (release_x+vis_x_offset, img.shape[0]), 8, 2, (255,0,255))
         if i >= max_idx:
             cv2.circle(tmp_img, (max_height_x+vis_x_offset, max_height_y+vis_y_offset), 36, (255, 255, 255), 1)
             cv2.circle(tmp_img, (max_height_x+vis_x_offset, max_height_y+vis_y_offset), 32, (0, 0, 0), 2)
             cv2.circle(tmp_img, (max_height_x+vis_x_offset, max_height_y+vis_y_offset), 28, (255, 255, 255), 1)
             cv2.putText(tmp_img,
                     text='Max Height',
-                    org=(max_height_x+40+vis_x_offset, max_height_y-20+vis_y_offset),
+                    org=(max_height_x+40+vis_x_offset, max_height_y-60+vis_y_offset),
                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                    fontScale=1.0,
+                    fontScale=1.5,
                     color=(0, 0, 0),
-                    thickness=2,
+                    thickness=4,
                     lineType=cv2.LINE_4)
             drawDashedLine(tmp_img, (max_height_x+vis_x_offset, max_height_y+vis_y_offset), (max_height_x+vis_x_offset, img.shape[0]), 8, 2, (255,0,255))
 
@@ -297,3 +397,31 @@ def detc_traj(cap):
     encode = base64.b64encode(data).decode('UTF-8')
     
     return encode
+
+
+def calc_score(r, theta):
+    theta += np.pi
+
+    score_list = [11,14,9,12,5,20,1,18,4,13,6,10,15,2,17,3,19,7,16,8]
+
+    dtheta = 2*np.pi/20
+    tmp_theta = - 0.5*dtheta
+    triple_range = (106, 126)
+    double_range = (178, 198)
+
+    # print("r",r,"theta",theta)
+
+    for i, score in enumerate(score_list):
+        if r <= 8:
+            score = 50
+        elif r <= 22:
+            score = 25
+        if tmp_theta < theta <= tmp_theta+dtheta:
+            if triple_range[0] < r <= triple_range[1]:
+                score *= 3
+            elif double_range[0] < r <= double_range[1]:
+                score *= 2
+            break
+        else:
+            tmp_theta += dtheta
+    return score

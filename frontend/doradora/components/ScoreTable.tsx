@@ -8,7 +8,7 @@ const CONTENT = {
   // tableHead: ['', 'PL1', 'PL2'],
   tableHead: ['', 'PL1'],
   // tableTitle: ['Total Score','R1', 'R2', 'R3', 'R4', 'R5', 'R6'],
-  headerWidth: [130, 130],
+  headerWidth: [170, 170],
   // rowWidth: [65,65,65,65]
 };
 
