@@ -132,7 +132,7 @@ export function DartsCamera(props: DartsCameraProps) {
 
   function submitPictures(pre: string, then: string) {
     console.log('submit here');
-    console.log(pre, then);
+    // console.log(pre, then);
     // const url = 'http://proc.memotube.xyz/arrow'
     const url = 'http://192.168.0.162:5000/arrow'
     fetch(url, {
@@ -143,7 +143,10 @@ export function DartsCamera(props: DartsCameraProps) {
       },
     }).then(res => {
       console.log('response here', res, 'aa');
-      console.log(res.json().then(console.log))
+      console.log(res.json().then((dart:Dart)=>{
+        props.onThrow(dart)
+        console.log(dart)
+      }))
     })
   }
 
@@ -159,7 +162,9 @@ export function DartsCamera(props: DartsCameraProps) {
           ).then((res) => {
             // console.log(refCaptured.current)
             // console.log(res.height, res.width)
-            submitPictures(refCaptured.current[refCaptured.current.length - 1], res.base64 as string)
+            if(refCaptured.current.length>=1){
+              submitPictures(refCaptured.current[refCaptured.current.length - 1], res.base64 as string)
+            }
             refCaptured.current.push(res.base64 as string);
           }
           )
@@ -186,9 +191,8 @@ export function DartsCamera(props: DartsCameraProps) {
 
   const start = () => {
     if (refCamera.current) {
-      refCamera.current.takePictureAsync({ base64: true }).then(pic => {
-        refCaptured.current.push(pic.base64 as string);
-      })
+      refCaptured.current.length=0
+      handleMotionDetect()
     }
   }
   props._ref(start)

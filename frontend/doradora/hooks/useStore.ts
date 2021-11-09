@@ -4,6 +4,7 @@ import firebase from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 import { getDatabase, ref as db_ref, set as db_set } from "firebase/database";
 import app, { database as db, writeUserInfo } from './firebase';
+import { NumericDataType, round } from '@tensorflow/tfjs-core';
 
 type IUser = { uid: string }
 type ISignIn = {};
@@ -11,7 +12,10 @@ type IPreferences = {};
 
 type StateSlice<T extends object> = StateCreator<T> | StoreApi<T>;
 
-
+interface IGameSlice {
+	count:number,
+	setCount:(r:number)=>void
+}
 
 
 interface IAuthSlice {
@@ -20,6 +24,13 @@ interface IAuthSlice {
 	signIn: () => Promise<void>;
 	// writeUserInfo: (userId: string, name: string, email: string, imageUrl: string) => boolean;
 }
+
+const createGameSlice: StateSlice<IGameSlice> = (
+	set,get
+)=>({
+	count:0,
+	setCount:(r:number) => set(produce(s=>s.count=r))
+})
 
 const createAuthSlice: StateSlice<IAuthSlice> = (
 	set,
@@ -73,9 +84,15 @@ const createPreferencesSlice: StateSlice<IPreferencesSlice> = () => ({
 	// [...]
 });
 
-interface IStore extends IAuthSlice, IPreferencesSlice { }
+interface IStore extends IGameSlice, IAuthSlice, IPreferencesSlice { }
 
 export const useStore = create<IStore>((set, get, api) => ({
+	...createGameSlice(
+		set as unknown as SetState<IGameSlice>,
+		get as GetState<IGameSlice>,
+		api as unknown as StoreApi<IGameSlice>,
+	),
+
 	...createAuthSlice(
 		set as unknown as SetState<IAuthSlice>,
 		get as GetState<IAuthSlice>,
