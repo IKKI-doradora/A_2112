@@ -1,105 +1,76 @@
 import React, { useState } from 'react'
-import { StyleSheet, Text, View, TouchableOpacity, Pressable, Image } from 'react-native'
-import { Camera } from 'expo-camera'
-import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
-import { useNavigation } from '@react-navigation/core';
-import { RootStackScreenProps } from '../types';
+import { StyleSheet, Text, View, TouchableOpacity, Pressable, Image, ViewStyle, GestureResponderEvent } from 'react-native'
+import ReactNativeZoomableView, { ZoomableViewEvent } from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 
+type CapturePreviewProps = {
+    photoUri: string;
+    retakePicture: () => void;
+    calibrateCV: (
+        arrowPosition: {x: number; y: number},
+        markerPoints: number[][],
+        cropPoints: number[][],
+        isManualMarker: boolean
+    ) => void;
+    toGameScreenFn: () => void;
+};
 
-type CalibrationScreenProps = RootStackScreenProps<'Calibration'>;
+export default function CapturePreview(props: CapturePreviewProps) {
+    const [arrowPosition, setArrowPosition] = useState({ x: 250, y: 125 });
+    const [isAnchorActive, setIsAnchorActive] = useState([false, false, false, false]);
+    const [isMarkerActive, setIsMarkerActive] = useState([false, false, false, false]);
+    const rMarker = 4;
+    const rAnchor = 6;
+    const [markerPositions, setMarkerPositions] = useState([[50, 250], [200, 250], [125, 120], [125, 380]]);
+    const [anchorPositions, setAnchorPositions] = useState([[20, 30], [230, 30], [230, 500], [20, 500]]);
+    const [isManualMarker, setIsManualMarker] = useState(false);
 
-export default function CaputuprePreview({ photo, retakePicture, calibrateCV, sendArrowImage }: any) {
-    const navigation = useNavigation<CalibrationScreenProps['navigation']>()
+    const moveMarkerPosition = (evt: GestureResponderEvent) => {
+        console.log("-----------------");
+        const x = evt.nativeEvent.locationX;
+        const y = evt.nativeEvent.locationY;
 
-    const [arrowPosition, setArrowPosition] = useState({ 'x': 250, 'y': 125 })
-    const [nowZoomLevel, setNowZoomLevel] = useState(1.0)
-    const [anchorActivations, setAnchorActivations] = useState([false, false, false, false])
-    const [markerActivation, setMarkerActivations] = useState([false, false, false, false])
-    const [rMarker, setRMarker] = useState(4)
-    const [rAnchor, setRAnchor] = useState(6)
-    const [markerPositions, setMarkerPositions] = useState([[50, 250], [200, 250], [125, 120], [125, 380]])
-    const [anchorPositions, setAnchorPositions] = useState([[20, 30], [230, 30], [230, 500], [20, 500]])
-    const [doneImgProcess, setDoneImgProcess] = useState(false)
-    const [isManulMarker, setIsManualMarker] = useState(false)
+        if (isAnchorActive.some((v) => v == true)) {
+            const id = isAnchorActive.findIndex((v) => v == true);
+            let ap = anchorPositions;
+            ap[id] = [y, x];
+            ap[id ^ 1] = [ap[id ^ 2][0], x];
+            ap[id ^ 3] = [y, ap[id ^ 2][1]];
 
-    const moveMarkerPosition = (evt: any) => {
-        console.log("-----------------")
-        if (anchorActivations.some((v) => v == true)) {
-            const id = anchorActivations.findIndex((v) => v == true)
-            const x = evt.nativeEvent.locationX
-            const y = evt.nativeEvent.locationY
-            let ap = anchorPositions
-            ap[id] = [y, x]
-            if (id == 0) {
-                ap[1] = [ap[2][0], x]
-                ap[3] = [y, ap[2][1]]
-            }
-            if (id == 1) {
-                ap[0] = [ap[3][0], x]
-                ap[2] = [y, ap[3][1]]
-            }
-            if (id == 2) {
-                ap[3] = [ap[0][0], x]
-                ap[1] = [y, ap[0][1]]
-            }
-            if (id == 3) {
-                ap[2] = [ap[1][0], x]
-                ap[0] = [y, ap[1][1]]
-            }
-            setAnchorPositions(ap)
-            setAnchorActivations([false, false, false, false])
-        } else if (markerActivation.some((v) => v == true)) {
-            const id = markerActivation.findIndex((v) => v == true)
-            const x = evt.nativeEvent.locationX
-            const y = evt.nativeEvent.locationY
-            let ap = markerPositions
-            ap[id] = [y, x]
-            setMarkerPositions(ap)
-            setMarkerActivations([false, false, false, false])
+            setAnchorPositions(ap);
+            setIsAnchorActive([false, false, false, false]);
+        } else if (isMarkerActive.some((v) => v == true)) {
+            const id = isMarkerActive.findIndex((v) => v == true);
+            let mp = markerPositions;
+            mp[id] = [y, x];
+
+            setMarkerPositions(mp);
+            setIsMarkerActive([false, false, false, false]);
         } else {
-            const x = evt.nativeEvent.locationX
-            const y = evt.nativeEvent.locationY
-            console.log(nowZoomLevel)
-            console.log(`x: ${x}, y: ${y}`)
-            setArrowPosition({ 'x': x, 'y': y })
+            console.log(`x: ${x}, y: ${y}`);
+            setArrowPosition({ 'x': x, 'y': y });
         }
+    };
 
-        return true;
-    }
+    const activateRectangleAnchor = (id: number) => {
+        let tmp = [false, false, false, false];
+        tmp[id] = true;
+        setIsAnchorActive(tmp);
+        setIsMarkerActive([false, false, false, false]);
+    };
 
-    const activateRectangleAnchor = (evt: any, id: number) => {
-        let tmp = [false, false, false, false]
-        tmp[id] = true
-        setAnchorActivations(tmp)
-        setMarkerActivations([false, false, false, false])
-    }
+    const activateMarker = (id: number) => {
+        let tmp = [false, false, false, false];
+        tmp[id] = true;
+        setIsAnchorActive([false, false, false, false]);
+        setIsMarkerActive(tmp);
+    };
 
-    const activateMarker = (evt: any, id: number) => {
-        let tmp = [false, false, false, false]
-        tmp[id] = true
-        setMarkerActivations(tmp)
-        setAnchorActivations([false, false, false, false])
-    }
-
-    const reflectZoomLevel = (event, gestureState, zoomableViewEventObject) => {
-        // console.log(zoomableViewEventObject)
-        setNowZoomLevel(zoomableViewEventObject.zoomLevel)
-        // setRMarker(1.*rMarker/zoomableViewEventObject.zoomLevel)
-        // setRAnchor(1.*rAnchor/zoomableViewEventObject.zoomLevel)
-    }
-
-    const switchManualMarker = () => {
-        if (isManulMarker) {
-            setIsManualMarker(false)
-        } else {
-            setIsManualMarker(true)
-        }
-    }
-
+    const reflectZoomLevel = (zoomableViewEventObject: ZoomableViewEvent) => {
+        console.log(`now zoom level: ${zoomableViewEventObject.zoomLevel}`);
+    };
 
     return (
         <View style={styles.zoomWrapper}>
-
             <ReactNativeZoomableView
                 zoomEnabled={true}
                 maxZoom={3}
@@ -108,21 +79,9 @@ export default function CaputuprePreview({ photo, retakePicture, calibrateCV, se
                 initialZoom={1.0}
                 bindToBorders={true}
                 onZoomAfter={reflectZoomLevel}
-                style={{
-                    // padding: 10,
-                }}
             >
-                <Pressable
-                    style={{
-                        backgroundColor: 'transparent',
-                        flex: 1,
-                        width: '100%',
-                        height: '100%'
-                    }}
-                    onPress={(evt) => moveMarkerPosition(evt)}
-                >
-                    <Image source={{ uri: photo.uri }} style={{ width: '100%', height: '100%' }} resizeMode="stretch" />
-
+                <Pressable style={styles.imageContainer} onPress={(evt) => moveMarkerPosition(evt)}>
+                    <Image source={{ uri: props.photoUri }} style={{ width: '100%', height: '100%' }} resizeMode="stretch" />
                 </Pressable >
 
                 <View style={{
@@ -134,80 +93,60 @@ export default function CaputuprePreview({ photo, retakePicture, calibrateCV, se
                     position: 'absolute',
                     top: arrowPosition.y - rMarker,
                     left: arrowPosition.x - rMarker,
-                }}
-                ></View>
+                }} />
 
-                {(() => {
-                    let anchors = []
-                    for (let i = 0; i < 4; i++) {
-                        anchors.push(
-                            <Pressable
-                                style={anchorStyle(anchorActivations[i], anchorPositions[i], rAnchor)} //position: 'absolute' によるワーニング. 期待通りに動く. むしろこれを外すとマーカー位置がおかしくなる.
-                                onPress={(evt) => activateRectangleAnchor(evt, i)}
-                                key={i}
-                            ></Pressable >
-                        )
-                    }
-                    return anchors
-                })()}
+                {Array(4).fill(1).map((_, i) => <Pressable
+                    style={anchorStyle(isAnchorActive[i], anchorPositions[i], rAnchor)} //position: 'absolute' によるワーニング. 期待通りに動く. むしろこれを外すとマーカー位置がおかしくなる.
+                    onPress={() => activateRectangleAnchor(i)}
+                    key={i}
+                />)}
 
-                {isManulMarker ?
-                    (() => {
-                        let markers = []
-                        for (let i = 0; i < 4; i++) {
-                            markers.push(
-                                <Pressable
-                                    style={markerStyle(markerActivation[i], markerPositions[i], rMarker)} //position: 'absolute' によるワーニング. 期待通りに動く. むしろこれを外すとマーカー位置がおかしくなる.
-                                    onPress={(evt) => activateMarker(evt, i)}
-                                    key={i}
-                                ></Pressable >
-                            )
-                        }
-                        return markers
-                    })()
-                    : <></>}
-
-
+                {isManualMarker ? (
+                    Array(4).fill(1).map((_, i) => <Pressable
+                        style={markerStyle(isMarkerActive[i], markerPositions[i], rMarker)} //position: 'absolute' によるワーニング. 期待通りに動く. むしろこれを外すとマーカー位置がおかしくなる.
+                        onPress={() => activateMarker(i)}
+                        key={i}
+                    />)
+                ) : <></>}
             </ReactNativeZoomableView>
 
             <View style={{ position: 'absolute', bottom: 10, left: 10 }}>
-                <TouchableOpacity style={styles.button} >
-                    <Text style={styles.buttonTitle} onPress={() => retakePicture(setDoneImgProcess)} >Re-Take</Text>
+                <TouchableOpacity style={styles.button} onPress={props.retakePicture}>
+                    <Text style={styles.buttonTitle}>Re-Take</Text>
                 </TouchableOpacity>
             </View>
-
             <View style={{ position: 'absolute', bottom: 10, left: 700 }}>
-                <TouchableOpacity style={styles.button} >
-                    <Text style={styles.buttonTitle} onPress={() => navigation.navigate("Game")} >To Game Screen</Text>
+                <TouchableOpacity style={styles.button} onPress={props.toGameScreenFn}>
+                    <Text style={styles.buttonTitle}>To Game Screen</Text>
                 </TouchableOpacity>
             </View>
-            {
-                <View>
-                    <View style={{ position: 'absolute', bottom: 10, left: 250 }}>
-                        <TouchableOpacity style={styles.button} >
-                            <Text style={styles.buttonTitle} onPress={switchManualMarker} >Manual Marker</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={{ position: 'absolute', bottom: 10, left: 500 }}>
-                        <TouchableOpacity style={styles.button} >
-                            <Text style={styles.buttonTitle} onPress={(evt) => calibrateCV(evt, [arrowPosition.y, arrowPosition.x], markerPositions, anchorPositions, setDoneImgProcess, isManulMarker)} >Calibrate Image</Text>
-                        </TouchableOpacity>
-                    </View>
+            <View>
+                <View style={{ position: 'absolute', bottom: 10, left: 250 }}>
+                    <TouchableOpacity style={styles.button} onPress={() => setIsManualMarker(!isManualMarker)}>
+                        <Text style={styles.buttonTitle}>Manual Marker</Text>
+                    </TouchableOpacity>
                 </View>
-            }
-
+                <View style={{ position: 'absolute', bottom: 10, left: 500 }}>
+                    <TouchableOpacity style={styles.button} onPress={() => props.calibrateCV(arrowPosition, markerPositions, anchorPositions, isManualMarker)}>
+                        <Text style={styles.buttonTitle}>Calibrate Image</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
         </View>
-
-
     )
 }
-
-
 
 const styles = StyleSheet.create({
     zoomWrapper: {
         flex: 1,
         overflow: 'hidden',
+    },
+
+    imageContainer: {
+        backgroundColor: 'transparent',
+        flex: 1,
+        width: '100%',
+        height: '100%',
     },
 
     button: {
@@ -228,18 +167,7 @@ const styles = StyleSheet.create({
     },
 });
 
-const markerStyle = (markerActivation: boolean, moveMarkerPosition: Array<number>, rMarker: number) => ({
-    width: 2 * rMarker,
-    height: 2 * rMarker,
-    borderRadius: rMarker,
-    backgroundColor: markerActivation ? 'purple' : "red",
-    // overflow: "hidden",
-    position: 'absolute',
-    top: moveMarkerPosition[0] - rMarker,
-    left: moveMarkerPosition[1] - rMarker,
-})
-
-const anchorStyle = (anchorActivation: boolean, anchorPosition: Array<number>, rAnchor: number) => ({
+const anchorStyle = (anchorActivation: boolean, anchorPosition: Array<number>, rAnchor: number): ViewStyle => ({
     width: 2 * rAnchor,
     height: 2 * rAnchor,
     borderRadius: rAnchor,
@@ -248,4 +176,15 @@ const anchorStyle = (anchorActivation: boolean, anchorPosition: Array<number>, r
     position: 'absolute',
     top: anchorPosition[0] - rAnchor,
     left: anchorPosition[1] - rAnchor,
-})
+});
+
+const markerStyle = (isMarkerActive: boolean, markerPosition: Array<number>, rMarker: number): ViewStyle => ({
+    width: 2 * rMarker,
+    height: 2 * rMarker,
+    borderRadius: rMarker,
+    backgroundColor: isMarkerActive ? 'purple' : "red",
+    // overflow: "hidden",
+    position: 'absolute',
+    top: markerPosition[0] - rMarker,
+    left: markerPosition[1] - rMarker,
+});
