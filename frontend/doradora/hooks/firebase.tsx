@@ -1,8 +1,8 @@
 import Constants from "expo-constants";
 // import 'firebase/firestore';
 import firebase, { initializeApp } from 'firebase/app';
-import { getDatabase, set, ref, push, update } from 'firebase/database';
-import { GameDetail } from "../types";
+import { getDatabase, ref, update, off, DataSnapshot, set, onChildAdded } from 'firebase/database';
+import { Round } from "../types";
 
 // import { getAuth, onAuthStateChanged, FacebookAuthProvider, signInWithCredential, signInAnonymously, signInWithEmailAndPassword } from 'firebase/auth';
 
@@ -20,18 +20,20 @@ export function writeUserInfo(userId: string, { username = '', email = '', image
 	return true
 }
 
-// gameIDは後で
-export function PushGameDetail(userID: string, detail: GameDetail): void {
-	update(ref(database, "games/adsfasgasdfadsfasdg/uids/" + userID), {
-		...detail
-	});
+// round を登録する
+export function RegisterRound(gameId: string, userId: string, roundCount: number, round: Round) {
+	set(ref(database, `games/${gameId}/uids/${userId}/rounds/${roundCount}`), round);
 };
 
+// roundが追加されるのを監視する
+// 返り値は監視を止めるための関数
+export function ObserveRoundAdded(gameId: string, userId: string, callbackFn: (snapshot: DataSnapshot) => void) {
+	const databaseRef = ref(database, `games/${gameId}/uids/${userId}/rounds`);
+	onChildAdded(databaseRef, callbackFn);
+	return () => off(databaseRef, "child_added");
+};
 
 export default app;
-
-
-
 
 // auth()
 // 	.createUserWithEmailAndPassword('jane.doe@example.com', 'SuperSecretPassword!')

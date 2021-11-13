@@ -55,8 +55,8 @@ export type GameDetail = {
 };
 
 export type Game = {
-  game_id: string;
+  gameId: string;
   type: 0 | 1 | 2;
-  n_rounds: number;
+  nRounds: number;
   uids: Map<string, GameDetail>;
 };
