@@ -20,9 +20,19 @@ export function writeUserInfo(userId: string, { username = '', email = '', image
 	return true
 }
 
-// round を登録する
+// dart を登録する
 export function RegisterDart(gameId: string, userId: string, roundCount: number, dartsCount: number, dart: Dart) {
 	set(ref(database, `games/${gameId}/uids/${userId}/rounds/${roundCount}/darts/${dartsCount}`), dart);
+};
+
+// round の score を登録する
+export function RegisterRoundScore(gameId: string, userId: string, roundCount: number, score: number) {
+	set(ref(database, `games/${gameId}/uids/${userId}/rounds/${roundCount}/score`), score);
+};
+
+// game の totalScore を登録する
+export function RegisterTotalScore(gameId: string, userId: string, totalScore: number) {
+	set(ref(database, `games/${gameId}/uids/${userId}/totalScore`), totalScore);
 };
 
 // roundが追加されるのを監視する

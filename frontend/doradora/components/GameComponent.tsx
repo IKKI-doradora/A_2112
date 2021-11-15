@@ -10,7 +10,7 @@ import { DartsCamera } from '../screens/DartsCamera';
 
 import HomeButton from "./HomeButton";
 import { useStore } from '../hooks/useStore';
-import { RegisterDart, ObserveDartAdded } from '../hooks/firebase';
+import { RegisterDart, RegisterRoundScore, RegisterTotalScore, ObserveDartAdded } from '../hooks/firebase';
 
 type GameComponentProps = {
   gameId: string;
@@ -52,6 +52,7 @@ export default function GameComponent(props: GameComponentProps) {
 
   const on3Throw = () => {
     if (roundCount == 8) {
+      if (user?.uid) RegisterTotalScore(props.gameId, user.uid, details[0].totalScore); // totalScore の 登録
       props.ToResultFn(details[0]); // Jump Result
     } else {
       // Tableを更新
@@ -60,11 +61,11 @@ export default function GameComponent(props: GameComponentProps) {
       newDetails[0].totalScore += round.score;
       setDetails(newDetails);
 
-      // 投げ足りない分をDBに登録
       if (user?.uid) {
-        for (let i = dartsCount; i < 3; i += 1) {
+        for (let i = dartsCount; i < 3; i += 1) { // 投げ足りない分をDBに登録
           RegisterDart(props.gameId, user.uid, roundCount, i, initDart);
         }
+        RegisterRoundScore(props.gameId, user.uid, roundCount, round.score); // score の登録
       }
 
       if (props.opponentId) setIsMyTurn(false); // 相手がいたら待機状態に
@@ -138,7 +139,7 @@ export default function GameComponent(props: GameComponentProps) {
         <RenderDarts darts={round.darts} isAnalysisColor={false}/>
       </View >
       <View style={styles.rightContainer}>
-        <Button title={finButtonText} disabled={!isMyTurn} onPress={on3Throw}/>
+        <Button title={finButtonText} disabled={!isMyTurn && roundCount < 8} onPress={on3Throw}/>
         <ScoreTable details={details} />
       </View>
     </View >
