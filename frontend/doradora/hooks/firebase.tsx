@@ -1,8 +1,8 @@
 import Constants from "expo-constants";
 // import 'firebase/firestore';
 import firebase, { initializeApp } from 'firebase/app';
-import { getDatabase, ref, update, off, DataSnapshot, set, onChildAdded } from 'firebase/database';
-import { Round } from "../types";
+import { getDatabase, ref, update, off, DataSnapshot, set, onValue } from 'firebase/database';
+import { Dart, Round } from "../types";
 
 // import { getAuth, onAuthStateChanged, FacebookAuthProvider, signInWithCredential, signInAnonymously, signInWithEmailAndPassword } from 'firebase/auth';
 
@@ -21,16 +21,16 @@ export function writeUserInfo(userId: string, { username = '', email = '', image
 }
 
 // round を登録する
-export function RegisterRound(gameId: string, userId: string, roundCount: number, round: Round) {
-	set(ref(database, `games/${gameId}/uids/${userId}/rounds/${roundCount}`), round);
+export function RegisterDart(gameId: string, userId: string, roundCount: number, dartsCount: number, dart: Dart) {
+	set(ref(database, `games/${gameId}/uids/${userId}/rounds/${roundCount}/darts/${dartsCount}`), dart);
 };
 
 // roundが追加されるのを監視する
 // 返り値は監視を止めるための関数
-export function ObserveRoundAdded(gameId: string, userId: string, callbackFn: (snapshot: DataSnapshot) => void) {
-	const databaseRef = ref(database, `games/${gameId}/uids/${userId}/rounds`);
-	onChildAdded(databaseRef, callbackFn);
-	return () => off(databaseRef, "child_added");
+export function ObserveDartAdded(gameId: string, userId: string, round: number, dartsCount: number, callbackFn: (snapshot: DataSnapshot) => void) {
+	const databaseRef = ref(database, `games/${gameId}/uids/${userId}/rounds/${round}/darts/${dartsCount}`);
+	onValue(databaseRef, callbackFn);
+	return () => off(databaseRef, "value");
 };
 
 export default app;
