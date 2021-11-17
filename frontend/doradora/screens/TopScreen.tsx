@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/core';
 import * as React from 'react';
 import { StyleSheet,  TouchableOpacity, Text } from 'react-native';
 import { View } from '../components/Themed';
-import  {Image}  from 'react-native';
+import { Image } from 'react-native';
 import { RootStackScreenProps } from '../types';
 
 type TopScreenProps = RootStackScreenProps<'Top'>;
