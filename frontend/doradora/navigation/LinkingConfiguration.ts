@@ -33,6 +33,7 @@ const linking: LinkingOptions<RootStackParamList> = {
       Result: 'result',
       Analytics: 'analytics',
       Trajectory: 'trajectory',
+      RoomSelect: 'roomselect',
     },
   },
 };
