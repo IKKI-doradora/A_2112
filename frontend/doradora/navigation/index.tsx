@@ -18,6 +18,7 @@ import HomeGameTabScreen from '../screens/HomeGameTabScreen';
 import HomeAnalyticsTabScreen from '../screens/HomeAnalyticsTabScreen';
 import CalibrationScreen from '../screens/CalibrationScreen';
 import GameScreen from '../screens/GameScreen';
+import RoomSelectScreen from '../screens/RoomSelectScreen';
 import GameResultScreen from '../screens/GameResultScreen';
 import AnalyticsScreen from '../screens/AnalyticsScreen';
 import TrajectoryScreen from '../screens/TrajectoryScreen';
@@ -53,6 +54,7 @@ function RootNavigator() {
       <Stack.Screen name="Result" component={GameResultScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Trajectory" component={TrajectoryScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Analytics" component={AnalyticsScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="RoomSelect" component={RoomSelectScreen} options={{ headerShown: true }} />
     </Stack.Navigator>
   );
 }

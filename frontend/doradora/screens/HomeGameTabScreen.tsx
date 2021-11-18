@@ -1,9 +1,11 @@
 import { useNavigation } from '@react-navigation/core';
 import * as React from 'react';
-import { StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
-import { Text } from 'react-native-elements';
+import { StyleSheet, TouchableOpacity, ImageBackground} from 'react-native';
+import { Button,  Text} from 'react-native-elements';
 import { View } from '../components/Themed';
-import { HomeTabScreenProps } from '../types';
+import { HomeTabScreenProps, RootStackParamList } from '../types';
+import SelectGameButton from '../components/SelectGameButton';
+import { setStatusBarNetworkActivityIndicatorVisible } from 'expo-status-bar';
 
 type HomeGameTabScreenProps = HomeTabScreenProps<'GameTab'>;
 const myImg = require('../assets/images/backboard.jpg');

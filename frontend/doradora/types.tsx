@@ -21,6 +21,7 @@ export type RootStackParamList = {
   Result: {data: GameDetail;};
   Analytics: {type: 0 | 1 | 2;};
   Trajectory: undefined;
+  RoomSelect: undefined;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<
