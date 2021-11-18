@@ -18,26 +18,11 @@ export default function HomeGameTabScreen() {
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
       <Text h1 style={styles.title}>Which Game Play ?</Text>
       <View style={styles.buttonContainer}>
-        <SelectGameButton title="Count-up GAMES" onPress={() => navigation.navigate("Calibration")} />
-        <SelectGameButton title="X01 GAMES" onPress={() => {}} />
-        <SelectGameButton title="Cricket GAMES" onPress={() => {}} />
+        <SelectGameButton navigation={navigation} to="Calibration" title="Count-up GAMES" />
+        <SelectGameButton navigation={navigation} to="Home" title="X01 GAMES" />
+        <SelectGameButton navigation={navigation} to="Home" title="Cricket GAMES" />
       </View>
     </ImageBackground>
-  );
-};
-
-type SelectGameButtonProps = {
-  title: string;
-  onPress: () => void;
-};
-
-function SelectGameButton(props: SelectGameButtonProps) {
-  return (
-    <View>
-      <TouchableOpacity style={styles.button} onPress={props.onPress}>
-        <Text style={styles.buttonTitle} >{props.title}</Text>
-      </TouchableOpacity>
-    </View>
   );
 };
 
