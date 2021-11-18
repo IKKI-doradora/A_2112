@@ -33,7 +33,6 @@ export default function GameResultScreen() {
           width={chartWidth}
           height={chartHeight}
           details={[route.params.data]}
-          uid={"0"}
           isRound={true}
           backHomeButtonFn={() => navigation.navigate("Home")}
         />

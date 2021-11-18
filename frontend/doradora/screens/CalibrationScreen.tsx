@@ -1,242 +1,125 @@
 import { useNavigation } from '@react-navigation/core';
-// import * as React from 'react';
-// import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { RootStackScreenProps } from '../types';
-import { StatusBar } from 'expo-status-bar'
-import React, { useState } from 'react'
+import { StatusBar } from 'expo-status-bar';
+import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Alert, Dimensions } from 'react-native'
-import { Camera } from 'expo-camera'
-import * as ImageManipulator from 'expo-image-manipulator'
-import CapturePreview from '../components/CapturePreview'
-import database from '../hooks/firebase'
-import { set, ref, push, update } from 'firebase/database';
+import { Camera, CameraCapturedPicture } from 'expo-camera';
+import * as ImageManipulator from 'expo-image-manipulator';
+import CapturePreview from '../components/CapturePreview';
 import { useStore } from '../hooks/useStore';
-import Navigation from '../navigation';
 
-let camera: Camera
+type CalibrationScreenProps = RootStackScreenProps<'Calibration'>;
+let camera: Camera | null;
 
-const url = 'http://192.168.0.162:5000'
+const url = 'http://192.168.0.162:5000';
 // const url = 'http://proc.memotube.xyz';
-const windowWidth = Dimensions.get('window').width
-const windowHeight = Dimensions.get('window').height
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
-export default function CameraTest() {
-  const navigation = useNavigation<RootStackScreenProps<"Game">['navigation']>();
-  const [startCamera, setStartCamera] = useState(false)
-  const [previewVisible, setPreviewVisible] = useState(false)
-  const [capturedImage, setCapturedImage] = useState<any>(null)
-  const user = useStore(e => e.user)
+export default function CalibrationScreen() {
+  const navigation = useNavigation<CalibrationScreenProps['navigation']>();
+  const [isCameraStarted, setIsCameraStarted] = useState<boolean>(false);
+  const [canPreview, setCanPreview] = useState<boolean>(false); // !!capturedImage に置き換えられるからいらない説
+  const [capturedImage, setCapturedImage] = useState<CameraCapturedPicture | null>(null);
+  const user = useStore(e => e.user);
 
   const __startCamera = async () => {
-    // const { status } = await Camera.requestPermissionsAsync()
-    const { status } = await Camera.requestCameraPermissionsAsync()
-    // console.log(status)
-    if (status === 'granted') {
-      setStartCamera(true)
-    } else {
-      Alert.alert('Access denied')
-    }
-  }
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    status == 'granted' ? setIsCameraStarted(true) : Alert.alert('Access denied');
+  };
 
   const __takePicture = async () => {
-    if (!camera) return
-    const photo = await camera.takePictureAsync({ base64: true })
-    // console.log(photo)
-    // console.log(photo.base64)
-    setPreviewVisible(true)
-    console.log(photo.height,photo.width)
-    setCapturedImage(photo)
-  }
+    if (!camera) return;
+    const photo = await camera.takePictureAsync({ base64: true });
+    setCanPreview(true);
+    console.log(photo.height, photo.width);
+    setCapturedImage(photo);
+  };
 
-  const __retakePicture = (setDoneImgProcess: any) => {
-    setCapturedImage(null)
-    setPreviewVisible(false)
-    __startCamera()
-    setDoneImgProcess(false)
-  }
+  const __retakePicture = () => {
+    setCapturedImage(null);
+    setCanPreview(false);
+    __startCamera();
+  };
 
-  const __calibrateCV = async (evt: any, arrowPoint: Array<number>, markerPoints: Array<number>, cropPoints: Array<number>, setDoneImgProcess: any, isManualMarker: boolean) => {
-    console.log("-----------------")
-    console.log(windowHeight, windowWidth)
-    console.log(capturedImage.height, capturedImage.width)
+  const __calibrateCV = async (
+    arrowPosition: {x: number; y: number},
+    markerPoints: number[][],
+    cropPoints: number[][],
+    isManualMarker: boolean
+  ) => {
+    if (!capturedImage) return; // 空のときの処理，Todo
+
+    console.log("-----------------");
+    console.log(windowHeight, windowWidth);
+    console.log(capturedImage.height, capturedImage.width);
 
     const resizedImage = await ImageManipulator.manipulateAsync(
       capturedImage.uri,
       [{ resize: { width: capturedImage.width / 3, height: capturedImage.height / 3 } },],
-      // [{ resize: { width: 450, height: 900 } },],
       { base64: true, compress: 1 }
-    )
-    console.log(capturedImage.width,capturedImage.height)
+    );
 
-    arrowPoint[0] /= windowHeight
-    arrowPoint[1] /= windowWidth
+    arrowPosition.y /= windowHeight;
+    arrowPosition.x /= windowWidth;
     cropPoints.forEach(cropPoint => {
-      cropPoint[0] /= windowHeight
-      cropPoint[1] /= windowWidth
-    })
+      cropPoint[0] /= windowHeight;
+      cropPoint[1] /= windowWidth;
+    });
     markerPoints.forEach(markerPoint => {
-      markerPoint[0] /= windowHeight
-      markerPoint[1] /= windowWidth
-    })
+      markerPoint[0] /= windowHeight;
+      markerPoint[1] /= windowWidth;
+    });
 
+    // リクエスト部分は別関数に切り出したい
     const _body = ({
       base64Image: resizedImage.base64,
-      arrowPoint: arrowPoint,
+      arrowPoint: [arrowPosition.y, arrowPosition.x],
       markerPoints: markerPoints,
       cropPoints: cropPoints,
       manualMarker: isManualMarker,
-    })
-
-    // update(ref(database), 'users/' + users.uid, _body)
-
-
+    });
 
     fetch(url + "/calib", {
       method: 'POST',
       body: JSON.stringify(_body),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    },
-    )
-      .then(res => res.json())
-      .then(
-        data => {
-          const newImage = { uri: "data:image/jpg;base64," + data.base64Image, base64: data.base64Image }
-          setCapturedImage(newImage)
-        }
-      )
-
-    setDoneImgProcess(true)
-
-    return true;
-  }
-
+      headers: {'Content-Type': 'application/json'}
+    })
+    .then(res => res.json())
+    .then(data => {
+      const newImage = { uri: "data:image/jpg;base64," + data.base64Image, base64: data.base64Image, height: resizedImage.height, width: resizedImage.width }
+      setCapturedImage(newImage)
+    });
+  };
 
   return (
     <View style={styles.container}>
-      {startCamera ? (
-        <View
-          style={{
-            flex: 1,
-            width: '100%'
-          }}
-        >
-          {previewVisible && capturedImage ? (
-            <CapturePreview photo={capturedImage} calibrateCV={__calibrateCV} retakePicture={__retakePicture} />
-          ) : (
-            <Camera
-              style={{ flex: 1 }}
-              ratio={'16:9'}
-              ref={(r) => {
-                camera = r
-              }}
-            >
-              <View
-                style={{
-                  flex: 1,
-                  width: '100%',
-                  backgroundColor: 'transparent',
-                  flexDirection: 'row'
-                }}
-              >
-                <View
-                  style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    flexDirection: 'row',
-                    flex: 1,
-                    width: '100%',
-                    padding: 20,
-                    justifyContent: 'space-between'
-                  }}
-                >
-                  <View
-                    style={{
-                      alignSelf: 'center',
-                      flex: 1,
-                      alignItems: 'center'
-                    }}
-                  >
-                    <TouchableOpacity
-                      onPress={__takePicture}
-                      style={{
-                        width: 70,
-                        height: 70,
-                        bottom: 0,
-                        borderRadius: 50,
-                        backgroundColor: '#fff'
-                      }}
-                    />
-                  </View>
-                </View>
-              </View>
-            </Camera>
-          )}
-        </View>
-      ) : (
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: '#fff',
-            justifyContent: 'space-around',
-            alignItems: 'center'
-          }}
-        >
-          <TouchableOpacity
-            onPress={__startCamera}
-            style={{
-              width: 130,
-              borderRadius: 4,
-              backgroundColor: '#14274e',
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: 40
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontWeight: 'bold',
-                textAlign: 'center'
-              }}
-            >
-              Take picture
-            </Text>
+      {isCameraStarted ? ( // 較正画面
+        canPreview && capturedImage ? (
+          <View style={{flex: 1, width: '100%'}}>
+            <CapturePreview photoUri={capturedImage.uri} calibrateCV={__calibrateCV} retakePicture={__retakePicture} toGameScreenFn={() => navigation.navigate("Game")} />
+          </View>
+        ) : ( // 撮影画面
+          <Camera style={{flex: 1, width:'100%'}} ratio={'16:9'} ref={(r) => {camera = r}}>
+            <View style={styles.takePictureContainer}>
+              <TouchableOpacity style={styles.takePictureButton} onPress={__takePicture}/>
+            </View>
+          </Camera>
+        )
+      ) : ( // 撮影前画面
+        <View style={styles.preTakePictureContainer}>
+          <TouchableOpacity style={styles.button} onPress={__startCamera}>
+            <Text style={styles.buttonTitle}>Take picture</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Game")}
-            style={{
-              width: 130,
-              borderRadius: 4,
-              backgroundColor: '#14274e',
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: 40
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontWeight: 'bold',
-                textAlign: 'center'
-              }}
-            >
-              Start game
-            </Text>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Game")}>
+            <Text style={styles.buttonTitle}>Start game</Text>
           </TouchableOpacity>
         </View>
-        
       )}
-
       <StatusBar style="auto" />
     </View>
-  )
+  );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -244,5 +127,44 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center'
+  },
+
+  takePictureContainer: {
+    position: 'absolute',
+    bottom: 0,
+    flex: 1,
+    width: '100%',
+    padding: 20,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+  },
+
+  takePictureButton: {
+    width: 70,
+    height: 70,
+    borderRadius: 50,
+    backgroundColor: '#fff',
+  },
+
+  preTakePictureContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+
+  button: {
+    width: 130,
+    borderRadius: 4,
+    backgroundColor: '#14274e',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 40,
+  },
+
+  buttonTitle: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });

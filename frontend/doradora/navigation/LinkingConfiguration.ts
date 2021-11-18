@@ -16,16 +16,8 @@ const linking: LinkingOptions<RootStackParamList> = {
       Top: 'top',
       Home: {
         screens: {
-          GameTab: {
-            screens: {
-              HomeGameTabScreen: 'game',
-            },
-          },
-          ScoreTab: {
-            screens: {
-              HomeScoreTabScreen: 'score',
-            },
-          },
+          GameTab: 'gameTab',
+          AnalyticsTab: 'analyticsTab',
         },
       },
       Calibration: 'calibration',

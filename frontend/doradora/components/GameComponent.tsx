@@ -1,154 +1,164 @@
-import { useNavigation } from '@react-navigation/core';
 import * as React from 'react';
-import { StyleSheet, Platform } from 'react-native';
-import { Text, View } from '../components/Themed';
-import { Dart, Round, GameDetail, RootStackScreenProps } from '../types';
-import { useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { View } from '../components/Themed';
+import { Dart, Round, GameDetail } from '../types';
+import { useState, useEffect } from 'react';
 import { Button, Badge } from 'react-native-elements';
 import ScoreTable from '../components/ScoreTable';
 import RenderDarts from '../components/RenderDarts';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { DartsCamera } from '../screens/DartsCamera';
 
 import HomeButton from "./HomeButton";
-import { PushGameDetail } from '../hooks/firebase'
+import { useStore } from '../hooks/useStore';
+import { RegisterDart, RegisterRoundScore, RegisterTotalScore, ObserveDartAdded } from '../hooks/firebase';
 
-type GameScreenProps = RootStackScreenProps<'Game'>;
+type GameComponentProps = {
+  gameId: string;
+  ToResultFn: (detail: GameDetail) => void;
+  isMyFirst: boolean;
+  opponentId?: string;
+};
 
-const Data = {
-  uids: {
-    "320": {
-      positions: [
-        [[0.0, 0.0], [0.1, 0.1], [0.2, 0.2]],
-        [[0.3, 0.3], [-0.5, 0.4], [0.5, 0.5]],
-        [[-0.3, 0.3], [-0.5, 0.2], [-0.6, 0.5]],
-        [[0.3, -0.3], [0.4, 0.1], [0.7, -0.5]],
-        [[-0.8, -0.3], [-0.4, -0.4], [-0.5, -0.5]],
-        [[0.4, 0.1], [0.3, 0.9], [0.2, -0.5]],
-        [[0.3, 0.2], [-0.4, 0.4], [0.5, -0.5]],
-        [[-0.6, 0.1], [0.7, 0.0], [0.8, 0.0]]
-      ],
-      scores: [
-        [12, 20, 34], [32, 10, 44], [10, 40, 4], [14, 9, 23],
-        [40, 24, 34], [42, 10, 4], [18, 40, 44], [26, 2, 14]
-      ],
-      totalScore: 0
-    }
+// 初期値
+const initDart = { x: -2, y: -2, score: 0 };
+
+function makeInitRound(): Round {
+  return {
+    darts: Array(3).fill(null).map(() => {return {...initDart}}),
+    score: 0,
+  };
+};
+
+function makeInitDetail(): GameDetail {
+  return {
+    rounds: Array(8).fill(null).map(makeInitRound),
+    totalScore: 0,
   }
 };
 
-export default function GameComponent() {
-  const navigation = useNavigation<GameScreenProps['navigation']>();
+export default function GameComponent(props: GameComponentProps) {
+  // ゲーム情報 [自分の，相手の]
+  const [details, setDetails] = useState<GameDetail[]>(Array(props.opponentId ? 2 : 1).fill(null).map(makeInitDetail));
 
-  const initDart = { x: -2, y: -2, score: 0 };
-  const initRound = { darts: [initDart, initDart, initDart], score: 0 };
-  const initTable = { rounds: Array(8).fill(initRound), totalScore: 0 };
+  const [round, setRound] = useState<Round>(makeInitRound()); // 現在のラウンドのデータ
+  const [roundCount, setRoundCount] = useState<number>(0); // 現在何ラウンド消化したか
+  const [dartsCount, setDartsCount] = useState<number>(0); // 現在のラウンドで既に何投したか
+  const [finButtonText, setFinButtonText] = useState<string>("Round Fin");
 
-  const [Table, setTable] = useState<GameDetail>(initTable);
-  const [Dart, setDart] = useState<Dart>(initDart);
-  const [RoundGame, setRoundGame] = useState<Round>(initRound);
-  const [Round, setRound] = useState<number>(0);
-  const [Count, setCount] = useState<number>(0);
-  const [FinButton, setFinButton] = useState<string>("Round Fin");
-  const uid = "320";
+  const [isMyTurn, setIsMyTurn] = useState(props.isMyFirst) // 自分の手番かどうか
+  const user = useStore(e => e.user);
 
   const refCameraStart = React.useRef<() => void>(null!);
 
-  const handleThrow = (position: Dart) => {
-    console.log(position)
-  }
-
   const on3Throw = () => {
-    if (Count == 4) {
-      // Jump Result
-      navigation.navigate("Result", { data: Table })
+    if (roundCount == 8) {
+      if (user?.uid) RegisterTotalScore(props.gameId, user.uid, details[0].totalScore); // totalScore の 登録
+      props.ToResultFn(details[0]); // Jump Result
     } else {
       // Tableを更新
-      const newTable = { ...Table };
-      newTable.rounds[Round] = RoundGame;
-      newTable.totalScore += RoundGame.score;
-      setTable(newTable);
+      const newDetails = [...details];
+      newDetails[0].rounds[roundCount] = round;
+      newDetails[0].totalScore += round.score;
+      setDetails(newDetails);
 
-      // Roundを空に
-      setRoundGame(initRound);
-      setCount(0);
+      if (user?.uid) {
+        for (let i = dartsCount; i < 3; i += 1) { // 投げ足りない分をDBに登録
+          RegisterDart(props.gameId, user.uid, roundCount, i, initDart);
+        }
+        RegisterRoundScore(props.gameId, user.uid, roundCount, round.score); // score の登録
+      }
 
-      if (Round < 7) {
-        setRound(Round + 1);
-      }
-      else {
-        setFinButton("Game Fin");
-        setCount(4);
-        // ここで　firebase に uids を送信
-        PushGameDetail(uid, newTable);
-      }
+      if (props.opponentId) setIsMyTurn(false); // 相手がいたら待機状態に
+      setRound(makeInitRound); // Roundを空に
+      if (roundCount == 7) setFinButtonText("Game Fin"); // 8ラウンド目終了した時
+      setRoundCount(roundCount + 1);
+      setDartsCount(0);
     }
     refCameraStart.current();
   }
 
-  const onGetData = (dart: Dart) => {   
-
-
+  const onGetData = (dart: Dart) => {
     // Roundを更新
     console.log(dart);
-    if(dart.x){
-      setCount(count => {
-        console.log(count); 
-        if(count > 2) return count;
-        setRoundGame(roundGame => {
-          const newRoundGame = {...roundGame};
-          newRoundGame.darts[count] = dart;
-          newRoundGame.score += dart.score;
-          return newRoundGame;
-        })
-        return count + 1 
-      });
+    if (dart.x) {
+      if (dartsCount > 2) return; // 既に3投していたら飛ばす
+      const newRound = {...round};
+      newRound.darts[dartsCount] = dart;
+      newRound.score += dart.score;
+
+      if (user?.uid) RegisterDart(props.gameId, user.uid, roundCount, dartsCount, dart); // DBに保存
+      setRound(newRound);
+      setDartsCount(dartsCount + 1);
     }
-  }
+  };
+
+  // 対戦相手がいて自分のターンじゃないとき監視を行う．
+  useEffect(() => {
+    if (!props.opponentId || isMyTurn) return;
+    const opponentRound = props.isMyFirst ? roundCount - 1 : roundCount;
+    return ObserveDartAdded(props.gameId, props.opponentId, opponentRound, dartsCount, (snapshot) => {
+      // DBから値を取得．score だけとか一部だけない場合はエラー吐くから注意
+      const val: Dart | null = snapshot.val();
+      console.log("opponent: ", val);
+      if (!val) return; // 相手がDBに未保存の場合何もしない
+
+      const newRound = {...round};
+      newRound.darts[dartsCount] = val;
+      newRound.score += val.score;
+
+      if (dartsCount < 2) {
+        setRound(newRound);
+        setDartsCount(dartsCount + 1);
+      } else { // 相手が3回投げたら detail を更新
+        const newDetails = [...details];
+        newDetails[1].rounds[opponentRound] = newRound;
+        newDetails[1].totalScore += newRound.score;
+
+        setDetails(newDetails);
+        setRound(makeInitRound());
+        setDartsCount(0);
+        setIsMyTurn(true);
+      }
+    });
+  });
 
   return (
     <View style={styles.scoreContainer}>
       <View style={{ position: "absolute", zIndex: -10, width: 40, height: 30 }}>
-        <DartsCamera onThrow={(d)=>onGetData(d)} _ref={(r: () => void) => { refCameraStart.current = r }} />
+        <DartsCamera onThrow={(d)=>onGetData(d)} _ref={(r) => { refCameraStart.current = r }} />
       </View>
       <View style={styles.leftContainer}>
         <View style={{position: "absolute",}}>
           <HomeButton top={-160} left={-170}/>
         </View>
         <Badge
-          value={`R ${Round + 1}`}
+          value={`R ${roundCount + 1}`}
           status="error"
           containerStyle={{ top: 10, left: 160 }}
         />
-        <RenderDarts darts={RoundGame.darts} isAnalysisColor={false}/>
+        <RenderDarts darts={round.darts} isAnalysisColor={false}/>
       </View >
-    <View style={styles.rightContainer}>
-      <Button
-        onPress={() => on3Throw()}
-        title={FinButton}
-      />
-      <ScoreTable scores={Table} />
-    </View>
+      <View style={styles.rightContainer}>
+        <Button title={finButtonText} disabled={!isMyTurn && roundCount < 8} onPress={on3Throw}/>
+        <ScoreTable details={details} />
+      </View>
     </View >
   );
 }
 
 const styles = StyleSheet.create({
   scoreContainer: {
-    // position: 'absolute',
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: 'rgba(0,0,0,0.3)'
+    backgroundColor: 'rgba(0,0,0,0.3)',
   },
-  leftContainer: {
-    // position: 'absolute',
 
+  leftContainer: {
     flex: 3,
     padding: 10,
   },
-  rightContainer: {
-    // position: 'absolute',
 
+  rightContainer: {
     flex: 2,
     alignItems: 'stretch',
   },
