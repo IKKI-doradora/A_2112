@@ -1,11 +1,13 @@
 import * as React from 'react';
-import { StyleSheet, TouchableOpacity, ImageBackground} from 'react-native';
+import { StyleSheet, TouchableOpacity} from 'react-native';
 import { HomeTabScreenProps, RootStackParamList } from '../types';
-import { Button,  Text} from 'react-native-elements';
+import { Button,  Text } from 'react-native-elements';
 import { View } from '../components/Themed';
 import { useState } from 'react';
 import { Overlay } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
+import { CreateGame } from '../hooks/firebase';
 
 type HomeGameTabScreenProps = HomeTabScreenProps<'GameTab'>;
 
@@ -37,7 +39,8 @@ export default function SelectGameButton(props: SelectGameButtonProps) {
             style={styles.button2}
             onPress={() => {
               setVisible(false);
-              props.navigation.navigate(props.to);
+              const gameId = CreateGame(0, 8) ?? "";
+              props.navigation.navigate("Calibration", {gameId: gameId, isMyFirst: true}); // to calibration
             }}
             title={" 1P mode"}
             type="clear"
@@ -48,7 +51,7 @@ export default function SelectGameButton(props: SelectGameButtonProps) {
                 size={40}
               />
             }
-          /> 
+          />
           <Button
             style={styles.button2}
             onPress={() => {

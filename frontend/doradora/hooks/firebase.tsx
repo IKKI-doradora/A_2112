@@ -43,8 +43,8 @@ export function ObserveDartAdded(gameId: string, userId: string, round: number, 
 };
 
 // ゲームを作成する
-export function CreateGame(game: Game) {
-	const pushRef = push(ref(database, 'games'), game);
+export function CreateGame(type: Game['type'], nRound: Game['nRounds']) {
+	const pushRef = push(ref(database, 'games'), {type: type, nRound: nRound});
 	console.log(`new game id is ${pushRef.key}`);
 	return pushRef.key; // key が null になるのは root に push した時のみ
 };
@@ -88,9 +88,9 @@ export async function JoinRoom(roomId: string, opponentId: string): Promise<Join
 };
 
 // 部屋に参加するのを監視する．返り値は監視をやめさせる関数
-export function ObserveRoomJoined(roomId: string, callbackFn: (snapshot: DataSnapshot) => void) {
+export function ObserveRoomJoined(roomId: string, callbackFn: (opponentId: string | null) => void) {
 	const databaseRef = ref(database, `rooms/${roomId}/opponent`);
-	onValue(databaseRef, callbackFn);
+	onValue(databaseRef, (snapshot) => {callbackFn(snapshot.val())});
 	return () => off(databaseRef, "value");
 };
 

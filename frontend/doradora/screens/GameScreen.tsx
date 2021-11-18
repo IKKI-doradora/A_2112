@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/core';
+import { useNavigation, useRoute } from '@react-navigation/core';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { View } from '../components/Themed';
@@ -11,15 +11,16 @@ type GameScreenProps = RootStackScreenProps<'Game'>;
 
 export default function GameScreen() {
   const navigation = useNavigation<GameScreenProps['navigation']>();
+  const route = useRoute<GameScreenProps['route']>();
 
   return (
     <View style={styles.container}>
       <ImageBackground source={myImg} resizeMode='cover' style={{width:'100%', height:'100%'}}>
         <GameComponent
-          gameId={"adsfasgasdfadsfasdg"}
+          gameId={route.params.gameId}
           ToResultFn={(detail) => {navigation.navigate('Result', {data: detail})}}
-          // opponentId={"321"}
-          isMyFirst={true}
+          opponentId={route.params.opponentId}
+          isMyFirst={route.params.isMyFirst}
         />
       </ImageBackground>
     </View>

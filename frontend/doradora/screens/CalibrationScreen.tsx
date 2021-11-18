@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/core';
+import { useNavigation, useRoute } from '@react-navigation/core';
 import { RootStackScreenProps } from '../types';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
@@ -18,6 +18,8 @@ const windowHeight = Dimensions.get('window').height;
 
 export default function CalibrationScreen() {
   const navigation = useNavigation<CalibrationScreenProps['navigation']>();
+  const route = useRoute<CalibrationScreenProps["route"]>();
+
   const [isCameraStarted, setIsCameraStarted] = useState<boolean>(false);
   const [canPreview, setCanPreview] = useState<boolean>(false); // !!capturedImage に置き換えられるからいらない説
   const [capturedImage, setCapturedImage] = useState<CameraCapturedPicture | null>(null);
@@ -97,7 +99,12 @@ export default function CalibrationScreen() {
       {isCameraStarted ? ( // 較正画面
         canPreview && capturedImage ? (
           <View style={{flex: 1, width: '100%'}}>
-            <CapturePreview photoUri={capturedImage.uri} calibrateCV={__calibrateCV} retakePicture={__retakePicture} toGameScreenFn={() => navigation.navigate("Game")} />
+            <CapturePreview
+              photoUri={capturedImage.uri}
+              calibrateCV={__calibrateCV}
+              retakePicture={__retakePicture}
+              toGameScreenFn={() => navigation.navigate("Game", route.params)}
+            />
           </View>
         ) : ( // 撮影画面
           <Camera style={{flex: 1, width:'100%'}} ratio={'16:9'} ref={(r) => {camera = r}}>
@@ -111,7 +118,7 @@ export default function CalibrationScreen() {
           <TouchableOpacity style={styles.button} onPress={__startCamera}>
             <Text style={styles.buttonTitle}>Take picture</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Game")}>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Game", route.params)}>
             <Text style={styles.buttonTitle}>Start game</Text>
           </TouchableOpacity>
         </View>

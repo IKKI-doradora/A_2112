@@ -16,8 +16,8 @@ declare global {
 export type RootStackParamList = {
   Top: undefined;
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
-  Calibration: undefined;
-  Game: undefined;
+  Calibration: GameScreenInnerProps;
+  Game: GameScreenInnerProps;
   Result: {data: GameDetail;};
   Analytics: {type: 0 | 1 | 2;};
   Trajectory: undefined;
@@ -61,3 +61,9 @@ export type Game = {
   nRounds: number;
   uids: Map<string, GameDetail>;
 };
+
+export type GameScreenInnerProps = {
+  gameId: string;
+  isMyFirst: boolean;
+  opponentId?: string;
+}
