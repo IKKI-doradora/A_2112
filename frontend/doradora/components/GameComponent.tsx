@@ -139,8 +139,14 @@ export default function GameComponent(props: GameComponentProps) {
         <RenderDarts darts={round.darts} isAnalysisColor={false}/>
       </View >
       <View style={styles.rightContainer}>
-        <Button title={finButtonText} disabled={!isMyTurn && roundCount < 8} onPress={on3Throw}/>
         <ScoreTable details={details} />
+        <Button 
+          style={styles.button} 
+          titleStyle={styles.buttonTitle}
+          type={"clear"} title={finButtonText}
+          disabled={!isMyTurn && roundCount < 8} 
+          onPress={on3Throw}
+        />
       </View>
     </View >
   );
@@ -161,5 +167,18 @@ const styles = StyleSheet.create({
   rightContainer: {
     flex: 2,
     alignItems: 'stretch',
+  },
+  buttonTitle: {
+    fontSize: 21,
+    fontWeight: 'bold',
+    color: "black",
+  },
+  button: {
+    padding: 5,
+    // borderRadius: 10,
+    borderColor: "white",
+    backgroundColor: 'orange',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
