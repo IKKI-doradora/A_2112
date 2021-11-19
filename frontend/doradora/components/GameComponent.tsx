@@ -14,7 +14,7 @@ import { RegisterDart, RegisterRoundScore, RegisterTotalScore, ObserveDartAdded 
 
 type GameComponentProps = {
   gameId: string;
-  ToResultFn: (detail: GameDetail) => void;
+  ToResultFn: (details: GameDetail[]) => void;
   isMyFirst: boolean;
   opponentId?: string;
 };
@@ -53,7 +53,7 @@ export default function GameComponent(props: GameComponentProps) {
   const on3Throw = () => {
     if (roundCount == 8) {
       if (user?.uid) RegisterTotalScore(props.gameId, user.uid, details[0].totalScore); // totalScore の 登録
-      props.ToResultFn(details[0]); // Jump Result
+      props.ToResultFn(details); // Jump Result
     } else {
       // Tableを更新
       const newDetails = [...details];
