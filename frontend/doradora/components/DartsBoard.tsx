@@ -13,7 +13,7 @@ export default function DartsBoard(props: DartsBoardProps) {
     const radiusUnits = [20, 18, 12, 10];
 
     const tileses = [...Array(8)].map((_, i) => 
-        <Tiles colors={tileColors[i]} radius={radiusUnits[Math.floor(i / 2)] * unit} maxRadius={diameter / 2} isTileCenter={i % 2 === 0} zIndex={Math.floor(i / 2) - 5}/>
+        <Tiles key={i} colors={tileColors[i]} radius={radiusUnits[Math.floor(i / 2)] * unit} maxRadius={diameter / 2} isTileCenter={i % 2 === 0} zIndex={Math.floor(i / 2) - 5}/>
     );
 
     const lims = [...Array(4)].map((_, i) => {
@@ -69,7 +69,7 @@ function Tiles(props: TilesProps){
     const { colors, radius, maxRadius, isTileCenter, zIndex } = props;
     const width = Math.sqrt(Math.pow(radius, 2) * (1-0.90)) / 2;
     const tiles = [...Array(10)].map((_, i) => {
-        return <View style={{
+        return <View key={i} style={{
             position: "absolute",
 
             borderBottomWidth: radius,
