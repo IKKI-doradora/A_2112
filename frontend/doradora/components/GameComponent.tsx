@@ -14,7 +14,7 @@ import { RegisterDart, RegisterRoundScore, RegisterTotalScore, ObserveDartAdded,
 
 type GameComponentProps = {
   gameId: string;
-  ToResultFn: (detail: GameDetail) => void;
+  ToResultFn: (details: GameDetail[]) => void;
   isMyFirst: boolean;
   opponentId?: string;
 };
@@ -51,8 +51,11 @@ export default function GameComponent(props: GameComponentProps) {
   const on3Throw = () => {
     setRoundCount(_roundCount => {
       if (_roundCount == 8) {
-        if (user?.uid) RegisterTotalScore(props.gameId, user.uid, details[0].totalScore); // totalScore の 登録
-        props.ToResultFn(details[0]); // Jump Result
+        setDetails(_details => {
+          if (user?.uid) RegisterTotalScore(props.gameId, user.uid, _details[0].totalScore); // totalScore の 登録
+          props.ToResultFn(_details); // Jump Result
+          return _details;
+        })
         return _roundCount;
       } else {
       // Tableを更新
@@ -163,8 +166,15 @@ export default function GameComponent(props: GameComponentProps) {
         <RenderDarts darts={round.darts} isAnalysisColor={!isMyTurn}/>
       </View >
       <View style={styles.rightContainer}>
-        <Button title={roundCount == 8 ? "Game Fin" : "Round Fin"} disabled={!isMyTurn && roundCount < 8} onPress={on3Throw}/>
         <ScoreTable details={details} />
+        <Button
+          style={styles.button}
+          titleStyle={styles.buttonTitle}
+          type={"clear"}
+          title={roundCount == 8 ? "Game Fin" : "Round Fin"}
+          disabled={!isMyTurn && roundCount < 8}
+          onPress={on3Throw}
+        />
       </View>
     </View >
   );
@@ -185,5 +195,18 @@ const styles = StyleSheet.create({
   rightContainer: {
     flex: 2,
     alignItems: 'stretch',
+  },
+  buttonTitle: {
+    fontSize: 21,
+    fontWeight: 'bold',
+    color: "black",
+  },
+  button: {
+    padding: 5,
+    // borderRadius: 10,
+    borderColor: "white",
+    backgroundColor: 'orange',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

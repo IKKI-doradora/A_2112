@@ -23,6 +23,7 @@ export default function HomeButton(props: Props) {
             size={25}
         />}
         type="clear"
+        style={{backgroundColor:"#999999", borderRadius:20}}
         containerStyle={{ top: top, left: left }}
         onPress={() => navigation.navigate("Home")}
     />);

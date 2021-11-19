@@ -18,7 +18,7 @@ export default function GameScreen() {
       <ImageBackground source={myImg} resizeMode='cover' style={{width:'100%', height:'100%'}}>
         <GameComponent
           gameId={route.params.gameId}
-          ToResultFn={(detail) => {navigation.navigate('Result', {data: detail})}}
+          ToResultFn={(details) => {navigation.navigate('Result', {data: details})}}
           opponentId={route.params.opponentId}
           isMyFirst={route.params.isMyFirst}
         />

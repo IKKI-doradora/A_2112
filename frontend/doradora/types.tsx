@@ -18,7 +18,7 @@ export type RootStackParamList = {
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   Calibration: GameScreenInnerProps;
   Game: GameScreenInnerProps;
-  Result: {data: GameDetail;};
+  Result: {data: GameDetail[];};
   Analytics: {type: 0 | 1 | 2;};
   Trajectory: undefined;
   RoomSelect: undefined;
