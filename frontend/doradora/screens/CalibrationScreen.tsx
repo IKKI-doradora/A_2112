@@ -87,7 +87,10 @@ export default function CalibrationScreen() {
       body: JSON.stringify(_body),
       headers: {'Content-Type': 'application/json'}
     })
-    .then(res => res.json())
+    .then(res => {
+      console.log("status", res.status)
+      return res.json()
+    })
     .then(data => {
       const newImage = { uri: "data:image/jpg;base64," + data.base64Image, base64: data.base64Image, height: resizedImage.height, width: resizedImage.width }
       setCapturedImage(newImage)

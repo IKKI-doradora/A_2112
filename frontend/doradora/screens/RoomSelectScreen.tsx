@@ -42,8 +42,7 @@ export default function RoomSelectScreen() {
                 Alert.alert("Already Created");
               } else if (user?.uid)  {
                 gameId.current = CreateGame(0, 8) ?? "";
-                const newRoomId = CreateRoom(gameId.current, user.uid);
-                setRoomId(newRoomId ?? "");
+                CreateRoom(gameId.current, user.uid).then(newRoomId => setRoomId(newRoomId));
               } else {
                 Alert.alert("login error");
               }

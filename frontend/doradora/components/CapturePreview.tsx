@@ -66,7 +66,7 @@ export default function CapturePreview(props: CapturePreviewProps) {
     };
 
     const reflectZoomLevel = (zoomableViewEventObject: ZoomableViewEvent) => {
-        console.log(`now zoom level: ${zoomableViewEventObject.zoomLevel}`);
+        // console.log(`now zoom level: ${zoomableViewEventObject.zoomLevel}`);
     };
 
     return (
@@ -110,25 +110,25 @@ export default function CapturePreview(props: CapturePreviewProps) {
                 ) : <></>}
             </ReactNativeZoomableView>
 
-            <View style={{ position: 'absolute', bottom: 10, left: 10 }}>
-                <TouchableOpacity style={styles.button} onPress={props.retakePicture}>
-                    <Text style={styles.buttonTitle}>Re-Take</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={{ position: 'absolute', bottom: 10, left: 700 }}>
-                <TouchableOpacity style={styles.button} onPress={props.toGameScreenFn}>
-                    <Text style={styles.buttonTitle}>To Game Screen</Text>
-                </TouchableOpacity>
-            </View>
-            <View>
-                <View style={{ position: 'absolute', bottom: 10, left: 250 }}>
+            <View style={{flexDirection: "row", justifyContent: 'space-around', position: "absolute", bottom: 10, width: '100%'}}>
+                <View>
+                    <TouchableOpacity style={styles.button} onPress={props.retakePicture}>
+                        <Text style={styles.buttonTitle}>Re-Take</Text>
+                    </TouchableOpacity>
+                </View>
+                <View>
                     <TouchableOpacity style={styles.button} onPress={() => setIsManualMarker(!isManualMarker)}>
                         <Text style={styles.buttonTitle}>Manual Marker</Text>
                     </TouchableOpacity>
                 </View>
-                <View style={{ position: 'absolute', bottom: 10, left: 500 }}>
+                <View>
                     <TouchableOpacity style={styles.button} onPress={() => props.calibrateCV(arrowPosition, markerPositions, anchorPositions, isManualMarker)}>
                         <Text style={styles.buttonTitle}>Calibrate Image</Text>
+                    </TouchableOpacity>
+                </View>
+                <View>
+                    <TouchableOpacity style={styles.button} onPress={props.toGameScreenFn}>
+                        <Text style={styles.buttonTitle}>To Game Screen</Text>
                     </TouchableOpacity>
                 </View>
             </View>
