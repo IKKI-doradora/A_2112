@@ -1,7 +1,27 @@
+import { round } from "@tensorflow/tfjs-core";
 import Constants from "expo-constants";
 // import 'firebase/firestore';
 import firebase, { initializeApp } from 'firebase/app';
-import { getDatabase, ref, update, off, DataSnapshot, set, onValue, push, runTransaction, remove } from 'firebase/database';
+import {
+	getDatabase,
+	ref,
+	get,
+	set,
+	push,
+	update,
+	remove,
+	child,
+	onValue,
+	onChildAdded,
+	off,
+	runTransaction,
+	query,
+	orderByChild,
+	orderByKey,
+	startAfter,
+	equalTo,
+	DataSnapshot,
+} from 'firebase/database';
 import { Dart, Game } from "../types";
 
 // import { getAuth, onAuthStateChanged, FacebookAuthProvider, signInWithCredential, signInAnonymously, signInWithEmailAndPassword } from 'firebase/auth';
@@ -22,11 +42,13 @@ export function writeUserInfo(userId: string, { username = '', email = '', image
 
 // dart を登録する
 export function RegisterDart(gameId: string, userId: string, roundCount: number, dartsCount: number, dart: Dart) {
+	console.log("round", roundCount, "dart", dartsCount);
 	set(ref(database, `games/${gameId}/uids/${userId}/rounds/${roundCount}/darts/${dartsCount}`), dart);
 };
 
 // round の score を登録する
 export function RegisterRoundScore(gameId: string, userId: string, roundCount: number, score: number) {
+	console.log("round", roundCount);
 	set(ref(database, `games/${gameId}/uids/${userId}/rounds/${roundCount}/score`), score);
 };
 
@@ -55,10 +77,20 @@ export function RemoveGame(gameId: string) {
 };
 
 // 部屋を建てる
-export function CreateRoom(gameId: string, userId: string) {
-	const pushRef = push(ref(database, 'rooms'), {gameId: gameId, host: userId});
-	console.log(`new room id is ${pushRef.key}`);
-	return pushRef.key;
+const S = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const N = 5;
+export async function CreateRoom(gameId: string, userId: string) {
+	let roomId = "";
+	while (true) {
+		roomId = Array.from(Array(N)).map(()=>S[Math.floor(Math.random()*S.length)]).join('');
+		const data = await get(ref(database, `rooms/${roomId}`))
+		console.log(data.val(), data.exists());
+		break;
+	}
+
+  set(ref(database, `rooms/${roomId}`), {gameId: gameId, host: userId});
+	console.log(`new room id is ${roomId}`);
+	return roomId;
 };
 
 // 部屋に参加する．
@@ -98,6 +130,14 @@ export function ObserveRoomJoined(roomId: string, callbackFn: (opponentId: strin
 export function RemoveRoom(roomId: string) {
 	remove(ref(database, `rooms/${roomId}`))
 };
+
+// データ取得
+// export function GetDetails(userId: string) {
+// 	const queryRef = query(ref(database, 'games'), orderByChild(`uids/${userId}`), startAfter(null));
+// 	// onValue(queryRef, (snapshots) => {console.log(snapshots.val())});
+// 	onChildAdded(queryRef, snapshot => {console.log(snapshot.val())})
+// 	// off(queryRef, 'child_added');
+// };
 
 export default app;
 

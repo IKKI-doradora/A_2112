@@ -51,29 +51,38 @@ export default function GameComponent(props: GameComponentProps) {
   const refCameraStart = React.useRef<() => void>(null!);
 
   const on3Throw = () => {
-    if (roundCount == 8) {
-      if (user?.uid) RegisterTotalScore(props.gameId, user.uid, details[0].totalScore); // totalScore の 登録
-      props.ToResultFn(details); // Jump Result
-    } else {
+    setRoundCount(_roundCount => {
+      if (_roundCount == 8) {
+        setDetails(_details => {
+          if (user?.uid) RegisterTotalScore(props.gameId, user.uid, _details[0].totalScore); // totalScore の 登録
+          props.ToResultFn(_details); // Jump Result
+          return _details;
+        })
+        return _roundCount;
+      } else {
       // Tableを更新
-      const newDetails = [...details];
-      newDetails[0].rounds[roundCount] = round;
-      newDetails[0].totalScore += round.score;
-      setDetails(newDetails);
+        setRound(_round => {
+          setDetails(_details => {
+            const newDetails = [..._details];
+            newDetails[0].rounds[_roundCount] = _round;
+            newDetails[0].totalScore += _round.score;
+            return newDetails;
+          });
 
-      if (user?.uid) {
-        for (let i = dartsCount; i < 3; i += 1) { // 投げ足りない分をDBに登録
-          RegisterDart(props.gameId, user.uid, roundCount, i, initDart);
-        }
-        RegisterRoundScore(props.gameId, user.uid, roundCount, round.score); // score の登録
-      }
+          _round.score = _round.darts[0].score + _round.darts[1].score + _round.darts[2].score;
+          if (user?.uid) {
+            // 投げ足りない分をDBに登録
+            for (let i = dartsCount; i < 3; i += 1) RegisterDart(props.gameId, user.uid, _roundCount, i, initDart);
+            RegisterRoundScore(props.gameId, user.uid, _roundCount, _round.score); // score の登録
+          }
+          return makeInitRound();
+        });
 
-      if (props.opponentId) setIsMyTurn(false); // 相手がいたら待機状態に
-      setRound(makeInitRound); // Roundを空に
-      if (roundCount == 7) setFinButtonText("Game Fin"); // 8ラウンド目終了した時
-      setRoundCount(roundCount + 1);
-      setDartsCount(0);
-    }
+        if (props.opponentId) setIsMyTurn(() => false); // 相手がいたら待機状態に
+        if (_roundCount == 7) setFinButtonText(() => "Game Fin"); // 8ラウンド目終了した時
+        setDartsCount(() => 0);
+        return _roundCount + 1;
+    }});
     refCameraStart.current();
   }
 
@@ -81,14 +90,21 @@ export default function GameComponent(props: GameComponentProps) {
     // Roundを更新
     console.log(dart);
     if (dart.x) {
-      if (dartsCount > 2) return; // 既に3投していたら飛ばす
-      const newRound = {...round};
-      newRound.darts[dartsCount] = dart;
-      newRound.score += dart.score;
+      setDartsCount(_dartsCount => {
+        if (_dartsCount > 2) return _dartsCount; // 既に3投していたら飛ばす
 
-      if (user?.uid) RegisterDart(props.gameId, user.uid, roundCount, dartsCount, dart); // DBに保存
-      setRound(newRound);
-      setDartsCount(dartsCount + 1);
+        if (user?.uid) setRoundCount(_roundCount => {
+          RegisterDart(props.gameId, user.uid, _roundCount, _dartsCount, dart); // DBに保存
+          return _roundCount;
+        });
+
+        setRound(_round => {
+          const newRound = {..._round};
+          newRound.darts[_dartsCount] = dart;
+          return newRound;
+        });
+        return _dartsCount + 1;
+      });
     }
   };
 
@@ -102,23 +118,24 @@ export default function GameComponent(props: GameComponentProps) {
       console.log("opponent: ", val);
       if (!val) return; // 相手がDBに未保存の場合何もしない
 
-      const newRound = {...round};
-      newRound.darts[dartsCount] = val;
-      newRound.score += val.score;
+      setDartsCount(_dartsCount => {
+        setRound(_round => {
+          const newRound = {..._round};
+          newRound.darts[_dartsCount] = val;
+          newRound.score += val.score;
+          if (_dartsCount < 2) return newRound;
 
-      if (dartsCount < 2) {
-        setRound(newRound);
-        setDartsCount(dartsCount + 1);
-      } else { // 相手が3回投げたら detail を更新
-        const newDetails = [...details];
-        newDetails[1].rounds[opponentRound] = newRound;
-        newDetails[1].totalScore += newRound.score;
-
-        setDetails(newDetails);
-        setRound(makeInitRound());
-        setDartsCount(0);
-        setIsMyTurn(true);
-      }
+          setDetails(_details => {
+            const newDetails = [..._details];
+            newDetails[1].rounds[opponentRound] = newRound;
+            newDetails[1].totalScore += newRound.score;
+            return newDetails;
+          });
+          setIsMyTurn(() => true);
+          return makeInitRound();
+        });
+        return (_dartsCount + 1) % 3;
+      });
     });
   });
 
