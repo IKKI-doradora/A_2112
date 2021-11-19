@@ -80,6 +80,7 @@ export default function CalibrationScreen() {
       markerPoints: markerPoints,
       cropPoints: cropPoints,
       manualMarker: isManualMarker,
+      uid: user?.uid,
     });
 
     fetch(url + "/calib", {

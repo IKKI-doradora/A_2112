@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 21,
     // fontWeight: 'bold',
-    color:"black",
+    color:"white",
   },
 
   buttonTitle: {

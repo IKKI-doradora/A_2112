@@ -10,7 +10,7 @@ import { DartsCamera } from '../screens/DartsCamera';
 
 import HomeButton from "./HomeButton";
 import { useStore } from '../hooks/useStore';
-import { RegisterDart, RegisterRoundScore, RegisterTotalScore, ObserveDartAdded } from '../hooks/firebase';
+import { RegisterDart, RegisterRoundScore, RegisterTotalScore, ObserveDartAdded, ObserveRoundScore } from '../hooks/firebase';
 
 type GameComponentProps = {
   gameId: string;
@@ -43,8 +43,6 @@ export default function GameComponent(props: GameComponentProps) {
   const [round, setRound] = useState<Round>(makeInitRound()); // 現在のラウンドのデータ
   const [roundCount, setRoundCount] = useState<number>(0); // 現在何ラウンド消化したか
   const [dartsCount, setDartsCount] = useState<number>(0); // 現在のラウンドで既に何投したか
-  const [finButtonText, setFinButtonText] = useState<string>("Round Fin");
-
   const [isMyTurn, setIsMyTurn] = useState(props.isMyFirst) // 自分の手番かどうか
   const user = useStore(e => e.user);
 
@@ -53,11 +51,8 @@ export default function GameComponent(props: GameComponentProps) {
   const on3Throw = () => {
     setRoundCount(_roundCount => {
       if (_roundCount == 8) {
-        setDetails(_details => {
-          if (user?.uid) RegisterTotalScore(props.gameId, user.uid, _details[0].totalScore); // totalScore の 登録
-          props.ToResultFn(_details[0]); // Jump Result
-          return _details;
-        })
+        if (user?.uid) RegisterTotalScore(props.gameId, user.uid, details[0].totalScore); // totalScore の 登録
+        props.ToResultFn(details[0]); // Jump Result
         return _roundCount;
       } else {
       // Tableを更新
@@ -79,7 +74,6 @@ export default function GameComponent(props: GameComponentProps) {
         });
 
         if (props.opponentId) setIsMyTurn(() => false); // 相手がいたら待機状態に
-        if (_roundCount == 7) setFinButtonText(() => "Game Fin"); // 8ラウンド目終了した時
         setDartsCount(() => 0);
         return _roundCount + 1;
     }});
@@ -93,15 +87,15 @@ export default function GameComponent(props: GameComponentProps) {
       setDartsCount(_dartsCount => {
         if (_dartsCount > 2) return _dartsCount; // 既に3投していたら飛ばす
 
-        if (user?.uid) setRoundCount(_roundCount => {
-          RegisterDart(props.gameId, user.uid, _roundCount, _dartsCount, dart); // DBに保存
-          return _roundCount;
-        });
+        setRoundCount(_roundCount => {
+          if (user?.uid) RegisterDart(props.gameId, user.uid, _roundCount, _dartsCount, dart); // DBに保存
 
-        setRound(_round => {
-          const newRound = {..._round};
-          newRound.darts[_dartsCount] = dart;
-          return newRound;
+          setRound(_round => {
+            const newRound = {..._round};
+            newRound.darts[_dartsCount] = dart;
+            return newRound;
+          });
+          return _roundCount;
         });
         return _dartsCount + 1;
       });
@@ -111,8 +105,9 @@ export default function GameComponent(props: GameComponentProps) {
   // 対戦相手がいて自分のターンじゃないとき監視を行う．
   useEffect(() => {
     if (!props.opponentId || isMyTurn) return;
+
     const opponentRound = props.isMyFirst ? roundCount - 1 : roundCount;
-    return ObserveDartAdded(props.gameId, props.opponentId, opponentRound, dartsCount, (snapshot) => {
+    return ObserveDartAdded(props.gameId, props.opponentId ?? "", opponentRound, dartsCount, (snapshot) => {
       // DBから値を取得．score だけとか一部だけない場合はエラー吐くから注意
       const val: Dart | null = snapshot.val();
       console.log("opponent: ", val);
@@ -129,13 +124,25 @@ export default function GameComponent(props: GameComponentProps) {
             const newDetails = [..._details];
             newDetails[1].rounds[opponentRound] = newRound;
             newDetails[1].totalScore += newRound.score;
+            // setIsMyTurn(() => true);
             return newDetails;
           });
-          setIsMyTurn(() => true);
           return makeInitRound();
         });
         return (_dartsCount + 1) % 3;
       });
+    });
+  });
+
+  useEffect(() => {
+    if (!props.opponentId || isMyTurn) return;
+    if (dartsCount < 2) return;
+
+    const opponentRound = props.isMyFirst ? roundCount - 1 : roundCount;
+    return ObserveRoundScore(props.gameId, props.opponentId, opponentRound, (snapshot) => {
+      const score: number | null = snapshot.val();
+      if (score == null) return;
+      setIsMyTurn(true);
     });
   });
 
@@ -153,10 +160,10 @@ export default function GameComponent(props: GameComponentProps) {
           status="error"
           containerStyle={{ top: 10, left: 160 }}
         />
-        <RenderDarts darts={round.darts} isAnalysisColor={false}/>
+        <RenderDarts darts={round.darts} isAnalysisColor={!isMyTurn}/>
       </View >
       <View style={styles.rightContainer}>
-        <Button title={finButtonText} disabled={!isMyTurn && roundCount < 8} onPress={on3Throw}/>
+        <Button title={roundCount == 8 ? "Game Fin" : "Round Fin"} disabled={!isMyTurn && roundCount < 8} onPress={on3Throw}/>
         <ScoreTable details={details} />
       </View>
     </View >

@@ -64,6 +64,12 @@ export function ObserveDartAdded(gameId: string, userId: string, round: number, 
 	return () => off(databaseRef, "value");
 };
 
+export function ObserveRoundScore(gameId: string, userId: string, round: number, callbackFn: (snapshot: DataSnapshot) => void) {
+	const databaseRef = ref(database, `games/${gameId}/uids/${userId}/rounds/${round}/score`);
+	onValue(databaseRef, callbackFn);
+	return () => off(databaseRef, "value");
+};
+
 // ゲームを作成する
 export function CreateGame(type: Game['type'], nRound: Game['nRounds']) {
 	const pushRef = push(ref(database, 'games'), {type: type, nRound: nRound});
