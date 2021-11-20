@@ -233,7 +233,7 @@ export default function ModelLineWithBoard(props: ModelLineProps) {
             fragmentShader: fragmentShader,
             uniforms: {
                 color: { value: new THREE.Color(0xffffff) },
-                lineWidth: { value: 1 }
+                lineWidth: { value: 10 }
             },
         });
 
@@ -241,7 +241,7 @@ export default function ModelLineWithBoard(props: ModelLineProps) {
         scene.add(mesh);
 
         const sphere = new THREE.Mesh(
-            new THREE.SphereGeometry( 2, 32, 16 ),
+            new THREE.SphereGeometry( 3, 32, 16 ),
             new THREE.MeshBasicMaterial({color: 0xFF0000})
         );
         scene.add(sphere);

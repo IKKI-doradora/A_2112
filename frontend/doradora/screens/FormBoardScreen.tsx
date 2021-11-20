@@ -11,14 +11,13 @@ import arowjson from "../assets/arrowPositions.json";
 
 export default function formScreen() {
     const [ cameraPosition, setCameraPosition ] = useState<number>(300);
-    const [ animationStepSize, setAnimationStepSize] = useState<number>(0.2);
+    const [ animationStepSize, setAnimationStepSize ] = useState<number>(0.4);
 
     const { width, height, scale } = useWindowDimensions();
 
     return(
         <View style={{flex: 1, flexDirection: "row"}}>
             <View style={{flex: 1}}>
-                <View style={{position: "absolute"}}>
                     <ModelLineWithBoard
                         jointTimeLine={posjson} 
                         arrowTimeLine={arowjson}
@@ -30,12 +29,10 @@ export default function formScreen() {
                         maxHeightPix={684 + 396}
                         style={{width: width /  2, height: height}}
                     />
-                </View>
                 <Text style={{color: "#FFFFFF", fontSize: 20, fontWeight: "bold", position: "absolute", transform: [{translateY: -150}]}}>First Person</Text>
             </View>
 
             <View style={{flex: 1}}>
-                <View style={{position: "absolute"}}>
                     <ModelLineWithBoard
                         jointTimeLine={posjson} 
                         arrowTimeLine={arowjson}
@@ -47,10 +44,10 @@ export default function formScreen() {
                         maxHeightPix={684 + 396}
                         style={{width: width /  2, height: height}}
                     />
-                </View>
                 <Text style={{color: "#FFFFFF", fontSize: 20, fontWeight: "bold", position: "absolute", transform: [{translateY: -150}]}}>Third Person</Text>
             </View>
 
+            {/* 画面の仕切り */}
             <View style={{backgroundColor: "#000000", width: 5, height: height, position: "absolute"}}/>
         </View>
     )
