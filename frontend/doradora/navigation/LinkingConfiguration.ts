@@ -16,16 +16,8 @@ const linking: LinkingOptions<RootStackParamList> = {
       Top: 'top',
       Home: {
         screens: {
-          GameTab: {
-            screens: {
-              HomeGameTabScreen: 'game',
-            },
-          },
-          ScoreTab: {
-            screens: {
-              HomeScoreTabScreen: 'score',
-            },
-          },
+          GameTab: 'gameTab',
+          AnalyticsTab: 'analyticsTab',
         },
       },
       Calibration: 'calibration',
@@ -33,6 +25,7 @@ const linking: LinkingOptions<RootStackParamList> = {
       Result: 'result',
       Analytics: 'analytics',
       Trajectory: 'trajectory',
+      RoomSelect: 'roomselect',
     },
   },
 };
