@@ -11,6 +11,7 @@ import { useTensorFlowLoaded } from '../hooks/useTensorFlow'
 import * as tf from "@tensorflow/tfjs";
 import { repeatVector } from '@tensorflow/tfjs-layers/dist/exports_layers'
 import { Button } from 'react-native-elements/dist/buttons/Button'
+import { useStore } from '../hooks/useStore'
 
 type Dart = {
   x: number,
@@ -24,7 +25,7 @@ type DartsCallBack = (position: Dart) => void;
 let camera: Camera | null;
 
 
-function useMotionDetect(onDetect: () => void, frame_rate = 20, threshold = 0.5) {
+function useMotionDetect(onDetect: () => void, frame_rate = 20, threshold = 0.9) {
   type Buff = Float32Array
   const refTFStreamBuff = useRef<Array<Buff>>([]);
   const refDiffBuff = useRef<Array<number>>([]);
@@ -124,6 +125,7 @@ export function DartsCamera(props: DartsCameraProps) {
   const refNumFrames = useRef(0);
   const refCamera = useRef<Camera | null>();
   const refCaptured = useRef<Array<string>>([]);
+  const user = useStore(e => e.user);
 
   const FRAME_RATE = 30;
   const ORG_FRAME_RATE = 60;
@@ -137,7 +139,7 @@ export function DartsCamera(props: DartsCameraProps) {
     const url = 'http://192.168.0.162:5000/arrow'
     fetch(url, {
       method: 'POST',
-      body: JSON.stringify({ base64ImagePrev: pre, base64Image: then }),
+      body: JSON.stringify({ base64ImagePrev: pre, base64Image: then, uid: user?.uid }),
       headers: {
         'Content-Type': 'application/json'
       },
@@ -227,7 +229,8 @@ export function DartsCamera(props: DartsCameraProps) {
   return React.useMemo(
     () => (
       <CustomTensorCamera
-        width={size.width}
+        // width={size.width}
+        width={10}
         onReady={onReady}
         autorender={false}
         _ref={(r) => { if (r) refCamera.current = r.camera }}

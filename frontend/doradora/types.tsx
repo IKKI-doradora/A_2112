@@ -16,11 +16,12 @@ declare global {
 export type RootStackParamList = {
   Top: undefined;
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
-  Calibration: undefined;
-  Game: undefined;
-  Result: {data: GameDetail;};
+  Calibration: GameScreenInnerProps;
+  Game: GameScreenInnerProps;
+  Result: {data: GameDetail[];};
   Analytics: {type: 0 | 1 | 2;};
   Trajectory: undefined;
+  RoomSelect: undefined;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<
@@ -30,7 +31,7 @@ export type RootStackScreenProps<Screen extends keyof RootStackParamList> = Nati
 
 export type HomeTabParamList = {
   GameTab: undefined;
-  ScoreTab: undefined;
+  AnalyticsTab: undefined;
 };
 
 export type HomeTabScreenProps<Screen extends keyof HomeTabParamList> = CompositeScreenProps<
@@ -55,8 +56,14 @@ export type GameDetail = {
 };
 
 export type Game = {
-  game_id: string;
+  gameId: string;
   type: 0 | 1 | 2;
-  n_rounds: number;
+  nRounds: number;
   uids: Map<string, GameDetail>;
 };
+
+export type GameScreenInnerProps = {
+  gameId: string;
+  isMyFirst: boolean;
+  opponentId?: string;
+}

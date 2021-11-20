@@ -1,155 +1,219 @@
-import { useNavigation } from '@react-navigation/core';
 import * as React from 'react';
-import { StyleSheet, Platform } from 'react-native';
-import { Text, View } from '../components/Themed';
-import { Dart, Round, GameDetail, RootStackScreenProps } from '../types';
-import { useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { View } from '../components/Themed';
+import { Dart, Round, GameDetail } from '../types';
+import { useState, useEffect } from 'react';
 import { Button, Badge } from 'react-native-elements';
 import ScoreTable from '../components/ScoreTable';
 import RenderDarts from '../components/RenderDarts';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { DartsCamera } from '../screens/DartsCamera';
 
 import HomeButton from "./HomeButton";
-import { PushGameDetail } from '../hooks/firebase'
+import { useStore } from '../hooks/useStore';
+import { RegisterDart, RegisterRoundScore, RegisterTotalScore, ObserveDartAdded, ObserveRoundScore } from '../hooks/firebase';
 
-type GameScreenProps = RootStackScreenProps<'Game'>;
+type GameComponentProps = {
+  gameId: string;
+  ToResultFn: (details: GameDetail[]) => void;
+  isMyFirst: boolean;
+  opponentId?: string;
+};
 
-const Data = {
-  uids: {
-    "320": {
-      positions: [
-        [[0.0, 0.0], [0.1, 0.1], [0.2, 0.2]],
-        [[0.3, 0.3], [-0.5, 0.4], [0.5, 0.5]],
-        [[-0.3, 0.3], [-0.5, 0.2], [-0.6, 0.5]],
-        [[0.3, -0.3], [0.4, 0.1], [0.7, -0.5]],
-        [[-0.8, -0.3], [-0.4, -0.4], [-0.5, -0.5]],
-        [[0.4, 0.1], [0.3, 0.9], [0.2, -0.5]],
-        [[0.3, 0.2], [-0.4, 0.4], [0.5, -0.5]],
-        [[-0.6, 0.1], [0.7, 0.0], [0.8, 0.0]]
-      ],
-      scores: [
-        [12, 20, 34], [32, 10, 44], [10, 40, 4], [14, 9, 23],
-        [40, 24, 34], [42, 10, 4], [18, 40, 44], [26, 2, 14]
-      ],
-      totalScore: 0
-    }
+// 初期値
+const initDart = { x: -2, y: -2, score: 0 };
+
+function makeInitRound(): Round {
+  return {
+    darts: Array(3).fill(null).map(() => {return {...initDart}}),
+    score: 0,
+  };
+};
+
+function makeInitDetail(): GameDetail {
+  return {
+    rounds: Array(8).fill(null).map(makeInitRound),
+    totalScore: 0,
   }
 };
 
-export default function GameComponent() {
-  const navigation = useNavigation<GameScreenProps['navigation']>();
+export default function GameComponent(props: GameComponentProps) {
+  // ゲーム情報 [自分の，相手の]
+  const [details, setDetails] = useState<GameDetail[]>(Array(props.opponentId ? 2 : 1).fill(null).map(makeInitDetail));
 
-  const initDart = { x: -2, y: -2, score: 0 };
-  const initRound = { darts: [initDart, initDart, initDart], score: 0 };
-  const initTable = { rounds: Array(8).fill(initRound), totalScore: 0 };
-
-  const [Table, setTable] = useState<GameDetail>(initTable);
-  const [Dart, setDart] = useState<Dart>(initDart);
-  const [RoundGame, setRoundGame] = useState<Round>(initRound);
-  const [Round, setRound] = useState<number>(0);
-  const [Count, setCount] = useState<number>(0);
-  const [FinButton, setFinButton] = useState<string>("Round Fin");
-  const uid = "320";
+  const [round, setRound] = useState<Round>(makeInitRound()); // 現在のラウンドのデータ
+  const [roundCount, setRoundCount] = useState<number>(0); // 現在何ラウンド消化したか
+  const [dartsCount, setDartsCount] = useState<number>(0); // 現在のラウンドで既に何投したか
+  const [isMyTurn, setIsMyTurn] = useState(props.isMyFirst) // 自分の手番かどうか
+  const user = useStore(e => e.user);
 
   const refCameraStart = React.useRef<() => void>(null!);
 
-  const handleThrow = (position: Dart) => {
-    console.log(position)
-  }
-
   const on3Throw = () => {
-    if (Count == 4) {
-      // Jump Result
-      navigation.navigate("Result", { data: Table })
-    } else {
+    setRoundCount(_roundCount => {
+      if (_roundCount == 8) {
+        setDetails(_details => {
+          if (user?.uid) RegisterTotalScore(props.gameId, user.uid, _details[0].totalScore); // totalScore の 登録
+          props.ToResultFn(_details); // Jump Result
+          return _details;
+        })
+        return _roundCount;
+      } else {
       // Tableを更新
-      const newTable = { ...Table };
-      newTable.rounds[Round] = RoundGame;
-      newTable.totalScore += RoundGame.score;
-      setTable(newTable);
+        setRound(_round => {
+          _round.score = _round.darts[0].score + _round.darts[1].score + _round.darts[2].score;
 
-      // Roundを空に
-      setRoundGame(initRound);
-      setCount(0);
+          setDetails(_details => {
+            const newDetails = [..._details];
+            newDetails[0].rounds[_roundCount] = _round;
+            newDetails[0].totalScore += _round.score;
+            console.log("total score ", newDetails[0].totalScore, _round.score);
+            return newDetails;
+          });
 
-      if (Round < 7) {
-        setRound(Round + 1);
-      }
-      else {
-        setFinButton("Game Fin");
-        setCount(4);
-        // ここで　firebase に uids を送信
-        PushGameDetail(uid, newTable);
-      }
-    }
+          if (user?.uid) {
+            // 投げ足りない分をDBに登録
+            for (let i = dartsCount; i < 3; i += 1) RegisterDart(props.gameId, user.uid, _roundCount, i, initDart);
+            RegisterRoundScore(props.gameId, user.uid, _roundCount, _round.score); // score の登録
+          }
+          return makeInitRound();
+        });
+
+        if (props.opponentId) setIsMyTurn(() => false); // 相手がいたら待機状態に
+        setDartsCount(() => 0);
+        return _roundCount + 1;
+    }});
     refCameraStart.current();
   }
 
-  const onGetData = (dart: Dart) => {   
-
+  const onGetData = (dart: Dart) => {
+    if (!isMyTurn) return;
 
     // Roundを更新
     console.log(dart);
-    if(dart.x){
-      setCount(count => {
-        console.log(count); 
-        if(count > 2) return count;
-        setRoundGame(roundGame => {
-          const newRoundGame = {...roundGame};
-          newRoundGame.darts[count] = dart;
-          newRoundGame.score += dart.score;
-          return newRoundGame;
-        })
-        return count + 1 
+    if (dart.x) {
+      setDartsCount(_dartsCount => {
+        if (_dartsCount > 2) return _dartsCount; // 既に3投していたら飛ばす
+
+        setRoundCount(_roundCount => {
+          if (user?.uid) RegisterDart(props.gameId, user.uid, _roundCount, _dartsCount, dart); // DBに保存
+
+          setRound(_round => {
+            const newRound = {..._round};
+            newRound.darts[_dartsCount] = dart;
+            return newRound;
+          });
+          return _roundCount;
+        });
+        return _dartsCount + 1;
       });
     }
-  }
+  };
+
+  // 対戦相手がいて自分のターンじゃないとき監視を行う．
+  useEffect(() => {
+    if (!props.opponentId || isMyTurn) return;
+    if (dartsCount > 2) return;
+
+    const opponentRound = props.isMyFirst ? roundCount - 1 : roundCount;
+    return ObserveDartAdded(props.gameId, props.opponentId ?? "", opponentRound, dartsCount, (snapshot) => {
+      // DBから値を取得．score だけとか一部だけない場合はエラー吐くから注意
+      const val: Dart | null = snapshot.val();
+      console.log(dartsCount, "opponent: ", val);
+      if (!val) return; // 相手がDBに未保存の場合何もしない
+
+      setDartsCount(_dartsCount => {
+        setRound(_round => {
+          const newRound = {..._round};
+          newRound.darts[_dartsCount] = val;
+          if (_dartsCount < 2) return newRound;
+
+          setDetails(_details => {
+            const newDetails = [..._details];
+            newDetails[1].rounds[opponentRound] = newRound;
+            newDetails[1].totalScore = newRound.darts[0].score + newRound.darts[1].score + newRound.darts[2].score;
+            // setIsMyTurn(() => true);
+            return newDetails;
+          });
+          return _round;
+        });
+        return _dartsCount + 1;
+      });
+    });
+  });
+
+  useEffect(() => {
+    if (!props.opponentId || isMyTurn) return;
+    // if (dartsCount < 3) return;
+
+    const opponentRound = props.isMyFirst ? roundCount - 1 : roundCount;
+    return ObserveRoundScore(props.gameId, props.opponentId, opponentRound, (snapshot) => {
+      const score: number | null = snapshot.val();
+      if (score == null) return;
+      setRound(_round => {
+        setIsMyTurn(() => true);
+        return makeInitRound();
+      })
+    });
+  });
 
   return (
     <View style={styles.scoreContainer}>
       <View style={{ position: "absolute", zIndex: -10, width: 40, height: 30 }}>
-        <DartsCamera onThrow={(d)=>onGetData(d)} _ref={(r: () => void) => { refCameraStart.current = r }} />
+        <DartsCamera onThrow={(d)=>onGetData(d)} _ref={(r) => { refCameraStart.current = r }} />
       </View>
       <View style={styles.leftContainer}>
         <View style={{position: "absolute",}}>
           <HomeButton top={-160} left={-170}/>
         </View>
         <Badge
-          value={`R ${Round + 1}`}
+          value={`R ${roundCount + 1}`}
           status="error"
           containerStyle={{ top: 10, left: 160 }}
         />
-        <RenderDarts darts={RoundGame.darts} isAnalysisColor={false}/>
+        <RenderDarts darts={round.darts} isAnalysisColor={!isMyTurn}/>
       </View >
-    <View style={styles.rightContainer}>
-      <Button
-        onPress={() => on3Throw()}
-        title={FinButton}
-      />
-      <ScoreTable scores={Table} />
-    </View>
+      <View style={styles.rightContainer}>
+        <ScoreTable details={details} />
+        <Button
+          style={styles.button}
+          titleStyle={styles.buttonTitle}
+          type={"clear"}
+          title={roundCount == 8 ? "Game Fin" : "Round Fin"}
+          disabled={!isMyTurn && roundCount < 8}
+          onPress={on3Throw}
+        />
+      </View>
     </View >
   );
 }
 
 const styles = StyleSheet.create({
   scoreContainer: {
-    // position: 'absolute',
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: 'rgba(0,0,0,0.3)'
+    backgroundColor: 'rgba(0,0,0,0.3)',
   },
-  leftContainer: {
-    // position: 'absolute',
 
+  leftContainer: {
     flex: 3,
     padding: 10,
   },
-  rightContainer: {
-    // position: 'absolute',
 
+  rightContainer: {
     flex: 2,
     alignItems: 'stretch',
+  },
+  buttonTitle: {
+    fontSize: 21,
+    fontWeight: 'bold',
+    color: "black",
+  },
+  button: {
+    padding: 5,
+    // borderRadius: 10,
+    borderColor: "white",
+    backgroundColor: 'orange',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
