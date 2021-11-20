@@ -6,14 +6,8 @@ RUN pip install --upgrade setuptools
 
 # OpenCV
 RUN apt-get install -y libgl1-mesa-glx libglib2.0-0 libsm6 libxrender1 libxext6
-RUN pip install opencv-python
-RUN pip install opencv-contrib-python
+RUN pip install opencv-python opencv-contrib-python
 
-RUN pip install flask numpy matplotlib
-RUN pip install pybase64
-RUN pip install natsort
+RUN pip install flask numpy matplotlib pybase64 natsort firebase-admin
 
-RUN pip install scikit-learn
-RUN pip install mediapipe
-
-RUN mkdir /app
+RUN pip install scikit-learn mediapipe

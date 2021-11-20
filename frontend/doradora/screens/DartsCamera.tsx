@@ -112,6 +112,7 @@ function useMotionDetect(onDetect: () => void, frame_rate = 20, threshold = 0.5)
 
 type DartsCameraProps = {
   onThrow: DartsCallBack,
+  isEnable?: boolean,
   _ref: (callBack: VoidFunction) => void,
 }
 

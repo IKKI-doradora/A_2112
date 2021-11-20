@@ -1,8 +1,11 @@
+import { fromTexture } from "@tensorflow/tfjs-react-native";
 import Constants from "expo-constants";
 // import 'firebase/firestore';
 import firebase, { initializeApp } from 'firebase/app';
-import { getDatabase, set, ref, push, update } from 'firebase/database';
+import { getDatabase, set, ref, push, update, get } from 'firebase/database';
+import { getStorage } from 'firebase/storage';
 import { GameDetail } from "../types";
+
 
 // import { getAuth, onAuthStateChanged, FacebookAuthProvider, signInWithCredential, signInAnonymously, signInWithEmailAndPassword } from 'firebase/auth';
 
@@ -10,6 +13,7 @@ import { GameDetail } from "../types";
 const app = initializeApp(Constants.manifest?.extra?.firebaseConfig);
 
 export const database = getDatabase(app);
+export const storage = getStorage(app);
 
 export function writeUserInfo(userId: string, { username = '', email = '', imageUrl = '' }) {
 	update(ref(database, 'users/' + userId), {
@@ -27,6 +31,16 @@ export function PushGameDetail(userID: string, detail: GameDetail): void {
 	});
 };
 
+export const Forms = {
+	getList: async function getFormList(uid: string) {
+		uid = '4r7K0FAau3hkQI7l9SnCC3iYcje2'
+		const forms = await get(ref(database, `forms/${uid}`))
+		return forms
+	}
+}
+
+
+console.log(storage)
 
 export default app;
 
