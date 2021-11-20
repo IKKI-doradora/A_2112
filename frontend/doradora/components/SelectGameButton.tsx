@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
   },
   buttonTitle2: {
     fontSize: 26,
-    color:"white",
+    color:"black",
     // fontWeight: 'bold',
   },
 });

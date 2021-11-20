@@ -229,8 +229,8 @@ export function DartsCamera(props: DartsCameraProps) {
   return React.useMemo(
     () => (
       <CustomTensorCamera
-        width={size.width}
-        // width={0}
+        // width={size.width}
+        width={10}
         onReady={onReady}
         autorender={false}
         _ref={(r) => { if (r) refCamera.current = r.camera }}
