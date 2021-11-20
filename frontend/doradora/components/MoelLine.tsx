@@ -3,8 +3,12 @@ import React, { useState, useEffect } from 'react';
 import * as THREE from "three";
 import ExpoTHREE from 'expo-three';
 import { Renderer } from 'expo-three';
+import { ResponderProps } from 'react-native-svg';
 
-import { ViewStyle } from "react-native";
+import {View, TouchableOpacity } from "react-native";
+
+import { Text } from "../components/Themed"
+import { numberTypeAnnotation } from '@babel/types';
 
 type LineGeometryAttribute = {
     positions: Float32Array,
@@ -16,71 +20,46 @@ type LineGeometryAttribute = {
 
 type ModelLineProps = {
     jointTimeLine: any,
-    arrowTimeLine: any,
-    isCameraTP: Boolean, 
+    rotationX: number,
+    rotationY: number,
+    rotationZ: number,
     cameraPosition: number,
     animationStepSize: number,
-    armLengthCm: number,
-    boardHeightPix: number,
-    maxHeightPix: number,
-    style: ViewStyle,
+    style: any,
 }
 
-export default function ModelLineWithBoard(props: ModelLineProps) {
-    const boardDistanceCm = 237;
-    const boardHeightCm = 173;
-    const zScale = 200;
-
-    const { jointTimeLine, arrowTimeLine, cameraPosition, isCameraTP, animationStepSize, armLengthCm, boardHeightPix, maxHeightPix, style } = props;
+export default function ModelLine(props: ModelLineProps) {
+    const { jointTimeLine, rotationX, rotationY, rotationZ, cameraPosition, animationStepSize, style } = props;
     const [ glContext, setGlContext] = useState<ExpoWebGLRenderingContext | null>(null);
-    useEffect(() => {if(glContext) _onGLContextCreate(glContext)}, [glContext, cameraPosition, isCameraTP, animationStepSize]);
+    useEffect(() => {if(glContext) _onGLContextCreate(glContext)}, [glContext, rotationX, rotationY, rotationZ, cameraPosition, animationStepSize, style]);
 
-    const wristXYZ = jointTimeLine["16"][0];
-    const elbowXYZ = jointTimeLine["14"][0];
-    const armLengthPix = Math.sqrt(Math.pow(wristXYZ[0] - elbowXYZ[0], 2) + Math.pow(wristXYZ[1] - elbowXYZ[1], 2) + Math.pow(wristXYZ[2] - elbowXYZ[2], 2));
-    const PixToCm = armLengthCm / armLengthPix;
-
-    const earHeightPix = jointTimeLine["7"][0][1];
-    const earHeightCm = boardHeightCm * earHeightPix / boardHeightPix;
-
-    const earXYZ = jointTimeLine["7"][0]
-    earXYZ[1] = maxHeightPix - earXYZ[1];
+    const centerXYZ = new Array(3);
+    for(let i=0; i<3; i++){
+        centerXYZ[i] = (jointTimeLine["11"][0][i] + jointTimeLine["12"][0][i]) / 2;
+    }
 
     const _normalizeJoint = (pos: number, xyz: number) => {
-        let temp = pos;
-        if(xyz === 1) temp = maxHeightPix - pos;
-        temp -= earXYZ[xyz];
-        temp *= PixToCm;
-        if(xyz === 1) temp += earHeightCm;
-        if(xyz === 2) temp *= -zScale;
+        let temp = pos - centerXYZ[xyz];
+        if(xyz == 1) return -temp;
+        if(xyz == 2) return -200 * temp;
         return temp;
     }
 
- 
-
     type JointKeys = keyof typeof jointTimeLine;
     const jointList: JointKeys[] = ["22", "16", "18", "20", "16", "14", "12", "11", "13", "15", "17", "19", "15", "21", "15", "13", "11", "23", "24", "12"];
-
+    
     const _onGLContextCreate = async (gl: ExpoWebGLRenderingContext) => {
         const renderer = new Renderer({ gl });
         renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight);
     
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color( 0x666666 );
+        scene.background = new THREE.Color( 0x888888 );
 
         const camera = new THREE.PerspectiveCamera(
             75, gl.drawingBufferWidth / gl.drawingBufferHeight, 0.1, 1000
         );
-        if(isCameraTP){
-            camera.position.x = -100;
-            camera.position.y = 100;
-            camera.position.z = cameraPosition;
-        } else {
-            
-            camera.position.x = _normalizeJoint(jointTimeLine["7"][0][0], 0);
-            camera.position.y = earHeightCm;
-            camera.rotation.y = Math.PI / 2;
-        }
+        
+        camera.position.z = cameraPosition;
             
         const createLineSegments = (segmentNum: number) => {
             const segments = new Float32Array(segmentNum * 3);
@@ -233,23 +212,19 @@ export default function ModelLineWithBoard(props: ModelLineProps) {
             fragmentShader: fragmentShader,
             uniforms: {
                 color: { value: new THREE.Color(0xffffff) },
-                lineWidth: { value: 10 }
+                lineWidth: { value: 50 }
             },
         });
 
         const mesh = new THREE.Mesh(geometry, material);
         scene.add(mesh);
 
-        const sphere = new THREE.Mesh(
-            new THREE.SphereGeometry( 3, 32, 16 ),
-            new THREE.MeshBasicMaterial({color: 0xFF0000})
-        );
-        scene.add(sphere);
-        sphere.position.x = 10000;
-        sphere.position.y = 10000;
-
         let t = 0;
         const maxTime = jointTimeLine["0"].length;
+        
+        mesh.rotation.x = rotationX;
+        mesh.rotation.y = rotationY;
+        mesh.rotation.z = rotationZ;
 
         let date = new Date();
         let start = date.getMilliseconds();
@@ -267,37 +242,19 @@ export default function ModelLineWithBoard(props: ModelLineProps) {
             }
 
             updateGeometry(t);
-
-            if(arrowTimeLine[Math.floor(t)][0] === null){
-                sphere.position.x = 10000;
-                sphere.position.y = 10000;
-            } else {
-                sphere.position.x = _normalizeJoint(arrowTimeLine[Math.floor(t)][0], 0);
-                sphere.position.y = _normalizeJoint(arrowTimeLine[Math.floor(t)][1], 1);
-            }
     
             renderer.render(scene, camera);
             gl.endFrameEXP();
         }
         animate();
-
-        const loader = new THREE.TextureLoader();
-        const cylinder = new THREE.Mesh(
-            new THREE.CylinderGeometry(20, 20, 2, 20),
-            new THREE.MeshBasicMaterial({color: 0xFFFFCC})
-        );
-        cylinder.position.x = -boardDistanceCm;
-        cylinder.position.y = boardHeightCm;
-        cylinder.rotation.z = -Math.PI / 2;
-        scene.add(cylinder);
-
     };
-
   
     return (
+        <View>
         <GLView
-            style={style}
+            style={ style }
             onContextCreate={setGlContext}
         />
+        </View>
     )
 }
