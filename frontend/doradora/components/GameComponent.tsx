@@ -60,14 +60,16 @@ export default function GameComponent(props: GameComponentProps) {
       } else {
       // Tableを更新
         setRound(_round => {
+          _round.score = _round.darts[0].score + _round.darts[1].score + _round.darts[2].score;
+
           setDetails(_details => {
             const newDetails = [..._details];
             newDetails[0].rounds[_roundCount] = _round;
             newDetails[0].totalScore += _round.score;
+            console.log("total score ", newDetails[0].totalScore, _round.score);
             return newDetails;
           });
 
-          _round.score = _round.darts[0].score + _round.darts[1].score + _round.darts[2].score;
           if (user?.uid) {
             // 投げ足りない分をDBに登録
             for (let i = dartsCount; i < 3; i += 1) RegisterDart(props.gameId, user.uid, _roundCount, i, initDart);
@@ -84,6 +86,8 @@ export default function GameComponent(props: GameComponentProps) {
   }
 
   const onGetData = (dart: Dart) => {
+    if (!isMyTurn) return;
+
     // Roundを更新
     console.log(dart);
     if (dart.x) {
@@ -108,44 +112,47 @@ export default function GameComponent(props: GameComponentProps) {
   // 対戦相手がいて自分のターンじゃないとき監視を行う．
   useEffect(() => {
     if (!props.opponentId || isMyTurn) return;
+    if (dartsCount > 2) return;
 
     const opponentRound = props.isMyFirst ? roundCount - 1 : roundCount;
     return ObserveDartAdded(props.gameId, props.opponentId ?? "", opponentRound, dartsCount, (snapshot) => {
       // DBから値を取得．score だけとか一部だけない場合はエラー吐くから注意
       const val: Dart | null = snapshot.val();
-      console.log("opponent: ", val);
+      console.log(dartsCount, "opponent: ", val);
       if (!val) return; // 相手がDBに未保存の場合何もしない
 
       setDartsCount(_dartsCount => {
         setRound(_round => {
           const newRound = {..._round};
           newRound.darts[_dartsCount] = val;
-          newRound.score += val.score;
           if (_dartsCount < 2) return newRound;
 
           setDetails(_details => {
             const newDetails = [..._details];
             newDetails[1].rounds[opponentRound] = newRound;
-            newDetails[1].totalScore += newRound.score;
+            newDetails[1].totalScore = newRound.darts[0].score + newRound.darts[1].score + newRound.darts[2].score;
             // setIsMyTurn(() => true);
             return newDetails;
           });
-          return makeInitRound();
+          return _round;
         });
-        return (_dartsCount + 1) % 3;
+        return _dartsCount + 1;
       });
     });
   });
 
   useEffect(() => {
     if (!props.opponentId || isMyTurn) return;
-    if (dartsCount < 2) return;
+    // if (dartsCount < 3) return;
 
     const opponentRound = props.isMyFirst ? roundCount - 1 : roundCount;
     return ObserveRoundScore(props.gameId, props.opponentId, opponentRound, (snapshot) => {
       const score: number | null = snapshot.val();
       if (score == null) return;
-      setIsMyTurn(true);
+      setRound(_round => {
+        setIsMyTurn(() => true);
+        return makeInitRound();
+      })
     });
   });
 

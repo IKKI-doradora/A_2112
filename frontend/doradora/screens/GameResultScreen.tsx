@@ -34,7 +34,7 @@ function ResultComponent(props:RusultProps){
         {
           rounds.map( (round, index) => {
             return (index < 4) ? (
-              <Text style={styles.scores}>Round {index+1}  :   {round.score}</Text>
+              <Text key={index} style={styles.scores}>Round {index+1}  :   {round.score}</Text>
             ) : (null)
           })
         }
@@ -43,14 +43,14 @@ function ResultComponent(props:RusultProps){
         {
           rounds.map( (round, index) => {
             return (index >= 4) ? (
-              <Text style={styles.scores}>Round {index+1}  :   {round.score}</Text>
+              <Text key={index} style={styles.scores}>Round {index+1}  :   {round.score}</Text>
             ) : (null)
           })
         }
         </View>
       </View>
       <Text style={{color: "white", fontSize: 25, padding:12}}>
-        { 
+        {
           props.winner ? ("You Win!") : ("    ")
         }
       </Text>
@@ -63,7 +63,7 @@ export default function GameResultScreen() {
   const route = useRoute<GameResultScreenProps['route']>();
 
   let details = route.params.data;
-  details[1] = details[0]
+  // details[1] = details[0]
   const opponentId = details.length - 1;
 
   return (
@@ -71,7 +71,7 @@ export default function GameResultScreen() {
       <View style={{flex:1}}>
         <View style={styles.container}>
           <View style={styles.resultContainer}>
-            <ResultComponent 
+            <ResultComponent
               pl={1}
               totalScore={details[0].totalScore}
               rounds={details[0].rounds}
@@ -79,7 +79,7 @@ export default function GameResultScreen() {
             />
           </View>
           <View style={styles.resultContainer}>
-            <ResultComponent 
+            <ResultComponent
               pl={2}
               totalScore={details[1].totalScore}
               rounds={details[1].rounds}
@@ -101,7 +101,7 @@ export default function GameResultScreen() {
     ) : (
       <View style={{flex:1}}>
         <View style={styles.resultContainer}>
-          <ResultComponent 
+          <ResultComponent
             pl={1}
             totalScore={details[0].totalScore}
             rounds={details[0].rounds}
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: '100%',
   },
-  
+
   resultContainer: {
     flex: 1,
     width: '100%',
@@ -149,12 +149,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'white',
   },
-  
+
 	scoreTitle: {
     fontSize: 50,
     color: "white",
   },
-  
+
 	scores: {
     fontSize: RFValue(11,300),
     color: "#DDDDDD",
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     zIndex: 10,
   },
-  
+
 	footer: {
     flexDirection: 'row',
     height: "20%",
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
 
-  
+
   button2: {
     width: 200,
     height: 60,
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     color:"black",
     fontWeight: 'bold',
   },
-  
+
   gametype: {
     fontSize: 25,
     padding: 20,
